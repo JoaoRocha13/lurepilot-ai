@@ -244,3 +244,14 @@ Prefer working software over complex abstractions.
 
 After each major change, explain what changed and how to test it.
 
+## Architecture
+
+The backend must follow a layered MVC architecture:
+
+- Controllers handle HTTP requests and responses only.
+- Services contain business logic.
+- Repositories handle persistence.
+- Models/entities represent database tables.
+- DTOs are used for request and response payloads.
+- Controllers must not access repositories directly.
+- Entities should not be exposed directly in API responses.
