@@ -1,0 +1,454 @@
+{
+  "info": {
+    "name": "LurePilot AI",
+    "description": "Backend API collection for LurePilot AI MVP.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "spotId",
+      "value": "1"
+    },
+    {
+      "key": "lureId",
+      "value": "1"
+    },
+    {
+      "key": "planId",
+      "value": "1"
+    },
+    {
+      "key": "sessionId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Get Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fishing Spots",
+      "item": [
+        {
+          "name": "Create Fishing Spot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Barragem do Alqueva\",\n  \"description\": \"Zona com boas margens para achiga.\",\n  \"latitude\": 38.197,\n  \"longitude\": -7.497,\n  \"waterType\": \"DAM\",\n  \"favoriteSpecies\": \"BASS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/spots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "spots"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Fishing Spots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "spots"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fishing Spot By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spots/{{spotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "spots",
+                "{{spotId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Fishing Spot",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Barragem do Alqueva\",\n  \"description\": \"Zona atualizada para testar PUT.\",\n  \"latitude\": 38.197,\n  \"longitude\": -7.497,\n  \"waterType\": \"DAM\",\n  \"favoriteSpecies\": \"BASS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/spots/{{spotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "spots",
+                "{{spotId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Fishing Spot",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spots/{{spotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "spots",
+                "{{spotId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lures",
+      "item": [
+        {
+          "name": "Create Lure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Boa para agua clara e peixe suspenso.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lures",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Lures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lures",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lure By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lures/{{lureId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lures",
+                "{{lureId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Lure",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Atualizado via PUT.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lures/{{lureId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lures",
+                "{{lureId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Lure",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lures/{{lureId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lures",
+                "{{lureId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fishing Plans",
+      "item": [
+        {
+          "name": "Create Fishing Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spotId\": 1,\n  \"plannedDate\": \"2026-07-23\",\n  \"plannedTime\": \"19:00\",\n  \"targetSpecies\": \"BASS\",\n  \"waterClarity\": \"CLEAR\",\n  \"waterLevel\": \"LOW\",\n  \"notes\": \"Fim de tarde, agua baixa e clara.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Fishing Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fishing Plan By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fishing Sessions",
+      "item": [
+        {
+          "name": "Create Fishing Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spotId\": 1,\n  \"planId\": 1,\n  \"date\": \"2026-07-23\",\n  \"startTime\": \"19:00\",\n  \"endTime\": \"21:00\",\n  \"targetSpecies\": \"BASS\",\n  \"waterClarity\": \"CLEAR\",\n  \"waterLevel\": \"LOW\",\n  \"notes\": \"Sessao curta ao fim da tarde.\",\n  \"success\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Fishing Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fishing Session By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Session Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventTime\": \"19:30\",\n  \"eventType\": \"NO_BITES\",\n  \"description\": \"Sem toques nos primeiros 30 minutos.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "events"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Session Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "events"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
