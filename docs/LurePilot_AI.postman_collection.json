@@ -24,6 +24,10 @@
     {
       "key": "sessionId",
       "value": "1"
+    },
+    {
+      "key": "fishId",
+      "value": "1"
     }
   ],
   "item": [
@@ -43,6 +47,28 @@
               "path": [
                 "api",
                 "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
               ]
             }
           }
@@ -154,6 +180,72 @@
                 "api",
                 "spots",
                 "{{spotId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fish Library",
+      "item": [
+        {
+          "name": "Create Fish Species",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Achiga\",\n  \"description\": \"Predador de agua doce muito associado a estruturas, margens e vegetacao.\",\n  \"imageUrl\": \"https://example.com/images/achiga.jpg\",\n  \"habitatNotes\": \"Barragens, lagos e rios lentos com cobertura, pedra, madeira ou vegetacao.\",\n  \"activeTimes\": \"Mais ativo ao amanhecer, fim de tarde e em periodos de pouca luz.\",\n  \"strikeZone\": \"Pode atacar no fundo, meia agua ou superficie dependendo da temperatura e atividade.\",\n  \"commonZones\": \"Margens com sombra, estruturas submersas, vegetacao, pontas e drop-offs.\",\n  \"favoriteLures\": \"Soft bait, crankbait, jerkbait, jig, spinnerbait e topwater.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fish"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Fish Species",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fish"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fish Species By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fish/{{fishId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fish",
+                "{{fishId}}"
               ]
             }
           }
@@ -491,6 +583,53 @@
                 "sessions",
                 "{{sessionId}}",
                 "catches"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Lure To Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lureId\": 1,\n  \"usedFrom\": \"19:00\",\n  \"usedTo\": \"19:30\",\n  \"resultNotes\": \"Sem toques nesta primeira tentativa.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/lures",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Session Lures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/lures",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "lures"
               ]
             }
           }
