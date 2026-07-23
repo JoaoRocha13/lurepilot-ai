@@ -447,6 +447,53 @@
               ]
             }
           }
+        },
+        {
+          "name": "Create Catch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 34.5,\n  \"weightKg\": 0.8,\n  \"released\": true,\n  \"notes\": \"Captura junto a estrutura com jerkbait.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/catches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "catches"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Catches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/catches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "catches"
+              ]
+            }
+          }
         }
       ]
     }
