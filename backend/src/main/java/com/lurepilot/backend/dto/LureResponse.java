@@ -11,6 +11,8 @@ public record LureResponse(
         Double weight,
         String brand,
         String notes,
+        Long libraryItemId,
+        String libraryItemName,
         String targetSpecies,
         String waterType,
         Instant createdAt

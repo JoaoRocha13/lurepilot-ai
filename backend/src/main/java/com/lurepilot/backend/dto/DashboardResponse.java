@@ -6,6 +6,7 @@ public record DashboardResponse(
         long totalSpots,
         long totalFishSpecies,
         long totalLures,
+        long totalLureLibraryItems,
         long totalPlans,
         long totalSessions,
         long successfulSessions,

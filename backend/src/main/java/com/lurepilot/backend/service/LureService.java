@@ -3,6 +3,8 @@ package com.lurepilot.backend.service;
 import com.lurepilot.backend.dto.CreateLureRequest;
 import com.lurepilot.backend.dto.LureResponse;
 import com.lurepilot.backend.model.Lure;
+import com.lurepilot.backend.model.LureLibraryItem;
+import com.lurepilot.backend.repository.LureLibraryItemRepository;
 import com.lurepilot.backend.repository.LureRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,11 @@ import java.util.List;
 public class LureService {
 
     private final LureRepository lureRepository;
+    private final LureLibraryItemRepository lureLibraryItemRepository;
 
-    public LureService(LureRepository lureRepository) {
+    public LureService(LureRepository lureRepository, LureLibraryItemRepository lureLibraryItemRepository) {
         this.lureRepository = lureRepository;
+        this.lureLibraryItemRepository = lureLibraryItemRepository;
     }
 
     public LureResponse createLure(CreateLureRequest request) {
@@ -31,6 +35,7 @@ public class LureService {
                 request.targetSpecies(),
                 request.waterType()
         );
+        lure.setLibraryItem(findLibraryItemOrNull(request.libraryItemId()));
 
         return toResponse(lureRepository.save(lure));
     }
@@ -59,6 +64,7 @@ public class LureService {
         lure.setWeight(request.weight());
         lure.setBrand(request.brand());
         lure.setNotes(request.notes());
+        lure.setLibraryItem(findLibraryItemOrNull(request.libraryItemId()));
         lure.setTargetSpecies(request.targetSpecies());
         lure.setWaterType(request.waterType());
 
@@ -73,7 +79,18 @@ public class LureService {
         lureRepository.deleteById(id);
     }
 
+    private LureLibraryItem findLibraryItemOrNull(Long libraryItemId) {
+        if (libraryItemId == null) {
+            return null;
+        }
+
+        return lureLibraryItemRepository.findById(libraryItemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lure library item not found"));
+    }
+
     private LureResponse toResponse(Lure lure) {
+        LureLibraryItem libraryItem = lure.getLibraryItem();
+
         return new LureResponse(
                 lure.getId(),
                 lure.getName(),
@@ -83,6 +100,8 @@ public class LureService {
                 lure.getWeight(),
                 lure.getBrand(),
                 lure.getNotes(),
+                libraryItem == null ? null : libraryItem.getId(),
+                libraryItem == null ? null : libraryItem.getName(),
                 lure.getTargetSpecies(),
                 lure.getWaterType(),
                 lure.getCreatedAt()

@@ -9,6 +9,7 @@ import com.lurepilot.backend.repository.FishSpeciesRepository;
 import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
 import com.lurepilot.backend.repository.FishingSpotRepository;
+import com.lurepilot.backend.repository.LureLibraryItemRepository;
 import com.lurepilot.backend.repository.LureRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class DashboardService {
     private final FishingSpotRepository fishingSpotRepository;
     private final FishSpeciesRepository fishSpeciesRepository;
     private final LureRepository lureRepository;
+    private final LureLibraryItemRepository lureLibraryItemRepository;
     private final FishingPlanRepository fishingPlanRepository;
     private final FishingSessionRepository fishingSessionRepository;
     private final CatchRepository catchRepository;
@@ -29,6 +31,7 @@ public class DashboardService {
             FishingSpotRepository fishingSpotRepository,
             FishSpeciesRepository fishSpeciesRepository,
             LureRepository lureRepository,
+            LureLibraryItemRepository lureLibraryItemRepository,
             FishingPlanRepository fishingPlanRepository,
             FishingSessionRepository fishingSessionRepository,
             CatchRepository catchRepository
@@ -36,6 +39,7 @@ public class DashboardService {
         this.fishingSpotRepository = fishingSpotRepository;
         this.fishSpeciesRepository = fishSpeciesRepository;
         this.lureRepository = lureRepository;
+        this.lureLibraryItemRepository = lureLibraryItemRepository;
         this.fishingPlanRepository = fishingPlanRepository;
         this.fishingSessionRepository = fishingSessionRepository;
         this.catchRepository = catchRepository;
@@ -52,6 +56,7 @@ public class DashboardService {
                 fishingSpotRepository.count(),
                 fishSpeciesRepository.count(),
                 lureRepository.count(),
+                lureLibraryItemRepository.count(),
                 fishingPlanRepository.count(),
                 fishingSessionRepository.count(),
                 fishingSessionRepository.countBySuccessTrue(),

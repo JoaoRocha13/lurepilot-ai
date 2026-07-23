@@ -26,6 +26,8 @@ public record CreateLureRequest(
         @Size(max = 1000)
         String notes,
 
+        Long libraryItemId,
+
         @Size(max = 255)
         String targetSpecies,
 

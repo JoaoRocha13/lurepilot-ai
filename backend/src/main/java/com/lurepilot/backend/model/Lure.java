@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -42,6 +44,10 @@ public class Lure {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "library_item_id")
+    private LureLibraryItem libraryItem;
 
     public Lure() {
     }
@@ -143,5 +149,13 @@ public class Lure {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public LureLibraryItem getLibraryItem() {
+        return libraryItem;
+    }
+
+    public void setLibraryItem(LureLibraryItem libraryItem) {
+        this.libraryItem = libraryItem;
     }
 }

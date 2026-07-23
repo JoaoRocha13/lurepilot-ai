@@ -28,6 +28,10 @@
     {
       "key": "fishId",
       "value": "1"
+    },
+    {
+      "key": "lureLibraryItemId",
+      "value": "1"
     }
   ],
   "item": [
@@ -253,6 +257,72 @@
       ]
     },
     {
+      "name": "Lure Library",
+      "item": [
+        {
+          "name": "Create Lure Library Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jerkbait\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/jerkbait.jpg\",\n  \"difficulty\": \"MEDIUM\",\n  \"effectiveness\": \"HIGH\",\n  \"description\": \"Amostra dura para provocar ataques de predadores suspensos.\",\n  \"usageNotes\": \"Usar com toques de ponta de cana e pausas entre recolhas.\",\n  \"actionType\": \"twitch, jerk, stop-and-go\",\n  \"idealConditions\": \"Agua clara, peixe suspenso, margens com estrutura e pouca atividade a superficie.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lure-library",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lure-library"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Lure Library Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lure-library",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lure-library"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lure Library Item By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lure-library/{{lureLibraryItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lure-library",
+                "{{lureLibraryItemId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Lures",
       "item": [
         {
@@ -267,7 +337,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Boa para agua clara e peixe suspenso.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\"\n}"
+              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Boa para agua clara e peixe suspenso.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/lures",
@@ -328,7 +398,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Atualizado via PUT.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\"\n}"
+              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Atualizado via PUT.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/lures/{{lureId}}",
@@ -426,6 +496,73 @@
               ]
             }
           }
+        },
+        {
+          "name": "Add Lure To Fishing Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lureId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}/lures",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}",
+                "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Fishing Plan Lures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}/lures",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}",
+                "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fishing Plan Context",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}/context",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}",
+                "context"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
