@@ -14,7 +14,6 @@ public record AiPlanRecommendationResponse(
         List<String> avoid,
         String confidence,
         List<String> warnings,
-        String rawResponse,
         Instant createdAt
 ) {
 }

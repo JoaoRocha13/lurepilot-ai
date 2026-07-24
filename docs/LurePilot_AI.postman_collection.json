@@ -827,6 +827,26 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get AI Recommendation Debug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/{{recommendationId}}/debug",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{recommendationId}}",
+                "debug"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

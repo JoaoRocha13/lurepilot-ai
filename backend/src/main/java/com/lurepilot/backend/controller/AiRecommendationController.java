@@ -1,5 +1,6 @@
 package com.lurepilot.backend.controller;
 
+import com.lurepilot.backend.dto.AiRecommendationDebugResponse;
 import com.lurepilot.backend.dto.AiPlanRecommendationResponse;
 import com.lurepilot.backend.dto.CreateAiPlanRecommendationRequest;
 import com.lurepilot.backend.service.AiRecommendationService;
@@ -34,5 +35,10 @@ public class AiRecommendationController {
     @GetMapping("/plans/{planId}")
     public List<AiPlanRecommendationResponse> getRecommendationsByPlan(@PathVariable Long planId) {
         return aiRecommendationService.getRecommendationsByPlan(planId);
+    }
+
+    @GetMapping("/{id}/debug")
+    public AiRecommendationDebugResponse getRecommendationDebug(@PathVariable Long id) {
+        return aiRecommendationService.getRecommendationDebug(id);
     }
 }

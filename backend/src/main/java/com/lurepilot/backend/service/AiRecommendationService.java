@@ -1,6 +1,7 @@
 package com.lurepilot.backend.service;
 
 import com.lurepilot.backend.client.LmStudioClient;
+import com.lurepilot.backend.dto.AiRecommendationDebugResponse;
 import com.lurepilot.backend.dto.AiLureRankingResponse;
 import com.lurepilot.backend.dto.AiPlanRecommendationResponse;
 import com.lurepilot.backend.dto.AiPlanResult;
@@ -16,7 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AiRecommendationService {
@@ -53,7 +58,7 @@ public class AiRecommendationService {
         PlannerContextResponse context = plannerContextService.buildContext(request.planId());
         String contextJson = writeJson(context);
         String rawResponse = callLmStudio(contextJson);
-        AiPlanResult result = parsePlanResult(rawResponse);
+        AiPlanResult result = validatePlanResult(parsePlanResult(rawResponse), context);
 
         AiRecommendation recommendation = new AiRecommendation(
                 plan,
@@ -83,12 +88,27 @@ public class AiRecommendationService {
                 .toList();
     }
 
+    public AiRecommendationDebugResponse getRecommendationDebug(Long id) {
+        AiRecommendation recommendation = aiRecommendationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI recommendation not found"));
+
+        return new AiRecommendationDebugResponse(
+                recommendation.getId(),
+                recommendation.getPlan().getId(),
+                recommendation.getContextJson(),
+                recommendation.getRawResponse(),
+                recommendation.getCreatedAt()
+        );
+    }
+
     private String callLmStudio(String contextJson) {
         String systemMessage = """
                 Es o LurePilot AI, um copiloto de pesca pratico.
                 Responde sempre em portugues de Portugal.
                 Usa apenas o contexto fornecido e conhecimento geral seguro.
                 Nao inventes dados factuais, meteorologicos, legais ou historicos.
+                No lureRanking, usa exclusivamente lures presentes em selectedLures.
+                Nao menciones nem recomendes lures que nao estejam em selectedLures.
                 Devolve apenas JSON valido, sem markdown.
                 """;
 
@@ -96,6 +116,7 @@ public class AiRecommendationService {
                 Cria uma recomendacao de pesca em formato JSON com estes campos:
                 summary: string curta.
                 lureRanking: lista de objetos com rank, lure e reason.
+                Em lureRanking, o campo lure tem de ser exatamente um dos nomes em selectedLures.
                 planA: string com plano 0-20 min.
                 planB: string com ajuste 20-40 min.
                 planC: string com alternativa 40-60 min.
@@ -144,6 +165,54 @@ public class AiRecommendationService {
         return rawResponse;
     }
 
+    private AiPlanResult validatePlanResult(AiPlanResult result, PlannerContextResponse context) {
+        Set<String> allowedLureNames = context.selectedLures()
+                .stream()
+                .map(PlannerContextResponse.PlannerContextLure::name)
+                .map(this::normalize)
+                .collect(Collectors.toSet());
+
+        List<AiLureRankingResponse> originalRanking = nullToEmpty(result.lureRanking());
+        List<String> removedLures = originalRanking.stream()
+                .filter(lureRanking -> !allowedLureNames.contains(normalize(lureRanking.lure())))
+                .map(AiLureRankingResponse::lure)
+                .toList();
+
+        List<AiLureRankingResponse> validatedRanking = new ArrayList<>();
+        int rank = 1;
+        for (AiLureRankingResponse lureRanking : originalRanking) {
+            if (allowedLureNames.contains(normalize(lureRanking.lure()))) {
+                validatedRanking.add(new AiLureRankingResponse(rank, lureRanking.lure(), lureRanking.reason()));
+                rank++;
+            }
+        }
+
+        List<String> warnings = new ArrayList<>(nullToEmpty(result.warnings()));
+        if (!removedLures.isEmpty()) {
+            warnings.add("A IA sugeriu lures fora de selectedLures e foram removidas: " + String.join(", ", removedLures));
+        }
+
+        String confidence = result.confidence();
+        if (!removedLures.isEmpty()) {
+            confidence = "low";
+        }
+
+        return new AiPlanResult(
+                result.summary(),
+                validatedRanking,
+                result.planA(),
+                result.planB(),
+                result.planC(),
+                nullToEmpty(result.avoid()),
+                confidence,
+                warnings
+        );
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
     private AiPlanRecommendationResponse toResponse(AiRecommendation recommendation) {
         return new AiPlanRecommendationResponse(
                 recommendation.getId(),
@@ -156,7 +225,6 @@ public class AiRecommendationService {
                 readJson(recommendation.getAvoidJson(), STRING_LIST_TYPE),
                 recommendation.getConfidence(),
                 readJson(recommendation.getWarningsJson(), STRING_LIST_TYPE),
-                recommendation.getRawResponse(),
                 recommendation.getCreatedAt()
         );
     }
