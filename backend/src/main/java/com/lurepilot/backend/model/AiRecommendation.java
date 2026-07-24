@@ -22,9 +22,17 @@ public class AiRecommendation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "plan_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
     private FishingPlan plan;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
+    private FishingSession session;
+
+    private String recommendationType;
+
+    private Integer version;
 
     @Lob
     @Column(nullable = false)
@@ -63,8 +71,11 @@ public class AiRecommendation {
     public AiRecommendation() {
     }
 
-    public AiRecommendation(FishingPlan plan, String contextJson, String rawResponse, String summary, String lureRankingJson, String planA, String planB, String planC, String avoidJson, String confidence, String warningsJson) {
+    public AiRecommendation(FishingPlan plan, FishingSession session, String recommendationType, Integer version, String contextJson, String rawResponse, String summary, String lureRankingJson, String planA, String planB, String planC, String avoidJson, String confidence, String warningsJson) {
         this.plan = plan;
+        this.session = session;
+        this.recommendationType = recommendationType;
+        this.version = version;
         this.contextJson = contextJson;
         this.rawResponse = rawResponse;
         this.summary = summary;
@@ -90,6 +101,18 @@ public class AiRecommendation {
 
     public FishingPlan getPlan() {
         return plan;
+    }
+
+    public FishingSession getSession() {
+        return session;
+    }
+
+    public String getRecommendationType() {
+        return recommendationType;
+    }
+
+    public Integer getVersion() {
+        return version;
     }
 
     public String getContextJson() {

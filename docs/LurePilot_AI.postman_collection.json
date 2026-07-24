@@ -847,6 +847,34 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Create Session Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": 1,\n  \"situation\": \"Sem toques ha 30 minutos e a agua ficou mais turva.\",\n  \"currentConditions\": \"Vento aumentou ligeiramente e ha menos atividade a superficie.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/session-adjustment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "session-adjustment"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

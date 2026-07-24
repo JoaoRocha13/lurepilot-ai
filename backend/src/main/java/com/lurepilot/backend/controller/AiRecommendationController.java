@@ -2,7 +2,9 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.dto.AiRecommendationDebugResponse;
 import com.lurepilot.backend.dto.AiPlanRecommendationResponse;
+import com.lurepilot.backend.dto.AiSessionAdjustmentResponse;
 import com.lurepilot.backend.dto.CreateAiPlanRecommendationRequest;
+import com.lurepilot.backend.dto.CreateSessionAdjustmentRequest;
 import com.lurepilot.backend.service.AiRecommendationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,12 @@ public class AiRecommendationController {
     @ResponseStatus(HttpStatus.CREATED)
     public AiPlanRecommendationResponse createPlanRecommendation(@Valid @RequestBody CreateAiPlanRecommendationRequest request) {
         return aiRecommendationService.createPlanRecommendation(request);
+    }
+
+    @PostMapping("/session-adjustment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AiSessionAdjustmentResponse createSessionAdjustment(@Valid @RequestBody CreateSessionAdjustmentRequest request) {
+        return aiRecommendationService.createSessionAdjustment(request);
     }
 
     @GetMapping("/plans/{planId}")

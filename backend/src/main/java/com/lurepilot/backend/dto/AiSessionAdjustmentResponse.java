@@ -3,15 +3,16 @@ package com.lurepilot.backend.dto;
 import java.time.Instant;
 import java.util.List;
 
-public record AiPlanRecommendationResponse(
+public record AiSessionAdjustmentResponse(
         Long id,
+        Long sessionId,
         Long planId,
         Integer version,
         String summary,
         List<AiLureRankingResponse> lureRanking,
-        String planA,
-        String planB,
-        String planC,
+        String immediateAction,
+        String nextTechnique,
+        String fallbackAction,
         List<String> avoid,
         String confidence,
         List<String> warnings,
