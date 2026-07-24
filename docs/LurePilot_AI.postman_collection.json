@@ -32,6 +32,10 @@
     {
       "key": "lureLibraryItemId",
       "value": "1"
+    },
+    {
+      "key": "recommendationId",
+      "value": "1"
     }
   ],
   "item": [
@@ -770,6 +774,59 @@
               ]
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "AI Recommendations",
+      "item": [
+        {
+          "name": "Create AI Plan Recommendation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/plan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "plan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List AI Recommendations By Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "plans",
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
