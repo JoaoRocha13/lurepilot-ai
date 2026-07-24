@@ -7,6 +7,7 @@ import java.util.List;
 public record PlannerContextResponse(
         PlannerContextPlan plan,
         PlannerContextSpot spot,
+        PlannerContextWeather weather,
         List<PlannerContextLure> selectedLures,
         List<PlannerContextSession> recentSpotSessions,
         List<PlannerContextSession> recentSpeciesSessions,
@@ -47,6 +48,20 @@ public record PlannerContextResponse(
             String waterType,
             Long libraryItemId,
             String libraryItemName
+    ) {
+    }
+
+    public record PlannerContextWeather(
+            Long id,
+            String source,
+            String sourceLocationName,
+            java.time.LocalDate forecastDate,
+            Double temperatureMin,
+            Double temperatureMax,
+            Double precipitationProbability,
+            String windDirection,
+            Integer windSpeedClass,
+            String notes
     ) {
     }
 

@@ -36,6 +36,10 @@
     {
       "key": "recommendationId",
       "value": "1"
+    },
+    {
+      "key": "ipmaGlobalIdLocal",
+      "value": "1110600"
     }
   ],
   "item": [
@@ -871,6 +875,243 @@
                 "api",
                 "recommendations",
                 "session-adjustment"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Weather Snapshots",
+      "item": [
+        {
+          "name": "Create IPMA Snapshot For Plan",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/plans/{{planId}}/ipma",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "plans",
+                "{{planId}}",
+                "ipma"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create IPMA Snapshot For Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/sessions/{{sessionId}}/ipma",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "sessions",
+                "{{sessionId}}",
+                "ipma"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Weather Snapshots By Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "plans",
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Weather Snapshots By Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest Weather Snapshot For Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/plans/{{planId}}/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "plans",
+                "{{planId}}",
+                "latest"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest Weather Snapshot For Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/sessions/{{sessionId}}/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "sessions",
+                "{{sessionId}}",
+                "latest"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create IPMA Snapshot By Coordinates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/ipma/coordinates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "ipma",
+                "coordinates"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 39.6321,\n  \"longitude\": -8.6713,\n  \"forecastDate\": \"2026-07-24\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create IPMA Snapshot By Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-snapshots/ipma/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-snapshots",
+                "ipma",
+                "location"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"globalIdLocal\": 1110600,\n  \"forecastDate\": \"2026-07-24\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Weather Locations",
+      "item": [
+        {
+          "name": "List IPMA Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-locations/ipma",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-locations",
+                "ipma"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search IPMA Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-locations/ipma/search?query=Lisboa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-locations",
+                "ipma",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Lisboa"
+                }
               ]
             }
           },

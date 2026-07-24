@@ -7,9 +7,11 @@ import com.lurepilot.backend.model.FishingSession;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
+import com.lurepilot.backend.model.WeatherSnapshot;
 import com.lurepilot.backend.repository.FishingPlanLureRepository;
 import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
+import com.lurepilot.backend.repository.WeatherSnapshotRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,15 +25,18 @@ public class PlannerContextService {
     private final FishingPlanRepository fishingPlanRepository;
     private final FishingPlanLureRepository fishingPlanLureRepository;
     private final FishingSessionRepository fishingSessionRepository;
+    private final WeatherSnapshotRepository weatherSnapshotRepository;
 
     public PlannerContextService(
             FishingPlanRepository fishingPlanRepository,
             FishingPlanLureRepository fishingPlanLureRepository,
-            FishingSessionRepository fishingSessionRepository
+            FishingSessionRepository fishingSessionRepository,
+            WeatherSnapshotRepository weatherSnapshotRepository
     ) {
         this.fishingPlanRepository = fishingPlanRepository;
         this.fishingPlanLureRepository = fishingPlanLureRepository;
         this.fishingSessionRepository = fishingSessionRepository;
+        this.weatherSnapshotRepository = weatherSnapshotRepository;
     }
 
     public PlannerContextResponse buildContext(Long planId) {
@@ -57,6 +62,9 @@ public class PlannerContextService {
         return new PlannerContextResponse(
                 toPlanContext(plan),
                 toSpotContext(spot),
+                weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(planId)
+                        .map(this::toWeatherContext)
+                        .orElse(null),
                 selectedLures,
                 recentSpotSessions,
                 recentSpeciesSessions,
@@ -104,6 +112,21 @@ public class PlannerContextService {
                 lure.getWaterType(),
                 libraryItem == null ? null : libraryItem.getId(),
                 libraryItem == null ? null : libraryItem.getName()
+        );
+    }
+
+    private PlannerContextResponse.PlannerContextWeather toWeatherContext(WeatherSnapshot weatherSnapshot) {
+        return new PlannerContextResponse.PlannerContextWeather(
+                weatherSnapshot.getId(),
+                weatherSnapshot.getSource(),
+                weatherSnapshot.getSourceLocationName(),
+                weatherSnapshot.getForecastDate(),
+                weatherSnapshot.getTemperatureMin(),
+                weatherSnapshot.getTemperatureMax(),
+                weatherSnapshot.getPrecipitationProbability(),
+                weatherSnapshot.getWindDirection(),
+                weatherSnapshot.getWindSpeedClass(),
+                weatherSnapshot.getNotes()
         );
     }
 

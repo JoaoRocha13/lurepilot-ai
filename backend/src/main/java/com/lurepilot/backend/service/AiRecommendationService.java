@@ -19,12 +19,14 @@ import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.model.SessionEvent;
 import com.lurepilot.backend.model.SessionLure;
+import com.lurepilot.backend.model.WeatherSnapshot;
 import com.lurepilot.backend.repository.AiRecommendationRepository;
 import com.lurepilot.backend.repository.FishingPlanLureRepository;
 import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
 import com.lurepilot.backend.repository.SessionEventRepository;
 import com.lurepilot.backend.repository.SessionLureRepository;
+import com.lurepilot.backend.repository.WeatherSnapshotRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -54,6 +56,7 @@ public class AiRecommendationService {
     private final FishingPlanLureRepository fishingPlanLureRepository;
     private final SessionLureRepository sessionLureRepository;
     private final SessionEventRepository sessionEventRepository;
+    private final WeatherSnapshotRepository weatherSnapshotRepository;
     private final PlannerContextService plannerContextService;
     private final LmStudioClient lmStudioClient;
     private final ObjectMapper objectMapper;
@@ -65,6 +68,7 @@ public class AiRecommendationService {
             FishingPlanLureRepository fishingPlanLureRepository,
             SessionLureRepository sessionLureRepository,
             SessionEventRepository sessionEventRepository,
+            WeatherSnapshotRepository weatherSnapshotRepository,
             PlannerContextService plannerContextService,
             LmStudioClient lmStudioClient,
             ObjectMapper objectMapper
@@ -75,6 +79,7 @@ public class AiRecommendationService {
         this.fishingPlanLureRepository = fishingPlanLureRepository;
         this.sessionLureRepository = sessionLureRepository;
         this.sessionEventRepository = sessionEventRepository;
+        this.weatherSnapshotRepository = weatherSnapshotRepository;
         this.plannerContextService = plannerContextService;
         this.lmStudioClient = lmStudioClient;
         this.objectMapper = objectMapper;
@@ -461,6 +466,10 @@ public class AiRecommendationService {
                         spot.getWaterType(),
                         spot.getFavoriteSpecies()
                 ),
+                weatherSnapshotRepository.findFirstBySessionIdOrderByCapturedAtDescIdDesc(session.getId())
+                        .or(() -> plan == null ? java.util.Optional.empty() : weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(plan.getId()))
+                        .map(this::toSessionAdjustmentWeather)
+                        .orElse(null),
                 allowedLures,
                 events.stream()
                         .map(event -> new SessionAdjustmentEvent(event.getEventTime(), event.getEventType(), event.getDescription()))
@@ -481,6 +490,20 @@ public class AiRecommendationService {
                 lure.getTargetSpecies(),
                 lure.getWaterType(),
                 libraryItem == null ? null : libraryItem.getName()
+        );
+    }
+
+    private SessionAdjustmentWeather toSessionAdjustmentWeather(WeatherSnapshot weatherSnapshot) {
+        return new SessionAdjustmentWeather(
+                weatherSnapshot.getSource(),
+                weatherSnapshot.getSourceLocationName(),
+                weatherSnapshot.getForecastDate(),
+                weatherSnapshot.getTemperatureMin(),
+                weatherSnapshot.getTemperatureMax(),
+                weatherSnapshot.getPrecipitationProbability(),
+                weatherSnapshot.getWindDirection(),
+                weatherSnapshot.getWindSpeedClass(),
+                weatherSnapshot.getNotes()
         );
     }
 
@@ -522,6 +545,7 @@ public class AiRecommendationService {
             SessionAdjustmentSession session,
             Long planId,
             SessionAdjustmentSpot spot,
+            SessionAdjustmentWeather weather,
             List<SessionAdjustmentLure> allowedLures,
             List<SessionAdjustmentEvent> events
     ) {
@@ -559,6 +583,19 @@ public class AiRecommendationService {
             String targetSpecies,
             String waterType,
             String libraryItemName
+    ) {
+    }
+
+    private record SessionAdjustmentWeather(
+            String source,
+            String sourceLocationName,
+            java.time.LocalDate forecastDate,
+            Double temperatureMin,
+            Double temperatureMax,
+            Double precipitationProbability,
+            String windDirection,
+            Integer windSpeedClass,
+            String notes
     ) {
     }
 

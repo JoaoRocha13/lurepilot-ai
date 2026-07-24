@@ -26,3 +26,7 @@ lurepilot:
     connect-timeout-seconds: ${LUREPILOT_AI_CONNECT_TIMEOUT_SECONDS:5}
     read-timeout-seconds: ${LUREPILOT_AI_READ_TIMEOUT_SECONDS:60}
     max-tokens: ${LUREPILOT_AI_MAX_TOKENS:600}
+  ipma:
+    base-url: ${LUREPILOT_IPMA_BASE_URL:https://api.ipma.pt}
+    connect-timeout-seconds: ${LUREPILOT_IPMA_CONNECT_TIMEOUT_SECONDS:5}
+    read-timeout-seconds: ${LUREPILOT_IPMA_READ_TIMEOUT_SECONDS:20}
