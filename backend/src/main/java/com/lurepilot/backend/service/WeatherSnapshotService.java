@@ -15,7 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,6 +28,7 @@ import java.util.List;
 public class WeatherSnapshotService {
 
     private static final String SOURCE_IPMA = "IPMA";
+    private static final ZoneId IPMA_ZONE = ZoneId.of("Europe/Lisbon");
 
     private final WeatherSnapshotRepository weatherSnapshotRepository;
     private final FishingPlanRepository fishingPlanRepository;
@@ -134,7 +140,7 @@ public class WeatherSnapshotService {
                     parseDouble(location.latitude()),
                     parseDouble(location.longitude()),
                     forecastDay.forecastDate(),
-                    forecast.dataUpdate(),
+                    parseDataUpdate(forecast.dataUpdate()),
                     forecastDay.idWeatherType(),
                     parseDouble(forecastDay.tMin()),
                     parseDouble(forecastDay.tMax()),
@@ -218,6 +224,26 @@ public class WeatherSnapshotService {
         }
 
         return Double.parseDouble(value);
+    }
+
+    private Instant parseDataUpdate(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Instant.parse(value);
+        } catch (DateTimeParseException ignored) {
+            // IPMA currently sends dataUpdate without an explicit timezone.
+        }
+
+        try {
+            return OffsetDateTime.parse(value).toInstant();
+        } catch (DateTimeParseException ignored) {
+            // Fall back to the current IPMA local datetime format.
+        }
+
+        return LocalDateTime.parse(value).atZone(IPMA_ZONE).toInstant();
     }
 
     private String firstNonBlank(String first, String second) {

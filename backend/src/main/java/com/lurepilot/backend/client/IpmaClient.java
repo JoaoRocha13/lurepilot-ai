@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class IpmaClient {
 
     public record IpmaForecastResponse(
             Integer globalIdLocal,
-            Instant dataUpdate,
+            String dataUpdate,
             List<IpmaForecastDay> data
     ) {
     }
