@@ -2,6 +2,8 @@ package com.lurepilot.backend.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,6 +40,9 @@ public class FishingSession {
 
     private LocalTime endTime;
 
+    @Enumerated(EnumType.STRING)
+    private FishingSessionStatus status;
+
     @Column(nullable = false)
     private String targetSpecies;
 
@@ -51,6 +56,16 @@ public class FishingSession {
     private String notes;
 
     private Boolean success;
+
+    private Long durationMinutes;
+
+    @Column(length = 1000)
+    private String resultSummary;
+
+    @Column(length = 1000)
+    private String finalNotes;
+
+    private Integer rating;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -69,12 +84,16 @@ public class FishingSession {
         this.waterLevel = waterLevel;
         this.notes = notes;
         this.success = success;
+        this.status = resolveInitialStatus(startTime, endTime, success);
     }
 
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
             createdAt = Instant.now();
+        }
+        if (status == null) {
+            status = resolveInitialStatus(startTime, endTime, success);
         }
     }
 
@@ -122,6 +141,14 @@ public class FishingSession {
         this.endTime = endTime;
     }
 
+    public FishingSessionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(FishingSessionStatus status) {
+        this.status = status;
+    }
+
     public String getTargetSpecies() {
         return targetSpecies;
     }
@@ -162,7 +189,51 @@ public class FishingSession {
         this.success = success;
     }
 
+    public Long getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Long durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public String getResultSummary() {
+        return resultSummary;
+    }
+
+    public void setResultSummary(String resultSummary) {
+        this.resultSummary = resultSummary;
+    }
+
+    public String getFinalNotes() {
+        return finalNotes;
+    }
+
+    public void setFinalNotes(String finalNotes) {
+        this.finalNotes = finalNotes;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    private FishingSessionStatus resolveInitialStatus(LocalTime startTime, LocalTime endTime, Boolean success) {
+        if (endTime != null || success != null) {
+            return FishingSessionStatus.FINISHED;
+        }
+
+        if (startTime != null) {
+            return FishingSessionStatus.ACTIVE;
+        }
+
+        return FishingSessionStatus.PLANNED;
     }
 }

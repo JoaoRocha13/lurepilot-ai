@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, AI recommendations and IPMA weather snapshots.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -637,6 +637,64 @@
               ]
             }
           }
+        },
+        {
+          "name": "Start Fishing Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"19:00\",\n  \"notes\": \"Sessao iniciada no spot planeado.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "start"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Finish Fishing Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endTime\": \"21:15\",\n  \"success\": true,\n  \"resultSummary\": \"Uma captura e varios sinais junto a pedra.\",\n  \"finalNotes\": \"Vinil trabalhou melhor quando a luz baixou.\",\n  \"rating\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/finish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "finish"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Session Event",

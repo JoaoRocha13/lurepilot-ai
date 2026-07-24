@@ -14,6 +14,7 @@ import com.lurepilot.backend.model.AiRecommendation;
 import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingPlanLure;
 import com.lurepilot.backend.model.FishingSession;
+import com.lurepilot.backend.model.FishingSessionStatus;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
@@ -57,6 +58,7 @@ public class AiRecommendationService {
     private final SessionLureRepository sessionLureRepository;
     private final SessionEventRepository sessionEventRepository;
     private final WeatherSnapshotRepository weatherSnapshotRepository;
+    private final WeatherSnapshotService weatherSnapshotService;
     private final PlannerContextService plannerContextService;
     private final LmStudioClient lmStudioClient;
     private final ObjectMapper objectMapper;
@@ -69,6 +71,7 @@ public class AiRecommendationService {
             SessionLureRepository sessionLureRepository,
             SessionEventRepository sessionEventRepository,
             WeatherSnapshotRepository weatherSnapshotRepository,
+            WeatherSnapshotService weatherSnapshotService,
             PlannerContextService plannerContextService,
             LmStudioClient lmStudioClient,
             ObjectMapper objectMapper
@@ -80,6 +83,7 @@ public class AiRecommendationService {
         this.sessionLureRepository = sessionLureRepository;
         this.sessionEventRepository = sessionEventRepository;
         this.weatherSnapshotRepository = weatherSnapshotRepository;
+        this.weatherSnapshotService = weatherSnapshotService;
         this.plannerContextService = plannerContextService;
         this.lmStudioClient = lmStudioClient;
         this.objectMapper = objectMapper;
@@ -89,6 +93,7 @@ public class AiRecommendationService {
         FishingPlan plan = fishingPlanRepository.findById(request.planId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found"));
 
+        ensureWeatherSnapshotForPlan(plan);
         PlannerContextResponse context = plannerContextService.buildContext(request.planId());
         String contextJson = writeJson(context);
         String rawResponse = callLmStudio(contextJson);
@@ -452,11 +457,16 @@ public class AiRecommendationService {
                         session.getDate(),
                         session.getStartTime(),
                         session.getEndTime(),
+                        sessionStatusOrDefault(session).name().toLowerCase(Locale.ROOT),
                         session.getTargetSpecies(),
                         session.getWaterClarity(),
                         session.getWaterLevel(),
                         session.getNotes(),
-                        session.getSuccess()
+                        session.getSuccess(),
+                        session.getDurationMinutes(),
+                        session.getResultSummary(),
+                        session.getFinalNotes(),
+                        session.getRating()
                 ),
                 plan == null ? null : plan.getId(),
                 new SessionAdjustmentSpot(
@@ -515,6 +525,34 @@ public class AiRecommendationService {
         return (int) aiRecommendationRepository.countBySessionIdAndRecommendationType(sessionId, SESSION_ADJUSTMENT) + 1;
     }
 
+    private void ensureWeatherSnapshotForPlan(FishingPlan plan) {
+        if (weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(plan.getId()).isPresent()) {
+            return;
+        }
+
+        try {
+            weatherSnapshotService.createIpmaSnapshotForPlan(plan.getId());
+        } catch (RuntimeException ignored) {
+            // Weather improves the recommendation, but the AI planner should still work without IPMA.
+        }
+    }
+
+    private FishingSessionStatus sessionStatusOrDefault(FishingSession session) {
+        if (session.getStatus() != null) {
+            return session.getStatus();
+        }
+
+        if (session.getEndTime() != null || session.getSuccess() != null) {
+            return FishingSessionStatus.FINISHED;
+        }
+
+        if (session.getStartTime() != null) {
+            return FishingSessionStatus.ACTIVE;
+        }
+
+        return FishingSessionStatus.PLANNED;
+    }
+
     private String withFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
@@ -556,11 +594,16 @@ public class AiRecommendationService {
             java.time.LocalDate date,
             java.time.LocalTime startTime,
             java.time.LocalTime endTime,
+            String status,
             String targetSpecies,
             String waterClarity,
             String waterLevel,
             String notes,
-            Boolean success
+            Boolean success,
+            Long durationMinutes,
+            String resultSummary,
+            String finalNotes,
+            Integer rating
     ) {
     }
 

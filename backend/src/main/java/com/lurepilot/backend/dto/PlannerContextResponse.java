@@ -75,7 +75,11 @@ public record PlannerContextResponse(
             String targetSpecies,
             String waterClarity,
             String waterLevel,
+            String status,
             Boolean success,
+            Long durationMinutes,
+            String resultSummary,
+            Integer rating,
             String notes
     ) {
     }

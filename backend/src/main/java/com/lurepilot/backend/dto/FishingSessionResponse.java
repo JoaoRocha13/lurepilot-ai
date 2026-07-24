@@ -12,11 +12,16 @@ public record FishingSessionResponse(
         LocalDate date,
         LocalTime startTime,
         LocalTime endTime,
+        String status,
         String targetSpecies,
         String waterClarity,
         String waterLevel,
         String notes,
         Boolean success,
+        Long durationMinutes,
+        String resultSummary,
+        String finalNotes,
+        Integer rating,
         Instant createdAt
 ) {
 }

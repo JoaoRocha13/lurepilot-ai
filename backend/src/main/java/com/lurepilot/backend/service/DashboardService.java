@@ -3,6 +3,7 @@ package com.lurepilot.backend.service;
 import com.lurepilot.backend.dto.DashboardRecentSessionResponse;
 import com.lurepilot.backend.dto.DashboardResponse;
 import com.lurepilot.backend.model.FishingSession;
+import com.lurepilot.backend.model.FishingSessionStatus;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.repository.CatchRepository;
 import com.lurepilot.backend.repository.FishSpeciesRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class DashboardService {
@@ -75,8 +77,25 @@ public class DashboardService {
                 spot.getName(),
                 session.getDate(),
                 session.getStartTime(),
+                statusOrDefault(session).name().toLowerCase(Locale.ROOT),
                 session.getTargetSpecies(),
                 session.getSuccess()
         );
+    }
+
+    private FishingSessionStatus statusOrDefault(FishingSession session) {
+        if (session.getStatus() != null) {
+            return session.getStatus();
+        }
+
+        if (session.getEndTime() != null || session.getSuccess() != null) {
+            return FishingSessionStatus.FINISHED;
+        }
+
+        if (session.getStartTime() != null) {
+            return FishingSessionStatus.ACTIVE;
+        }
+
+        return FishingSessionStatus.PLANNED;
     }
 }

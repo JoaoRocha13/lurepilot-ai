@@ -4,6 +4,7 @@ import com.lurepilot.backend.dto.PlannerContextResponse;
 import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingPlanLure;
 import com.lurepilot.backend.model.FishingSession;
+import com.lurepilot.backend.model.FishingSessionStatus;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class PlannerContextService {
@@ -59,16 +61,18 @@ public class PlannerContextService {
                 .map(this::toSessionContext)
                 .toList();
 
+        PlannerContextResponse.PlannerContextWeather weather = weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(planId)
+                .map(this::toWeatherContext)
+                .orElse(null);
+
         return new PlannerContextResponse(
                 toPlanContext(plan),
                 toSpotContext(spot),
-                weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(planId)
-                        .map(this::toWeatherContext)
-                        .orElse(null),
+                weather,
                 selectedLures,
                 recentSpotSessions,
                 recentSpeciesSessions,
-                buildDataQuality(selectedLures, recentSpotSessions, recentSpeciesSessions)
+                buildDataQuality(weather, selectedLures, recentSpotSessions, recentSpeciesSessions)
         );
     }
 
@@ -143,12 +147,33 @@ public class PlannerContextService {
                 session.getTargetSpecies(),
                 session.getWaterClarity(),
                 session.getWaterLevel(),
+                statusOrDefault(session).name().toLowerCase(Locale.ROOT),
                 session.getSuccess(),
+                session.getDurationMinutes(),
+                session.getResultSummary(),
+                session.getRating(),
                 session.getNotes()
         );
     }
 
+    private FishingSessionStatus statusOrDefault(FishingSession session) {
+        if (session.getStatus() != null) {
+            return session.getStatus();
+        }
+
+        if (session.getEndTime() != null || session.getSuccess() != null) {
+            return FishingSessionStatus.FINISHED;
+        }
+
+        if (session.getStartTime() != null) {
+            return FishingSessionStatus.ACTIVE;
+        }
+
+        return FishingSessionStatus.PLANNED;
+    }
+
     private PlannerContextResponse.PlannerContextDataQuality buildDataQuality(
+            PlannerContextResponse.PlannerContextWeather weather,
             List<PlannerContextResponse.PlannerContextLure> selectedLures,
             List<PlannerContextResponse.PlannerContextSession> recentSpotSessions,
             List<PlannerContextResponse.PlannerContextSession> recentSpeciesSessions
@@ -157,6 +182,10 @@ public class PlannerContextService {
 
         if (selectedLures.isEmpty()) {
             warnings.add("No lures selected for this fishing plan yet.");
+        }
+
+        if (weather == null) {
+            warnings.add("No weather snapshot found for this fishing plan.");
         }
 
         if (recentSpotSessions.isEmpty()) {

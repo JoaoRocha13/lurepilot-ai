@@ -9,6 +9,7 @@ public record DashboardRecentSessionResponse(
         String spotName,
         LocalDate date,
         LocalTime startTime,
+        String status,
         String targetSpecies,
         Boolean success
 ) {

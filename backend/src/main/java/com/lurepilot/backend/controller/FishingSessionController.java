@@ -1,7 +1,9 @@
 package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.dto.CreateFishingSessionRequest;
+import com.lurepilot.backend.dto.FinishFishingSessionRequest;
 import com.lurepilot.backend.dto.FishingSessionResponse;
+import com.lurepilot.backend.dto.StartFishingSessionRequest;
 import com.lurepilot.backend.service.FishingSessionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -39,5 +41,21 @@ public class FishingSessionController {
     @GetMapping("/{id}")
     public FishingSessionResponse getSessionById(@PathVariable Long id) {
         return fishingSessionService.getSessionById(id);
+    }
+
+    @PostMapping("/{id}/start")
+    public FishingSessionResponse startSession(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) StartFishingSessionRequest request
+    ) {
+        return fishingSessionService.startSession(id, request);
+    }
+
+    @PostMapping("/{id}/finish")
+    public FishingSessionResponse finishSession(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) FinishFishingSessionRequest request
+    ) {
+        return fishingSessionService.finishSession(id, request);
     }
 }
