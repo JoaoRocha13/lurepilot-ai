@@ -2,6 +2,8 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.dto.CreateLureLibraryItemRequest;
 import com.lurepilot.backend.dto.LureLibraryItemResponse;
+import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.service.LureLibraryItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/lure-library")
@@ -35,13 +35,17 @@ public class LureLibraryItemController {
     }
 
     @GetMapping
-    public List<LureLibraryItemResponse> getAllLureLibraryItems(
+    public PagedResponse<LureLibraryItemSummaryResponse> getAllLureLibraryItems(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String difficulty,
-            @RequestParam(required = false) String effectiveness
+            @RequestParam(required = false) String effectiveness,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return lureLibraryItemService.searchLureLibraryItems(q, type, difficulty, effectiveness);
+        return lureLibraryItemService.searchLureLibraryItems(q, type, difficulty, effectiveness, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

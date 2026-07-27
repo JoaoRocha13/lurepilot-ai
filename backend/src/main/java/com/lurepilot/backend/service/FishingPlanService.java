@@ -2,6 +2,8 @@ package com.lurepilot.backend.service;
 
 import com.lurepilot.backend.dto.CreateFishingPlanRequest;
 import com.lurepilot.backend.dto.FishingPlanResponse;
+import com.lurepilot.backend.dto.FishingPlanSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.repository.FishingPlanRepository;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -41,12 +44,24 @@ public class FishingPlanService {
         return toResponse(fishingPlanRepository.save(fishingPlan));
     }
 
-    public List<FishingPlanResponse> getAllPlans() {
-        return searchPlans(null, null, null, null, null, null, null);
+    public PagedResponse<FishingPlanSummaryResponse> getAllPlans() {
+        return searchPlans(null, null, null, null, null, null, null, 0, 20, "id", "asc");
     }
 
-    public List<FishingPlanResponse> searchPlans(String q, Long spotId, String targetSpecies, String waterClarity, String waterLevel, LocalDate dateFrom, LocalDate dateTo) {
-        return fishingPlanRepository.findAll()
+    public PagedResponse<FishingPlanSummaryResponse> searchPlans(
+            String q,
+            Long spotId,
+            String targetSpecies,
+            String waterClarity,
+            String waterLevel,
+            LocalDate dateFrom,
+            LocalDate dateTo,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection
+    ) {
+        List<FishingPlan> filteredPlans = fishingPlanRepository.findAll()
                 .stream()
                 .filter(plan -> matchesQuery(
                         q,
@@ -62,8 +77,13 @@ public class FishingPlanService {
                 .filter(plan -> matchesExact(waterLevel, plan.getWaterLevel()))
                 .filter(plan -> dateFrom == null || !plan.getPlannedDate().isBefore(dateFrom))
                 .filter(plan -> dateTo == null || !plan.getPlannedDate().isAfter(dateTo))
-                .map(this::toResponse)
                 .toList();
+
+        List<FishingPlan> sortedPlans = filteredPlans.stream()
+                .sorted(ListQuerySupport.applyDirection(fishingPlanComparator(sortBy), sortDirection))
+                .toList();
+
+        return ListQuerySupport.toPage(sortedPlans, page, size, this::toSummaryResponse);
     }
 
     public FishingPlanResponse getPlanById(Long id) {
@@ -112,6 +132,34 @@ public class FishingPlanService {
                 fishingPlan.getNotes(),
                 fishingPlan.getCreatedAt()
         );
+    }
+
+    private FishingPlanSummaryResponse toSummaryResponse(FishingPlan fishingPlan) {
+        FishingSpot spot = fishingPlan.getSpot();
+
+        return new FishingPlanSummaryResponse(
+                fishingPlan.getId(),
+                spot.getId(),
+                spot.getName(),
+                fishingPlan.getPlannedDate(),
+                fishingPlan.getPlannedTime(),
+                fishingPlan.getTargetSpecies(),
+                fishingPlan.getWaterClarity(),
+                fishingPlan.getWaterLevel()
+        );
+    }
+
+    private Comparator<FishingPlan> fishingPlanComparator(String sortBy) {
+        return switch (normalize(sortBy)) {
+            case "planneddate", "date" -> ListQuerySupport.comparing(FishingPlan::getPlannedDate);
+            case "plannedtime", "time" -> ListQuerySupport.comparing(FishingPlan::getPlannedTime);
+            case "spotname" -> ListQuerySupport.comparing(plan -> plan.getSpot().getName());
+            case "targetspecies" -> ListQuerySupport.comparing(FishingPlan::getTargetSpecies);
+            case "waterclarity" -> ListQuerySupport.comparing(FishingPlan::getWaterClarity);
+            case "waterlevel" -> ListQuerySupport.comparing(FishingPlan::getWaterLevel);
+            case "createdat" -> ListQuerySupport.comparing(FishingPlan::getCreatedAt);
+            default -> ListQuerySupport.comparing(FishingPlan::getId);
+        };
     }
 
     private boolean matchesQuery(String query, String... values) {

@@ -2,6 +2,8 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.dto.CreateFishingPlanRequest;
 import com.lurepilot.backend.dto.FishingPlanResponse;
+import com.lurepilot.backend.dto.FishingPlanSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.service.FishingPlanService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/plans")
 public class FishingPlanController {
@@ -37,16 +37,20 @@ public class FishingPlanController {
     }
 
     @GetMapping
-    public List<FishingPlanResponse> getAllPlans(
+    public PagedResponse<FishingPlanSummaryResponse> getAllPlans(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Long spotId,
             @RequestParam(required = false) String targetSpecies,
             @RequestParam(required = false) String waterClarity,
             @RequestParam(required = false) String waterLevel,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return fishingPlanService.searchPlans(q, spotId, targetSpecies, waterClarity, waterLevel, dateFrom, dateTo);
+        return fishingPlanService.searchPlans(q, spotId, targetSpecies, waterClarity, waterLevel, dateFrom, dateTo, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

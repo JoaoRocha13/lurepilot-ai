@@ -2,6 +2,8 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.dto.CreateFishingSpotRequest;
 import com.lurepilot.backend.dto.FishingSpotResponse;
+import com.lurepilot.backend.dto.FishingSpotSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.service.FishingSpotService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/spots")
@@ -35,12 +35,16 @@ public class FishingSpotController {
     }
 
     @GetMapping
-    public List<FishingSpotResponse> getAllSpots(
+    public PagedResponse<FishingSpotSummaryResponse> getAllSpots(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String waterType,
-            @RequestParam(required = false) String favoriteSpecies
+            @RequestParam(required = false) String favoriteSpecies,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return fishingSpotService.searchSpots(q, waterType, favoriteSpecies);
+        return fishingSpotService.searchSpots(q, waterType, favoriteSpecies, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

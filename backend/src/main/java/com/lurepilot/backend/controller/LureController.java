@@ -1,7 +1,9 @@
 package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.dto.CreateLureRequest;
+import com.lurepilot.backend.dto.LureBoxItemSummaryResponse;
 import com.lurepilot.backend.dto.LureResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.service.LureService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,10 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/lures")
+@RequestMapping({"/api/lures", "/api/lure-box"})
 public class LureController {
 
     private final LureService lureService;
@@ -35,15 +35,22 @@ public class LureController {
     }
 
     @GetMapping
-    public List<LureResponse> getAllLures(
+    public PagedResponse<LureBoxItemSummaryResponse> getAllLures(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String waterType,
             @RequestParam(required = false) String targetSpecies,
             @RequestParam(required = false) String brand,
-            @RequestParam(required = false) Long libraryItemId
+            @RequestParam(required = false) Long libraryItemId,
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String condition,
+            @RequestParam(required = false) Integer minQuantity,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return lureService.searchLures(q, type, waterType, targetSpecies, brand, libraryItemId);
+        return lureService.searchLures(q, type, waterType, targetSpecies, brand, libraryItemId, active, condition, minQuantity, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

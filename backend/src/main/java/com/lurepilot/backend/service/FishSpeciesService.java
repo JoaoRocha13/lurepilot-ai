@@ -2,12 +2,15 @@ package com.lurepilot.backend.service;
 
 import com.lurepilot.backend.dto.CreateFishSpeciesRequest;
 import com.lurepilot.backend.dto.FishSpeciesResponse;
+import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.FishSpecies;
 import com.lurepilot.backend.repository.FishSpeciesRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -34,12 +37,19 @@ public class FishSpeciesService {
         return toResponse(fishSpeciesRepository.save(fishSpecies));
     }
 
-    public List<FishSpeciesResponse> getAllFishSpecies() {
-        return searchFishSpecies(null, null);
+    public PagedResponse<FishSpeciesSummaryResponse> getAllFishSpecies() {
+        return searchFishSpecies(null, null, 0, 20, "id", "asc");
     }
 
-    public List<FishSpeciesResponse> searchFishSpecies(String q, String strikeZone) {
-        return fishSpeciesRepository.findAll()
+    public PagedResponse<FishSpeciesSummaryResponse> searchFishSpecies(
+            String q,
+            String strikeZone,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection
+    ) {
+        List<FishSpecies> filteredFishSpecies = fishSpeciesRepository.findAll()
                 .stream()
                 .filter(fishSpecies -> matchesQuery(
                         q,
@@ -52,8 +62,13 @@ public class FishSpeciesService {
                         fishSpecies.getFavoriteLures()
                 ))
                 .filter(fishSpecies -> matchesContains(strikeZone, fishSpecies.getStrikeZone()))
-                .map(this::toResponse)
                 .toList();
+
+        List<FishSpecies> sortedFishSpecies = filteredFishSpecies.stream()
+                .sorted(ListQuerySupport.applyDirection(fishSpeciesComparator(sortBy), sortDirection))
+                .toList();
+
+        return ListQuerySupport.toPage(sortedFishSpecies, page, size, this::toSummaryResponse);
     }
 
     public FishSpeciesResponse getFishSpeciesById(Long id) {
@@ -99,6 +114,25 @@ public class FishSpeciesService {
                 fishSpecies.getFavoriteLures(),
                 fishSpecies.getCreatedAt()
         );
+    }
+
+    private FishSpeciesSummaryResponse toSummaryResponse(FishSpecies fishSpecies) {
+        return new FishSpeciesSummaryResponse(
+                fishSpecies.getId(),
+                fishSpecies.getName(),
+                fishSpecies.getImageUrl(),
+                fishSpecies.getStrikeZone(),
+                fishSpecies.getFavoriteLures()
+        );
+    }
+
+    private Comparator<FishSpecies> fishSpeciesComparator(String sortBy) {
+        return switch (normalize(sortBy)) {
+            case "name" -> ListQuerySupport.comparing(FishSpecies::getName);
+            case "strikezone" -> ListQuerySupport.comparing(FishSpecies::getStrikeZone);
+            case "createdat" -> ListQuerySupport.comparing(FishSpecies::getCreatedAt);
+            default -> ListQuerySupport.comparing(FishSpecies::getId);
+        };
     }
 
     private boolean matchesQuery(String query, String... values) {

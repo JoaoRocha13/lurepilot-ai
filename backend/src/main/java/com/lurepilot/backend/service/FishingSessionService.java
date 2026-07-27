@@ -3,6 +3,8 @@ package com.lurepilot.backend.service;
 import com.lurepilot.backend.dto.CreateFishingSessionRequest;
 import com.lurepilot.backend.dto.FinishFishingSessionRequest;
 import com.lurepilot.backend.dto.FishingSessionResponse;
+import com.lurepilot.backend.dto.FishingSessionSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.dto.StartFishingSessionRequest;
 import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingSession;
@@ -18,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,12 +59,27 @@ public class FishingSessionService {
         return toResponse(fishingSessionRepository.save(fishingSession));
     }
 
-    public List<FishingSessionResponse> getAllSessions() {
-        return searchSessions(null, null, null, null, null, null, null, null, null, null);
+    public PagedResponse<FishingSessionSummaryResponse> getAllSessions() {
+        return searchSessions(null, null, null, null, null, null, null, null, null, null, 0, 20, "id", "asc");
     }
 
-    public List<FishingSessionResponse> searchSessions(String q, Long spotId, Long planId, String targetSpecies, String waterClarity, String waterLevel, String status, Boolean success, LocalDate dateFrom, LocalDate dateTo) {
-        return fishingSessionRepository.findAll()
+    public PagedResponse<FishingSessionSummaryResponse> searchSessions(
+            String q,
+            Long spotId,
+            Long planId,
+            String targetSpecies,
+            String waterClarity,
+            String waterLevel,
+            String status,
+            Boolean success,
+            LocalDate dateFrom,
+            LocalDate dateTo,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection
+    ) {
+        List<FishingSession> filteredSessions = fishingSessionRepository.findAll()
                 .stream()
                 .filter(session -> matchesQuery(
                         q,
@@ -82,8 +100,13 @@ public class FishingSessionService {
                 .filter(session -> success == null || success.equals(session.getSuccess()))
                 .filter(session -> dateFrom == null || !session.getDate().isBefore(dateFrom))
                 .filter(session -> dateTo == null || !session.getDate().isAfter(dateTo))
-                .map(this::toResponse)
                 .toList();
+
+        List<FishingSession> sortedSessions = filteredSessions.stream()
+                .sorted(ListQuerySupport.applyDirection(fishingSessionComparator(sortBy), sortDirection))
+                .toList();
+
+        return ListQuerySupport.toPage(sortedSessions, page, size, this::toSummaryResponse);
     }
 
     public FishingSessionResponse getSessionById(Long id) {
@@ -205,6 +228,40 @@ public class FishingSessionService {
                 fishingSession.getRating(),
                 fishingSession.getCreatedAt()
         );
+    }
+
+    private FishingSessionSummaryResponse toSummaryResponse(FishingSession fishingSession) {
+        FishingSpot spot = fishingSession.getSpot();
+        FishingPlan plan = fishingSession.getPlan();
+
+        return new FishingSessionSummaryResponse(
+                fishingSession.getId(),
+                spot.getId(),
+                spot.getName(),
+                plan == null ? null : plan.getId(),
+                fishingSession.getDate(),
+                fishingSession.getStartTime(),
+                fishingSession.getEndTime(),
+                statusOrDefault(fishingSession).name().toLowerCase(Locale.ROOT),
+                fishingSession.getTargetSpecies(),
+                fishingSession.getSuccess(),
+                fishingSession.getRating()
+        );
+    }
+
+    private Comparator<FishingSession> fishingSessionComparator(String sortBy) {
+        return switch (normalize(sortBy)) {
+            case "date" -> ListQuerySupport.comparing(FishingSession::getDate);
+            case "starttime" -> ListQuerySupport.comparing(FishingSession::getStartTime);
+            case "endtime" -> ListQuerySupport.comparing(FishingSession::getEndTime);
+            case "status" -> ListQuerySupport.comparing(session -> statusOrDefault(session).name());
+            case "spotname" -> ListQuerySupport.comparing(session -> session.getSpot().getName());
+            case "targetspecies" -> ListQuerySupport.comparing(FishingSession::getTargetSpecies);
+            case "success" -> ListQuerySupport.comparing(FishingSession::getSuccess);
+            case "rating" -> ListQuerySupport.comparing(FishingSession::getRating);
+            case "createdat" -> ListQuerySupport.comparing(FishingSession::getCreatedAt);
+            default -> ListQuerySupport.comparing(FishingSession::getId);
+        };
     }
 
     private FishingSessionStatus statusOrDefault(FishingSession session) {

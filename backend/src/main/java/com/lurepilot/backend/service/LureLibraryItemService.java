@@ -2,12 +2,15 @@ package com.lurepilot.backend.service;
 
 import com.lurepilot.backend.dto.CreateLureLibraryItemRequest;
 import com.lurepilot.backend.dto.LureLibraryItemResponse;
+import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.repository.LureLibraryItemRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -35,12 +38,21 @@ public class LureLibraryItemService {
         return toResponse(lureLibraryItemRepository.save(item));
     }
 
-    public List<LureLibraryItemResponse> getAllLureLibraryItems() {
-        return searchLureLibraryItems(null, null, null, null);
+    public PagedResponse<LureLibraryItemSummaryResponse> getAllLureLibraryItems() {
+        return searchLureLibraryItems(null, null, null, null, 0, 20, "id", "asc");
     }
 
-    public List<LureLibraryItemResponse> searchLureLibraryItems(String q, String type, String difficulty, String effectiveness) {
-        return lureLibraryItemRepository.findAll()
+    public PagedResponse<LureLibraryItemSummaryResponse> searchLureLibraryItems(
+            String q,
+            String type,
+            String difficulty,
+            String effectiveness,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection
+    ) {
+        List<LureLibraryItem> filteredItems = lureLibraryItemRepository.findAll()
                 .stream()
                 .filter(item -> matchesQuery(
                         q,
@@ -56,8 +68,13 @@ public class LureLibraryItemService {
                 .filter(item -> matchesExact(type, item.getType()))
                 .filter(item -> matchesExact(difficulty, item.getDifficulty()))
                 .filter(item -> matchesExact(effectiveness, item.getEffectiveness()))
-                .map(this::toResponse)
                 .toList();
+
+        List<LureLibraryItem> sortedItems = filteredItems.stream()
+                .sorted(ListQuerySupport.applyDirection(lureLibraryItemComparator(sortBy), sortDirection))
+                .toList();
+
+        return ListQuerySupport.toPage(sortedItems, page, size, this::toSummaryResponse);
     }
 
     public LureLibraryItemResponse getLureLibraryItemById(Long id) {
@@ -105,6 +122,29 @@ public class LureLibraryItemService {
                 item.getIdealConditions(),
                 item.getCreatedAt()
         );
+    }
+
+    private LureLibraryItemSummaryResponse toSummaryResponse(LureLibraryItem item) {
+        return new LureLibraryItemSummaryResponse(
+                item.getId(),
+                item.getName(),
+                item.getType(),
+                item.getImageUrl(),
+                item.getDifficulty(),
+                item.getEffectiveness(),
+                item.getActionType()
+        );
+    }
+
+    private Comparator<LureLibraryItem> lureLibraryItemComparator(String sortBy) {
+        return switch (normalize(sortBy)) {
+            case "name" -> ListQuerySupport.comparing(LureLibraryItem::getName);
+            case "type" -> ListQuerySupport.comparing(LureLibraryItem::getType);
+            case "difficulty" -> ListQuerySupport.comparing(LureLibraryItem::getDifficulty);
+            case "effectiveness" -> ListQuerySupport.comparing(LureLibraryItem::getEffectiveness);
+            case "createdat" -> ListQuerySupport.comparing(LureLibraryItem::getCreatedAt);
+            default -> ListQuerySupport.comparing(LureLibraryItem::getId);
+        };
     }
 
     private boolean matchesQuery(String query, String... values) {

@@ -153,11 +153,11 @@
         {
           "name": "Search Fishing Spots",
           "request": {
-            "description": "Optional filters: q, waterType, favoriteSpecies.",
+            "description": "Optional filters: q, waterType, favoriteSpecies. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/spots?q=tejo&waterType=RIVER&favoriteSpecies=Barbo",
+              "raw": "{{baseUrl}}/api/spots?q=tejo&waterType=RIVER&favoriteSpecies=Barbo&page=0&size=10&sortBy=name&sortDirection=asc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -177,6 +177,22 @@
                 {
                   "key": "favoriteSpecies",
                   "value": "Barbo"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "asc"
                 }
               ]
             }
@@ -296,11 +312,11 @@
         {
           "name": "Search Fish Species",
           "request": {
-            "description": "Optional filters: q, strikeZone.",
+            "description": "Optional filters: q, strikeZone. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/fish?q=achiga&strikeZone=surface",
+              "raw": "{{baseUrl}}/api/fish?q=achiga&strikeZone=surface&page=0&size=10&sortBy=name&sortDirection=asc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -316,6 +332,22 @@
                 {
                   "key": "strikeZone",
                   "value": "surface"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "asc"
                 }
               ]
             }
@@ -435,11 +467,11 @@
         {
           "name": "Search Lure Library Items",
           "request": {
-            "description": "Optional filters: q, type, difficulty, effectiveness.",
+            "description": "Optional filters: q, type, difficulty, effectiveness. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/lure-library?q=jerk&type=JERKBAIT&difficulty=MEDIUM&effectiveness=HIGH",
+              "raw": "{{baseUrl}}/api/lure-library?q=jerk&type=JERKBAIT&difficulty=MEDIUM&effectiveness=HIGH&page=0&size=10&sortBy=name&sortDirection=asc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -463,6 +495,22 @@
                 {
                   "key": "effectiveness",
                   "value": "HIGH"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "asc"
                 }
               ]
             }
@@ -534,10 +582,10 @@
       ]
     },
     {
-      "name": "Lures",
+      "name": "Lure Box",
       "item": [
         {
-          "name": "Create Lure",
+          "name": "Create Lure Box Item",
           "request": {
             "method": "POST",
             "header": [
@@ -551,48 +599,48 @@
               "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Boa para agua clara e peixe suspenso.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/lures",
+              "raw": "{{baseUrl}}/api/lure-box",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lures"
+                "lure-box"
               ]
             }
           }
         },
         {
-          "name": "List Lures",
+          "name": "List Lure Box Items",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/lures",
+              "raw": "{{baseUrl}}/api/lure-box",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lures"
+                "lure-box"
               ]
             }
           }
         },
         {
-          "name": "Search Lures",
+          "name": "Search Lure Box Items",
           "request": {
-            "description": "Optional filters: q, type, waterType, targetSpecies, brand, libraryItemId.",
+            "description": "Optional filters: q, type, waterType, targetSpecies, brand, libraryItemId, active, condition, minQuantity. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/lures?q=rapala&type=JERKBAIT&waterType=DAM&targetSpecies=BASS&brand=Rapala&libraryItemId=1",
+              "raw": "{{baseUrl}}/api/lure-box?q=rapala&type=JERKBAIT&waterType=DAM&targetSpecies=BASS&brand=Rapala&libraryItemId=1&active=true&condition=GOOD&minQuantity=1&page=0&size=10&sortBy=name&sortDirection=asc",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lures"
+                "lure-box"
               ],
               "query": [
                 {
@@ -618,31 +666,59 @@
                 {
                   "key": "libraryItemId",
                   "value": "1"
+                },
+                {
+                  "key": "active",
+                  "value": "true"
+                },
+                {
+                  "key": "condition",
+                  "value": "GOOD"
+                },
+                {
+                  "key": "minQuantity",
+                  "value": "1"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "asc"
                 }
               ]
             }
           }
         },
         {
-          "name": "Get Lure By Id",
+          "name": "Get Lure Box Item By Id",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/lures/{{lureId}}",
+              "raw": "{{baseUrl}}/api/lure-box/{{lureId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lures",
+                "lure-box",
                 "{{lureId}}"
               ]
             }
           }
         },
         {
-          "name": "Update Lure",
+          "name": "Update Lure Box Item",
           "request": {
             "method": "PUT",
             "header": [
@@ -656,31 +732,31 @@
               "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Atualizado via PUT.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/lures/{{lureId}}",
+              "raw": "{{baseUrl}}/api/lure-box/{{lureId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lures",
+                "lure-box",
                 "{{lureId}}"
               ]
             }
           }
         },
         {
-          "name": "Delete Lure",
+          "name": "Delete Lure Box Item",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/lures/{{lureId}}",
+              "raw": "{{baseUrl}}/api/lure-box/{{lureId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lures",
+                "lure-box",
                 "{{lureId}}"
               ]
             }
@@ -737,11 +813,11 @@
         {
           "name": "Search Fishing Plans",
           "request": {
-            "description": "Optional filters: q, spotId, targetSpecies, waterClarity, waterLevel, dateFrom, dateTo. Dates use YYYY-MM-DD.",
+            "description": "Optional filters: q, spotId, targetSpecies, waterClarity, waterLevel, dateFrom, dateTo. Dates use YYYY-MM-DD. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/plans?q=fim%20tarde&spotId=1&targetSpecies=BASS&waterClarity=CLEAR&waterLevel=LOW&dateFrom=2026-07-01&dateTo=2026-07-31",
+              "raw": "{{baseUrl}}/api/plans?q=fim%20tarde&spotId=1&targetSpecies=BASS&waterClarity=CLEAR&waterLevel=LOW&dateFrom=2026-07-01&dateTo=2026-07-31&page=0&size=10&sortBy=plannedDate&sortDirection=asc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -777,6 +853,22 @@
                 {
                   "key": "dateTo",
                   "value": "2026-07-31"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "plannedDate"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "asc"
                 }
               ]
             }
@@ -983,11 +1075,11 @@
         {
           "name": "Search Fishing Sessions",
           "request": {
-            "description": "Optional filters: q, spotId, planId, targetSpecies, waterClarity, waterLevel, status, success, dateFrom, dateTo. Dates use YYYY-MM-DD.",
+            "description": "Optional filters: q, spotId, planId, targetSpecies, waterClarity, waterLevel, status, success, dateFrom, dateTo. Dates use YYYY-MM-DD. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/sessions?q=pedra&spotId=1&planId=1&targetSpecies=BASS&waterClarity=CLEAR&waterLevel=LOW&status=finished&success=true&dateFrom=2026-07-01&dateTo=2026-07-31",
+              "raw": "{{baseUrl}}/api/sessions?q=pedra&spotId=1&planId=1&targetSpecies=BASS&waterClarity=CLEAR&waterLevel=LOW&status=finished&success=true&dateFrom=2026-07-01&dateTo=2026-07-31&page=0&size=10&sortBy=date&sortDirection=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1035,6 +1127,22 @@
                 {
                   "key": "dateTo",
                   "value": "2026-07-31"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "date"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "desc"
                 }
               ]
             }

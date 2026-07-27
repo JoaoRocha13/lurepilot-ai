@@ -42,6 +42,20 @@ public class Lure {
     @Column(nullable = false)
     private String waterType;
 
+    private Boolean active = true;
+
+    private Integer quantity = 1;
+
+    @Column(name = "lure_condition")
+    private String condition;
+
+    @Column(length = 1000)
+    private String personalNotes;
+
+    private String favoriteForSpecies;
+
+    private String favoriteForSpot;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -68,6 +82,12 @@ public class Lure {
     public void prePersist() {
         if (createdAt == null) {
             createdAt = Instant.now();
+        }
+        if (active == null) {
+            active = true;
+        }
+        if (quantity == null) {
+            quantity = 1;
         }
     }
 
@@ -145,6 +165,54 @@ public class Lure {
 
     public void setWaterType(String waterType) {
         this.waterType = waterType;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public String getPersonalNotes() {
+        return personalNotes;
+    }
+
+    public void setPersonalNotes(String personalNotes) {
+        this.personalNotes = personalNotes;
+    }
+
+    public String getFavoriteForSpecies() {
+        return favoriteForSpecies;
+    }
+
+    public void setFavoriteForSpecies(String favoriteForSpecies) {
+        this.favoriteForSpecies = favoriteForSpecies;
+    }
+
+    public String getFavoriteForSpot() {
+        return favoriteForSpot;
+    }
+
+    public void setFavoriteForSpot(String favoriteForSpot) {
+        this.favoriteForSpot = favoriteForSpot;
     }
 
     public Instant getCreatedAt() {

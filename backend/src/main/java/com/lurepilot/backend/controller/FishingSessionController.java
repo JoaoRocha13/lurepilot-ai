@@ -3,6 +3,8 @@ package com.lurepilot.backend.controller;
 import com.lurepilot.backend.dto.CreateFishingSessionRequest;
 import com.lurepilot.backend.dto.FinishFishingSessionRequest;
 import com.lurepilot.backend.dto.FishingSessionResponse;
+import com.lurepilot.backend.dto.FishingSessionSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.dto.StartFishingSessionRequest;
 import com.lurepilot.backend.service.FishingSessionService;
 import jakarta.validation.Valid;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/sessions")
 public class FishingSessionController {
@@ -39,7 +39,7 @@ public class FishingSessionController {
     }
 
     @GetMapping
-    public List<FishingSessionResponse> getAllSessions(
+    public PagedResponse<FishingSessionSummaryResponse> getAllSessions(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Long spotId,
             @RequestParam(required = false) Long planId,
@@ -49,9 +49,13 @@ public class FishingSessionController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Boolean success,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return fishingSessionService.searchSessions(q, spotId, planId, targetSpecies, waterClarity, waterLevel, status, success, dateFrom, dateTo);
+        return fishingSessionService.searchSessions(q, spotId, planId, targetSpecies, waterClarity, waterLevel, status, success, dateFrom, dateTo, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

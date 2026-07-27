@@ -2,11 +2,17 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.config.GlobalExceptionHandler;
 import com.lurepilot.backend.dto.FishSpeciesResponse;
+import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
 import com.lurepilot.backend.dto.FishingPlanResponse;
+import com.lurepilot.backend.dto.FishingPlanSummaryResponse;
 import com.lurepilot.backend.dto.FishingSessionResponse;
+import com.lurepilot.backend.dto.FishingSessionSummaryResponse;
 import com.lurepilot.backend.dto.FishingSpotResponse;
+import com.lurepilot.backend.dto.FishingSpotSummaryResponse;
+import com.lurepilot.backend.dto.LureBoxItemSummaryResponse;
 import com.lurepilot.backend.dto.LureLibraryItemResponse;
-import com.lurepilot.backend.dto.LureResponse;
+import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.service.AiRecommendationService;
 import com.lurepilot.backend.service.FishSpeciesService;
 import com.lurepilot.backend.service.FishingPlanService;
@@ -38,26 +44,44 @@ class MainControllerMockMvcTest {
     @Test
     void listSpotsAcceptsSearchFilters() throws Exception {
         FishingSpotService service = mock(FishingSpotService.class);
-        when(service.searchSpots("tejo", "RIVER", "Barbo")).thenReturn(List.of(
-                new FishingSpotResponse(1L, "Rio Tejo", null, 39.0, -8.0, "RIVER", "Barbo", null)
+        when(service.searchSpots("tejo", "RIVER", "Barbo", 1, 10, "name", "desc")).thenReturn(new PagedResponse<>(
+                List.of(new FishingSpotSummaryResponse(1L, "Rio Tejo", 39.0, -8.0, "RIVER", "Barbo")),
+                1,
+                1,
+                10,
+                1,
+                false,
+                true
         ));
 
         mockMvc(new FishingSpotController(service))
                 .perform(get("/api/spots")
                         .param("q", "tejo")
                         .param("waterType", "RIVER")
-                        .param("favoriteSpecies", "Barbo"))
+                        .param("favoriteSpecies", "Barbo")
+                        .param("page", "1")
+                        .param("size", "10")
+                        .param("sortBy", "name")
+                        .param("sortDirection", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Rio Tejo"));
+                .andExpect(jsonPath("$.items[0].name").value("Rio Tejo"))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.size").value(10));
 
-        verify(service).searchSpots("tejo", "RIVER", "Barbo");
+        verify(service).searchSpots("tejo", "RIVER", "Barbo", 1, 10, "name", "desc");
     }
 
     @Test
     void listFishAcceptsSearchFilters() throws Exception {
         FishSpeciesService service = mock(FishSpeciesService.class);
-        when(service.searchFishSpecies("achiga", "surface")).thenReturn(List.of(
-                new FishSpeciesResponse(1L, "Achiga", null, null, null, null, "surface", null, null, null)
+        when(service.searchFishSpecies("achiga", "surface", 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
+                List.of(new FishSpeciesSummaryResponse(1L, "Achiga", null, "surface", null)),
+                1,
+                0,
+                20,
+                1,
+                false,
+                false
         ));
 
         mockMvc(new FishSpeciesController(service))
@@ -65,16 +89,22 @@ class MainControllerMockMvcTest {
                         .param("q", "achiga")
                         .param("strikeZone", "surface"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Achiga"));
+                .andExpect(jsonPath("$.items[0].name").value("Achiga"));
 
-        verify(service).searchFishSpecies("achiga", "surface");
+        verify(service).searchFishSpecies("achiga", "surface", 0, 20, "id", "asc");
     }
 
     @Test
     void listLureLibraryAcceptsSearchFilters() throws Exception {
         LureLibraryItemService service = mock(LureLibraryItemService.class);
-        when(service.searchLureLibraryItems("jerk", "JERKBAIT", "MEDIUM", "HIGH")).thenReturn(List.of(
-                new LureLibraryItemResponse(1L, "Jerkbait", "JERKBAIT", null, "MEDIUM", "HIGH", null, null, null, null, null)
+        when(service.searchLureLibraryItems("jerk", "JERKBAIT", "MEDIUM", "HIGH", 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
+                List.of(new LureLibraryItemSummaryResponse(1L, "Jerkbait", "JERKBAIT", null, "MEDIUM", "HIGH", null)),
+                1,
+                0,
+                20,
+                1,
+                false,
+                false
         ));
 
         mockMvc(new LureLibraryItemController(service))
@@ -84,16 +114,22 @@ class MainControllerMockMvcTest {
                         .param("difficulty", "MEDIUM")
                         .param("effectiveness", "HIGH"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Jerkbait"));
+                .andExpect(jsonPath("$.items[0].name").value("Jerkbait"));
 
-        verify(service).searchLureLibraryItems("jerk", "JERKBAIT", "MEDIUM", "HIGH");
+        verify(service).searchLureLibraryItems("jerk", "JERKBAIT", "MEDIUM", "HIGH", 0, 20, "id", "asc");
     }
 
     @Test
     void listLuresAcceptsSearchFilters() throws Exception {
         LureService service = mock(LureService.class);
-        when(service.searchLures("rapala", "JERKBAIT", "DAM", "BASS", "Rapala", 3L)).thenReturn(List.of(
-                new LureResponse(1L, "Rapala Shadow Rap", "JERKBAIT", "SILVER", "11cm", 13.0, "Rapala", null, 3L, "Jerkbait", "BASS", "DAM", null)
+        when(service.searchLures("rapala", "JERKBAIT", "DAM", "BASS", "Rapala", 3L, true, "GOOD", 1, 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
+                List.of(new LureBoxItemSummaryResponse(1L, "Rapala Shadow Rap", "JERKBAIT", "SILVER", "11cm", "Rapala", 3L, "Jerkbait", "BASS", "DAM", true, 1, "GOOD")),
+                1,
+                0,
+                20,
+                1,
+                false,
+                false
         ));
 
         mockMvc(new LureController(service))
@@ -103,11 +139,16 @@ class MainControllerMockMvcTest {
                         .param("waterType", "DAM")
                         .param("targetSpecies", "BASS")
                         .param("brand", "Rapala")
-                        .param("libraryItemId", "3"))
+                        .param("libraryItemId", "3")
+                        .param("active", "true")
+                        .param("condition", "GOOD")
+                        .param("minQuantity", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Rapala Shadow Rap"));
+                .andExpect(jsonPath("$.items[0].name").value("Rapala Shadow Rap"))
+                .andExpect(jsonPath("$.items[0].active").value(true))
+                .andExpect(jsonPath("$.items[0].quantity").value(1));
 
-        verify(service).searchLures("rapala", "JERKBAIT", "DAM", "BASS", "Rapala", 3L);
+        verify(service).searchLures("rapala", "JERKBAIT", "DAM", "BASS", "Rapala", 3L, true, "GOOD", 1, 0, 20, "id", "asc");
     }
 
     @Test
@@ -115,8 +156,14 @@ class MainControllerMockMvcTest {
         FishingPlanService service = mock(FishingPlanService.class);
         LocalDate dateFrom = LocalDate.of(2026, 7, 1);
         LocalDate dateTo = LocalDate.of(2026, 7, 31);
-        when(service.searchPlans("fim tarde", 1L, "BASS", "CLEAR", "LOW", dateFrom, dateTo)).thenReturn(List.of(
-                new FishingPlanResponse(1L, 1L, "Barragem Norte", LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), "BASS", "CLEAR", "LOW", "fim tarde", null)
+        when(service.searchPlans("fim tarde", 1L, "BASS", "CLEAR", "LOW", dateFrom, dateTo, 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
+                List.of(new FishingPlanSummaryResponse(1L, 1L, "Barragem Norte", LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), "BASS", "CLEAR", "LOW")),
+                1,
+                0,
+                20,
+                1,
+                false,
+                false
         ));
 
         mockMvc(new FishingPlanController(service))
@@ -129,9 +176,9 @@ class MainControllerMockMvcTest {
                         .param("dateFrom", "2026-07-01")
                         .param("dateTo", "2026-07-31"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].spotName").value("Barragem Norte"));
+                .andExpect(jsonPath("$.items[0].spotName").value("Barragem Norte"));
 
-        verify(service).searchPlans("fim tarde", 1L, "BASS", "CLEAR", "LOW", dateFrom, dateTo);
+        verify(service).searchPlans("fim tarde", 1L, "BASS", "CLEAR", "LOW", dateFrom, dateTo, 0, 20, "id", "asc");
     }
 
     @Test
@@ -139,8 +186,14 @@ class MainControllerMockMvcTest {
         FishingSessionService service = mock(FishingSessionService.class);
         LocalDate dateFrom = LocalDate.of(2026, 7, 1);
         LocalDate dateTo = LocalDate.of(2026, 7, 31);
-        when(service.searchSessions("pedra", 1L, 2L, "BASS", "CLEAR", "LOW", "finished", true, dateFrom, dateTo)).thenReturn(List.of(
-                new FishingSessionResponse(1L, 1L, "Barragem Norte", 2L, LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), LocalTime.of(21, 0), "finished", "BASS", "CLEAR", "LOW", "pedra", true, 120L, "Boa sessao", null, 4, null)
+        when(service.searchSessions("pedra", 1L, 2L, "BASS", "CLEAR", "LOW", "finished", true, dateFrom, dateTo, 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
+                List.of(new FishingSessionSummaryResponse(1L, 1L, "Barragem Norte", 2L, LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), LocalTime.of(21, 0), "finished", "BASS", true, 4)),
+                1,
+                0,
+                20,
+                1,
+                false,
+                false
         ));
 
         mockMvc(new FishingSessionController(service))
@@ -156,9 +209,9 @@ class MainControllerMockMvcTest {
                         .param("dateFrom", "2026-07-01")
                         .param("dateTo", "2026-07-31"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].status").value("finished"));
+                .andExpect(jsonPath("$.items[0].status").value("finished"));
 
-        verify(service).searchSessions("pedra", 1L, 2L, "BASS", "CLEAR", "LOW", "finished", true, dateFrom, dateTo);
+        verify(service).searchSessions("pedra", 1L, 2L, "BASS", "CLEAR", "LOW", "finished", true, dateFrom, dateTo, 0, 20, "id", "asc");
     }
 
     @Test
