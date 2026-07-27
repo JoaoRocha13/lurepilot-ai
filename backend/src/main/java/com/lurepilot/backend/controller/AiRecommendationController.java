@@ -3,8 +3,10 @@ package com.lurepilot.backend.controller;
 import com.lurepilot.backend.dto.AiRecommendationDebugResponse;
 import com.lurepilot.backend.dto.AiPlanRecommendationResponse;
 import com.lurepilot.backend.dto.AiSessionAdjustmentResponse;
+import com.lurepilot.backend.dto.AiSessionReviewResponse;
 import com.lurepilot.backend.dto.CreateAiPlanRecommendationRequest;
 import com.lurepilot.backend.dto.CreateSessionAdjustmentRequest;
+import com.lurepilot.backend.dto.CreateSessionReviewRequest;
 import com.lurepilot.backend.service.AiRecommendationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,9 +42,20 @@ public class AiRecommendationController {
         return aiRecommendationService.createSessionAdjustment(request);
     }
 
+    @PostMapping("/session-review")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AiSessionReviewResponse createSessionReview(@Valid @RequestBody CreateSessionReviewRequest request) {
+        return aiRecommendationService.createSessionReview(request);
+    }
+
     @GetMapping("/plans/{planId}")
     public List<AiPlanRecommendationResponse> getRecommendationsByPlan(@PathVariable Long planId) {
         return aiRecommendationService.getRecommendationsByPlan(planId);
+    }
+
+    @GetMapping("/sessions/{sessionId}/reviews")
+    public List<AiSessionReviewResponse> getSessionReviews(@PathVariable Long sessionId) {
+        return aiRecommendationService.getSessionReviews(sessionId);
     }
 
     @GetMapping("/{id}/debug")

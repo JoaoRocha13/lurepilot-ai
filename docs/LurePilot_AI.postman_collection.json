@@ -937,6 +937,55 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Create Session Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/session-review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "session-review"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Session Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/sessions/{{sessionId}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "sessions",
+                "{{sessionId}}",
+                "reviews"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

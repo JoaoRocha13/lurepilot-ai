@@ -9,6 +9,8 @@ public interface AiRecommendationRepository extends JpaRepository<AiRecommendati
 
     List<AiRecommendation> findByPlanIdOrderByCreatedAtDescIdDesc(Long planId);
 
+    List<AiRecommendation> findBySessionIdAndRecommendationTypeOrderByCreatedAtDescIdDesc(Long sessionId, String recommendationType);
+
     long countByPlanIdAndRecommendationType(Long planId, String recommendationType);
 
     long countBySessionIdAndRecommendationType(Long sessionId, String recommendationType);

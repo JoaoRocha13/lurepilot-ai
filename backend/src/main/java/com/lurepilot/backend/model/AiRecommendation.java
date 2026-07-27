@@ -65,6 +65,9 @@ public class AiRecommendation {
     @Lob
     private String warningsJson;
 
+    @Lob
+    private String extraJson;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -153,6 +156,14 @@ public class AiRecommendation {
 
     public String getWarningsJson() {
         return warningsJson;
+    }
+
+    public String getExtraJson() {
+        return extraJson;
+    }
+
+    public void setExtraJson(String extraJson) {
+        this.extraJson = extraJson;
     }
 
     public Instant getCreatedAt() {
