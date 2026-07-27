@@ -151,6 +151,38 @@
           }
         },
         {
+          "name": "Search Fishing Spots",
+          "request": {
+            "description": "Optional filters: q, waterType, favoriteSpecies.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spots?q=tejo&waterType=RIVER&favoriteSpecies=Barbo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "spots"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "tejo"
+                },
+                {
+                  "key": "waterType",
+                  "value": "RIVER"
+                },
+                {
+                  "key": "favoriteSpecies",
+                  "value": "Barbo"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Fishing Spot By Id",
           "request": {
             "method": "GET",
@@ -257,6 +289,34 @@
               "path": [
                 "api",
                 "fish"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Fish Species",
+          "request": {
+            "description": "Optional filters: q, strikeZone.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fish?q=achiga&strikeZone=surface",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fish"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "achiga"
+                },
+                {
+                  "key": "strikeZone",
+                  "value": "surface"
+                }
               ]
             }
           }
@@ -373,6 +433,42 @@
           }
         },
         {
+          "name": "Search Lure Library Items",
+          "request": {
+            "description": "Optional filters: q, type, difficulty, effectiveness.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lure-library?q=jerk&type=JERKBAIT&difficulty=MEDIUM&effectiveness=HIGH",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lure-library"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "jerk"
+                },
+                {
+                  "key": "type",
+                  "value": "JERKBAIT"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "MEDIUM"
+                },
+                {
+                  "key": "effectiveness",
+                  "value": "HIGH"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Lure Library Item By Id",
           "request": {
             "method": "GET",
@@ -484,6 +580,50 @@
           }
         },
         {
+          "name": "Search Lures",
+          "request": {
+            "description": "Optional filters: q, type, waterType, targetSpecies, brand, libraryItemId.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lures?q=rapala&type=JERKBAIT&waterType=DAM&targetSpecies=BASS&brand=Rapala&libraryItemId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lures"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "rapala"
+                },
+                {
+                  "key": "type",
+                  "value": "JERKBAIT"
+                },
+                {
+                  "key": "waterType",
+                  "value": "DAM"
+                },
+                {
+                  "key": "targetSpecies",
+                  "value": "BASS"
+                },
+                {
+                  "key": "brand",
+                  "value": "Rapala"
+                },
+                {
+                  "key": "libraryItemId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Lure By Id",
           "request": {
             "method": "GET",
@@ -590,6 +730,54 @@
               "path": [
                 "api",
                 "plans"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Fishing Plans",
+          "request": {
+            "description": "Optional filters: q, spotId, targetSpecies, waterClarity, waterLevel, dateFrom, dateTo. Dates use YYYY-MM-DD.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans?q=fim%20tarde&spotId=1&targetSpecies=BASS&waterClarity=CLEAR&waterLevel=LOW&dateFrom=2026-07-01&dateTo=2026-07-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "fim%20tarde"
+                },
+                {
+                  "key": "spotId",
+                  "value": "1"
+                },
+                {
+                  "key": "targetSpecies",
+                  "value": "BASS"
+                },
+                {
+                  "key": "waterClarity",
+                  "value": "CLEAR"
+                },
+                {
+                  "key": "waterLevel",
+                  "value": "LOW"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31"
+                }
               ]
             }
           }
@@ -788,6 +976,66 @@
               "path": [
                 "api",
                 "sessions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Fishing Sessions",
+          "request": {
+            "description": "Optional filters: q, spotId, planId, targetSpecies, waterClarity, waterLevel, status, success, dateFrom, dateTo. Dates use YYYY-MM-DD.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions?q=pedra&spotId=1&planId=1&targetSpecies=BASS&waterClarity=CLEAR&waterLevel=LOW&status=finished&success=true&dateFrom=2026-07-01&dateTo=2026-07-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "pedra"
+                },
+                {
+                  "key": "spotId",
+                  "value": "1"
+                },
+                {
+                  "key": "planId",
+                  "value": "1"
+                },
+                {
+                  "key": "targetSpecies",
+                  "value": "BASS"
+                },
+                {
+                  "key": "waterClarity",
+                  "value": "CLEAR"
+                },
+                {
+                  "key": "waterLevel",
+                  "value": "LOW"
+                },
+                {
+                  "key": "status",
+                  "value": "finished"
+                },
+                {
+                  "key": "success",
+                  "value": "true"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31"
+                }
               ]
             }
           }

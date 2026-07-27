@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -41,8 +42,26 @@ public class FishingPlanService {
     }
 
     public List<FishingPlanResponse> getAllPlans() {
+        return searchPlans(null, null, null, null, null, null, null);
+    }
+
+    public List<FishingPlanResponse> searchPlans(String q, Long spotId, String targetSpecies, String waterClarity, String waterLevel, LocalDate dateFrom, LocalDate dateTo) {
         return fishingPlanRepository.findAll()
                 .stream()
+                .filter(plan -> matchesQuery(
+                        q,
+                        plan.getSpot().getName(),
+                        plan.getTargetSpecies(),
+                        plan.getWaterClarity(),
+                        plan.getWaterLevel(),
+                        plan.getNotes()
+                ))
+                .filter(plan -> spotId == null || spotId.equals(plan.getSpot().getId()))
+                .filter(plan -> matchesContains(targetSpecies, plan.getTargetSpecies()))
+                .filter(plan -> matchesExact(waterClarity, plan.getWaterClarity()))
+                .filter(plan -> matchesExact(waterLevel, plan.getWaterLevel()))
+                .filter(plan -> dateFrom == null || !plan.getPlannedDate().isBefore(dateFrom))
+                .filter(plan -> dateTo == null || !plan.getPlannedDate().isAfter(dateTo))
                 .map(this::toResponse)
                 .toList();
     }
@@ -93,5 +112,32 @@ public class FishingPlanService {
                 fishingPlan.getNotes(),
                 fishingPlan.getCreatedAt()
         );
+    }
+
+    private boolean matchesQuery(String query, String... values) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String normalizedQuery = normalize(query);
+        for (String value : values) {
+            if (value != null && normalize(value).contains(normalizedQuery)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExact(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
+    }
+
+    private boolean matchesContains(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

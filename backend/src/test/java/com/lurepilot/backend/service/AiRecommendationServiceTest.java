@@ -113,7 +113,7 @@ class AiRecommendationServiceTest {
                     {"rank": 1, "lure": "Spinnerbait inventado", "reason": "Nao esta no contexto."},
                     {"rank": 2, "lure": "Vinil verde natural", "reason": "Esta no contexto."}
                   ],
-                  "planA": "Comecar com vinil.",
+                  "planA": "Comecar com Spinnerbait inventado junto a estrutura.",
                   "planB": "Mudar cadencia.",
                   "planC": "Procurar sombra.",
                   "avoid": [],
@@ -136,7 +136,9 @@ class AiRecommendationServiceTest {
         assertThat(response.lureRanking()).hasSize(1);
         assertThat(response.lureRanking().getFirst().rank()).isEqualTo(1);
         assertThat(response.lureRanking().getFirst().lure()).isEqualTo("Vinil verde natural");
+        assertThat(response.planA()).isEqualTo("Comecar pela lure melhor classificada e pescar de forma controlada durante 20 minutos.");
         assertThat(response.warnings()).anySatisfy(warning -> assertThat(warning).contains("Spinnerbait inventado"));
+        assertThat(response.warnings()).anySatisfy(warning -> assertThat(warning).contains("planA"));
         verify(weatherSnapshotService).createIpmaSnapshotForPlan(1L);
     }
 }

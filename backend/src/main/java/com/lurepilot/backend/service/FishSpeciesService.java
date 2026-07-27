@@ -35,8 +35,23 @@ public class FishSpeciesService {
     }
 
     public List<FishSpeciesResponse> getAllFishSpecies() {
+        return searchFishSpecies(null, null);
+    }
+
+    public List<FishSpeciesResponse> searchFishSpecies(String q, String strikeZone) {
         return fishSpeciesRepository.findAll()
                 .stream()
+                .filter(fishSpecies -> matchesQuery(
+                        q,
+                        fishSpecies.getName(),
+                        fishSpecies.getDescription(),
+                        fishSpecies.getHabitatNotes(),
+                        fishSpecies.getActiveTimes(),
+                        fishSpecies.getStrikeZone(),
+                        fishSpecies.getCommonZones(),
+                        fishSpecies.getFavoriteLures()
+                ))
+                .filter(fishSpecies -> matchesContains(strikeZone, fishSpecies.getStrikeZone()))
                 .map(this::toResponse)
                 .toList();
     }
@@ -84,5 +99,28 @@ public class FishSpeciesService {
                 fishSpecies.getFavoriteLures(),
                 fishSpecies.getCreatedAt()
         );
+    }
+
+    private boolean matchesQuery(String query, String... values) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String normalizedQuery = normalize(query);
+        for (String value : values) {
+            if (value != null && normalize(value).contains(normalizedQuery)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesContains(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

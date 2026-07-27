@@ -41,8 +41,29 @@ public class LureService {
     }
 
     public List<LureResponse> getAllLures() {
+        return searchLures(null, null, null, null, null, null);
+    }
+
+    public List<LureResponse> searchLures(String q, String type, String waterType, String targetSpecies, String brand, Long libraryItemId) {
         return lureRepository.findAll()
                 .stream()
+                .filter(lure -> matchesQuery(
+                        q,
+                        lure.getName(),
+                        lure.getType(),
+                        lure.getColor(),
+                        lure.getSize(),
+                        lure.getBrand(),
+                        lure.getNotes(),
+                        lure.getTargetSpecies(),
+                        lure.getWaterType(),
+                        lure.getLibraryItem() == null ? null : lure.getLibraryItem().getName()
+                ))
+                .filter(lure -> matchesExact(type, lure.getType()))
+                .filter(lure -> matchesExact(waterType, lure.getWaterType()))
+                .filter(lure -> matchesContains(targetSpecies, lure.getTargetSpecies()))
+                .filter(lure -> matchesContains(brand, lure.getBrand()))
+                .filter(lure -> libraryItemId == null || lure.getLibraryItem() != null && libraryItemId.equals(lure.getLibraryItem().getId()))
                 .map(this::toResponse)
                 .toList();
     }
@@ -106,5 +127,32 @@ public class LureService {
                 lure.getWaterType(),
                 lure.getCreatedAt()
         );
+    }
+
+    private boolean matchesQuery(String query, String... values) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String normalizedQuery = normalize(query);
+        for (String value : values) {
+            if (value != null && normalize(value).contains(normalizedQuery)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExact(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
+    }
+
+    private boolean matchesContains(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

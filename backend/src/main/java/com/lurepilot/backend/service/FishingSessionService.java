@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
@@ -56,8 +57,31 @@ public class FishingSessionService {
     }
 
     public List<FishingSessionResponse> getAllSessions() {
+        return searchSessions(null, null, null, null, null, null, null, null, null, null);
+    }
+
+    public List<FishingSessionResponse> searchSessions(String q, Long spotId, Long planId, String targetSpecies, String waterClarity, String waterLevel, String status, Boolean success, LocalDate dateFrom, LocalDate dateTo) {
         return fishingSessionRepository.findAll()
                 .stream()
+                .filter(session -> matchesQuery(
+                        q,
+                        session.getSpot().getName(),
+                        session.getTargetSpecies(),
+                        session.getWaterClarity(),
+                        session.getWaterLevel(),
+                        session.getNotes(),
+                        session.getResultSummary(),
+                        session.getFinalNotes()
+                ))
+                .filter(session -> spotId == null || spotId.equals(session.getSpot().getId()))
+                .filter(session -> planId == null || session.getPlan() != null && planId.equals(session.getPlan().getId()))
+                .filter(session -> matchesContains(targetSpecies, session.getTargetSpecies()))
+                .filter(session -> matchesExact(waterClarity, session.getWaterClarity()))
+                .filter(session -> matchesExact(waterLevel, session.getWaterLevel()))
+                .filter(session -> matchesExact(status, statusOrDefault(session).name()))
+                .filter(session -> success == null || success.equals(session.getSuccess()))
+                .filter(session -> dateFrom == null || !session.getDate().isBefore(dateFrom))
+                .filter(session -> dateTo == null || !session.getDate().isAfter(dateTo))
                 .map(this::toResponse)
                 .toList();
     }
@@ -222,5 +246,32 @@ public class FishingSessionService {
         }
 
         return minutes;
+    }
+
+    private boolean matchesQuery(String query, String... values) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String normalizedQuery = normalize(query);
+        for (String value : values) {
+            if (value != null && normalize(value).contains(normalizedQuery)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExact(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
+    }
+
+    private boolean matchesContains(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 }

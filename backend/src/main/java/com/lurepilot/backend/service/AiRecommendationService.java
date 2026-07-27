@@ -432,9 +432,27 @@ public class AiRecommendationService {
             confidence = "low";
         }
 
-        String planA = withFallback(result.planA(), "Comecar pela lure melhor classificada e pescar de forma controlada durante 20 minutos.");
-        String planB = withFallback(result.planB(), "Se nao houver sinais, alterar cadencia ou zona mantendo as lures selecionadas.");
-        String planC = withFallback(result.planC(), "Se continuar sem resultado, reduzir ritmo e focar estruturas ou zonas de sombra.");
+        String planA = sanitizePlanText(
+                "planA",
+                result.planA(),
+                "Comecar pela lure melhor classificada e pescar de forma controlada durante 20 minutos.",
+                removedLures,
+                warnings
+        );
+        String planB = sanitizePlanText(
+                "planB",
+                result.planB(),
+                "Se nao houver sinais, alterar cadencia ou zona mantendo as lures selecionadas.",
+                removedLures,
+                warnings
+        );
+        String planC = sanitizePlanText(
+                "planC",
+                result.planC(),
+                "Se continuar sem resultado, reduzir ritmo e focar estruturas ou zonas de sombra.",
+                removedLures,
+                warnings
+        );
 
         if (!removedLures.isEmpty()) {
             confidence = "low";
@@ -450,6 +468,24 @@ public class AiRecommendationService {
                 confidence,
                 warnings
         );
+    }
+
+    private String sanitizePlanText(String fieldName, String value, String fallback, List<String> unavailableLures, List<String> warnings) {
+        String text = withFallback(value, fallback);
+        List<String> mentionedUnavailableLures = unavailableLures.stream()
+                .filter(lure -> containsNormalized(text, lure))
+                .toList();
+
+        if (mentionedUnavailableLures.isEmpty()) {
+            return text;
+        }
+
+        warnings.add("A IA mencionou lures fora de selectedLures em " + fieldName + " e o texto foi substituido: " + String.join(", ", mentionedUnavailableLures));
+        return fallback;
+    }
+
+    private boolean containsNormalized(String text, String expected) {
+        return !normalize(expected).isBlank() && normalize(text).contains(normalize(expected));
     }
 
     private AiSessionAdjustmentResult validateSessionAdjustmentResult(AiSessionAdjustmentResult result, SessionAdjustmentContext context) {

@@ -33,8 +33,15 @@ public class FishingSpotService {
     }
 
     public List<FishingSpotResponse> getAllSpots() {
+        return searchSpots(null, null, null);
+    }
+
+    public List<FishingSpotResponse> searchSpots(String q, String waterType, String favoriteSpecies) {
         return fishingSpotRepository.findAll()
                 .stream()
+                .filter(spot -> matchesQuery(q, spot.getName(), spot.getDescription(), spot.getWaterType(), spot.getFavoriteSpecies()))
+                .filter(spot -> matchesExact(waterType, spot.getWaterType()))
+                .filter(spot -> matchesContains(favoriteSpecies, spot.getFavoriteSpecies()))
                 .map(this::toResponse)
                 .toList();
     }
@@ -78,5 +85,32 @@ public class FishingSpotService {
                 fishingSpot.getFavoriteSpecies(),
                 fishingSpot.getCreatedAt()
         );
+    }
+
+    private boolean matchesQuery(String query, String... values) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String normalizedQuery = normalize(query);
+        for (String value : values) {
+            if (value != null && normalize(value).contains(normalizedQuery)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExact(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
+    }
+
+    private boolean matchesContains(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

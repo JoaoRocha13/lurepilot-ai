@@ -36,8 +36,26 @@ public class LureLibraryItemService {
     }
 
     public List<LureLibraryItemResponse> getAllLureLibraryItems() {
+        return searchLureLibraryItems(null, null, null, null);
+    }
+
+    public List<LureLibraryItemResponse> searchLureLibraryItems(String q, String type, String difficulty, String effectiveness) {
         return lureLibraryItemRepository.findAll()
                 .stream()
+                .filter(item -> matchesQuery(
+                        q,
+                        item.getName(),
+                        item.getType(),
+                        item.getDifficulty(),
+                        item.getEffectiveness(),
+                        item.getDescription(),
+                        item.getUsageNotes(),
+                        item.getActionType(),
+                        item.getIdealConditions()
+                ))
+                .filter(item -> matchesExact(type, item.getType()))
+                .filter(item -> matchesExact(difficulty, item.getDifficulty()))
+                .filter(item -> matchesExact(effectiveness, item.getEffectiveness()))
                 .map(this::toResponse)
                 .toList();
     }
@@ -87,5 +105,28 @@ public class LureLibraryItemService {
                 item.getIdealConditions(),
                 item.getCreatedAt()
         );
+    }
+
+    private boolean matchesQuery(String query, String... values) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String normalizedQuery = normalize(query);
+        for (String value : values) {
+            if (value != null && normalize(value).contains(normalizedQuery)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExact(String expected, String actual) {
+        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }
