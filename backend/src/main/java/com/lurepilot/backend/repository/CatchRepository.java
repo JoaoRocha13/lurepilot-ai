@@ -10,6 +10,8 @@ public interface CatchRepository extends JpaRepository<Catch, Long> {
 
     List<Catch> findBySessionIdOrderByIdAsc(Long sessionId);
 
+    List<Catch> findTop5ByOrderByIdDesc();
+
     @Query("select coalesce(sum(c.quantity), 0) from Catch c")
     long sumTotalQuantity();
 }

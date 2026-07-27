@@ -71,6 +71,7 @@
         {
           "name": "Get Dashboard",
           "request": {
+            "description": "Returns dashboard counters plus upcoming plans, active sessions, recent sessions, recent catches and recent weather snapshots.",
             "method": "GET",
             "header": [],
             "url": {

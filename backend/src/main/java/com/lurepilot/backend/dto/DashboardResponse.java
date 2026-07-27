@@ -12,6 +12,10 @@ public record DashboardResponse(
         long successfulSessions,
         long totalCatchRecords,
         long totalFishCaught,
-        List<DashboardRecentSessionResponse> recentSessions
+        List<DashboardUpcomingPlanResponse> upcomingPlans,
+        List<DashboardActiveSessionResponse> activeSessions,
+        List<DashboardRecentSessionResponse> recentSessions,
+        List<DashboardRecentCatchResponse> recentCatches,
+        List<DashboardWeatherSnapshotResponse> recentWeatherSnapshots
 ) {
 }

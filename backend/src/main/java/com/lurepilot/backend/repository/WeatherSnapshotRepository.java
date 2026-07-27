@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface WeatherSnapshotRepository extends JpaRepository<WeatherSnapshot, Long> {
 
+    List<WeatherSnapshot> findTop5ByOrderByCapturedAtDescIdDesc();
+
     List<WeatherSnapshot> findByPlanIdOrderByCapturedAtDescIdDesc(Long planId);
 
     List<WeatherSnapshot> findBySessionIdOrderByCapturedAtDescIdDesc(Long sessionId);
