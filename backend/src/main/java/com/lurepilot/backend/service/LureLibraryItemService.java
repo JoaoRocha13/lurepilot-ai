@@ -6,15 +6,26 @@ import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.repository.LureLibraryItemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class LureLibraryItemService {
+
+    private static final Map<String, String> SORT_FIELDS = Map.of(
+            "id", "id",
+            "name", "name",
+            "type", "type",
+            "difficulty", "difficulty",
+            "effectiveness", "effectiveness",
+            "createdat", "createdAt"
+    );
 
     private final LureLibraryItemRepository lureLibraryItemRepository;
 
@@ -52,29 +63,26 @@ public class LureLibraryItemService {
             String sortBy,
             String sortDirection
     ) {
-        List<LureLibraryItem> filteredItems = lureLibraryItemRepository.findAll()
-                .stream()
-                .filter(item -> matchesQuery(
+        Specification<LureLibraryItem> specification = Specification.allOf(
+                SearchSpecifications.containsAny(
                         q,
-                        item.getName(),
-                        item.getType(),
-                        item.getDifficulty(),
-                        item.getEffectiveness(),
-                        item.getDescription(),
-                        item.getUsageNotes(),
-                        item.getActionType(),
-                        item.getIdealConditions()
-                ))
-                .filter(item -> matchesExact(type, item.getType()))
-                .filter(item -> matchesExact(difficulty, item.getDifficulty()))
-                .filter(item -> matchesExact(effectiveness, item.getEffectiveness()))
-                .toList();
+                        "name",
+                        "type",
+                        "difficulty",
+                        "effectiveness",
+                        "description",
+                        "usageNotes",
+                        "actionType",
+                        "idealConditions"
+                ),
+                SearchSpecifications.equalsIgnoreCase(type, "type"),
+                SearchSpecifications.equalsIgnoreCase(difficulty, "difficulty"),
+                SearchSpecifications.equalsIgnoreCase(effectiveness, "effectiveness")
+        );
+        Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
+        Page<LureLibraryItem> items = lureLibraryItemRepository.findAll(specification, pageable);
 
-        List<LureLibraryItem> sortedItems = filteredItems.stream()
-                .sorted(ListQuerySupport.applyDirection(lureLibraryItemComparator(sortBy), sortDirection))
-                .toList();
-
-        return ListQuerySupport.toPage(sortedItems, page, size, this::toSummaryResponse);
+        return ListQuerySupport.toPagedResponse(items, this::toSummaryResponse);
     }
 
     public LureLibraryItemResponse getLureLibraryItemById(Long id) {
@@ -136,37 +144,4 @@ public class LureLibraryItemService {
         );
     }
 
-    private Comparator<LureLibraryItem> lureLibraryItemComparator(String sortBy) {
-        return switch (normalize(sortBy)) {
-            case "name" -> ListQuerySupport.comparing(LureLibraryItem::getName);
-            case "type" -> ListQuerySupport.comparing(LureLibraryItem::getType);
-            case "difficulty" -> ListQuerySupport.comparing(LureLibraryItem::getDifficulty);
-            case "effectiveness" -> ListQuerySupport.comparing(LureLibraryItem::getEffectiveness);
-            case "createdat" -> ListQuerySupport.comparing(LureLibraryItem::getCreatedAt);
-            default -> ListQuerySupport.comparing(LureLibraryItem::getId);
-        };
-    }
-
-    private boolean matchesQuery(String query, String... values) {
-        if (query == null || query.isBlank()) {
-            return true;
-        }
-
-        String normalizedQuery = normalize(query);
-        for (String value : values) {
-            if (value != null && normalize(value).contains(normalizedQuery)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean matchesExact(String expected, String actual) {
-        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
-    }
-
-    private String normalize(String value) {
-        return value == null ? "" : value.trim().toLowerCase();
-    }
 }

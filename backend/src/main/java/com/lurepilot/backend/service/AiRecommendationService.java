@@ -35,11 +35,14 @@ import com.lurepilot.backend.repository.SessionLureRepository;
 import com.lurepilot.backend.repository.WeatherSnapshotRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -98,6 +101,7 @@ public class AiRecommendationService {
         this.objectMapper = objectMapper;
     }
 
+    @Transactional
     public AiPlanRecommendationResponse createPlanRecommendation(CreateAiPlanRecommendationRequest request) {
         FishingPlan plan = fishingPlanRepository.findById(request.planId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found"));
@@ -107,6 +111,10 @@ public class AiRecommendationService {
         String contextJson = writeJson(context);
         String rawResponse = callLmStudio(contextJson);
         AiPlanResult result = validatePlanResult(parsePlanResult(rawResponse), context);
+        ConfidenceAssessment confidenceAssessment = assessPlanConfidence(result, context);
+        result = applyConfidence(result, confidenceAssessment);
+
+        supersedeLatestPlanRecommendations(plan.getId(), PLAN_RECOMMENDATION);
 
         AiRecommendation recommendation = new AiRecommendation(
                 plan,
@@ -124,10 +132,12 @@ public class AiRecommendationService {
                 result.confidence(),
                 writeJson(nullToEmpty(result.warnings()))
         );
+        applyConfidenceMetadata(recommendation, confidenceAssessment);
 
         return toResponse(aiRecommendationRepository.save(recommendation));
     }
 
+    @Transactional
     public AiSessionAdjustmentResponse createSessionAdjustment(CreateSessionAdjustmentRequest request) {
         FishingSession session = fishingSessionRepository.findById(request.sessionId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found"));
@@ -136,6 +146,10 @@ public class AiRecommendationService {
         String contextJson = writeJson(context);
         String rawResponse = callLmStudioForSessionAdjustment(contextJson);
         AiSessionAdjustmentResult result = validateSessionAdjustmentResult(parseSessionAdjustmentResult(rawResponse), context);
+        ConfidenceAssessment confidenceAssessment = assessSessionAdjustmentConfidence(result, context);
+        result = applyConfidence(result, confidenceAssessment);
+
+        supersedeLatestSessionRecommendations(session.getId(), SESSION_ADJUSTMENT);
 
         AiRecommendation recommendation = new AiRecommendation(
                 session.getPlan(),
@@ -153,10 +167,12 @@ public class AiRecommendationService {
                 result.confidence(),
                 writeJson(nullToEmpty(result.warnings()))
         );
+        applyConfidenceMetadata(recommendation, confidenceAssessment);
 
         return toSessionAdjustmentResponse(aiRecommendationRepository.save(recommendation));
     }
 
+    @Transactional
     public AiSessionReviewResponse createSessionReview(CreateSessionReviewRequest request) {
         FishingSession session = fishingSessionRepository.findById(request.sessionId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found"));
@@ -165,6 +181,10 @@ public class AiRecommendationService {
         String contextJson = writeJson(context);
         String rawResponse = callLmStudioForSessionReview(contextJson);
         AiSessionReviewResult result = validateSessionReviewResult(parseSessionReviewResult(rawResponse), context);
+        ConfidenceAssessment confidenceAssessment = assessSessionReviewConfidence(result, context);
+        result = applyConfidence(result, confidenceAssessment);
+
+        supersedeLatestSessionRecommendations(session.getId(), SESSION_REVIEW);
 
         AiRecommendation recommendation = new AiRecommendation(
                 session.getPlan(),
@@ -184,6 +204,7 @@ public class AiRecommendationService {
                 result.confidence(),
                 writeJson(nullToEmpty(result.warnings()))
         );
+        applyConfidenceMetadata(recommendation, confidenceAssessment);
         recommendation.setExtraJson(writeJson(result));
 
         return toSessionReviewResponse(aiRecommendationRepository.save(recommendation));
@@ -194,10 +215,41 @@ public class AiRecommendationService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found");
         }
 
-        return aiRecommendationRepository.findByPlanIdOrderByCreatedAtDescIdDesc(planId)
+        return aiRecommendationRepository.findByPlanIdAndRecommendationTypeOrderByCreatedAtDescIdDesc(planId, PLAN_RECOMMENDATION)
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public AiPlanRecommendationResponse getLatestPlanRecommendation(Long planId) {
+        if (!fishingPlanRepository.existsById(planId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found");
+        }
+
+        return aiRecommendationRepository.findFirstByPlanIdAndRecommendationTypeOrderByVersionDescIdDesc(planId, PLAN_RECOMMENDATION)
+                .map(this::toResponse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI recommendation not found"));
+    }
+
+    public List<AiSessionAdjustmentResponse> getSessionAdjustments(Long sessionId) {
+        if (!fishingSessionRepository.existsById(sessionId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
+        }
+
+        return aiRecommendationRepository.findBySessionIdAndRecommendationTypeOrderByCreatedAtDescIdDesc(sessionId, SESSION_ADJUSTMENT)
+                .stream()
+                .map(this::toSessionAdjustmentResponse)
+                .toList();
+    }
+
+    public AiSessionAdjustmentResponse getLatestSessionAdjustment(Long sessionId) {
+        if (!fishingSessionRepository.existsById(sessionId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
+        }
+
+        return aiRecommendationRepository.findFirstBySessionIdAndRecommendationTypeOrderByVersionDescIdDesc(sessionId, SESSION_ADJUSTMENT)
+                .map(this::toSessionAdjustmentResponse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI session adjustment not found"));
     }
 
     public List<AiSessionReviewResponse> getSessionReviews(Long sessionId) {
@@ -211,6 +263,16 @@ public class AiRecommendationService {
                 .toList();
     }
 
+    public AiSessionReviewResponse getLatestSessionReview(Long sessionId) {
+        if (!fishingSessionRepository.existsById(sessionId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
+        }
+
+        return aiRecommendationRepository.findFirstBySessionIdAndRecommendationTypeOrderByVersionDescIdDesc(sessionId, SESSION_REVIEW)
+                .map(this::toSessionReviewResponse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI session review not found"));
+    }
+
     public AiRecommendationDebugResponse getRecommendationDebug(Long id) {
         AiRecommendation recommendation = aiRecommendationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI recommendation not found"));
@@ -221,6 +283,10 @@ public class AiRecommendationService {
                 recommendation.getSession() == null ? null : recommendation.getSession().getId(),
                 recommendation.getRecommendationType(),
                 recommendation.getVersion(),
+                latestOrDefault(recommendation),
+                recommendation.getConfidenceScore(),
+                recommendation.getConfidenceReason(),
+                recommendation.getSupersededAt(),
                 recommendation.getContextJson(),
                 recommendation.getRawResponse(),
                 recommendation.getCreatedAt()
@@ -578,6 +644,361 @@ public class AiRecommendationService {
         );
     }
 
+    private ConfidenceAssessment assessPlanConfidence(AiPlanResult result, PlannerContextResponse context) {
+        int score = baseConfidenceScore(result.confidence());
+        List<String> reasons = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+
+        reasons.add("Modelo indicou " + normalizeConfidence(result.confidence()) + ".");
+
+        if (context.weather() == null) {
+            score -= 12;
+            warnings.add("Sem weather snapshot no contexto do plano.");
+        } else {
+            score += 12;
+            reasons.add("Weather snapshot incluido.");
+        }
+
+        List<PlannerContextResponse.PlannerContextLure> selectedLures = nullToEmpty(context.selectedLures());
+        int selectedLureCount = selectedLures.size();
+        if (selectedLureCount == 0) {
+            score -= 35;
+            warnings.add("Plano sem lures selecionadas.");
+        } else if (selectedLureCount == 1) {
+            reasons.add("Apenas uma lure selecionada.");
+        } else if (selectedLureCount == 2) {
+            score += 8;
+            reasons.add("Duas lures selecionadas.");
+        } else {
+            score += 14;
+            reasons.add("Boa variedade de lures selecionadas.");
+        }
+
+        if (hasSpeciesMatch(context)) {
+            score += 8;
+            reasons.add("Ha lures alinhadas com a especie alvo.");
+        } else if (selectedLureCount > 0) {
+            score -= 8;
+            warnings.add("Nenhuma lure selecionada indica explicitamente a especie alvo.");
+        }
+
+        if (hasWaterMatch(context)) {
+            score += 5;
+            reasons.add("Ha lures alinhadas com o tipo de agua do spot.");
+        }
+
+        int historicalCount = nullToEmpty(context.recentSpotSessions()).size() + nullToEmpty(context.recentSpeciesSessions()).size();
+        if (historicalCount >= 5) {
+            score += 14;
+            reasons.add("Bom historico recente para spot/especie.");
+        } else if (historicalCount >= 2) {
+            score += 8;
+            reasons.add("Algum historico recente disponivel.");
+        } else if (historicalCount == 1) {
+            score += 4;
+            reasons.add("Historico recente ainda limitado.");
+        } else {
+            score -= 10;
+            warnings.add("Sem sessoes recentes para comparar spot ou especie.");
+        }
+
+        long successfulSessions = countSuccessfulSessions(context);
+        if (successfulSessions >= 2) {
+            score += 8;
+            reasons.add("Historico recente com sessoes bem sucedidas.");
+        } else if (historicalCount > 0 && successfulSessions == 0) {
+            score -= 5;
+            reasons.add("Historico recente sem resultados positivos registados.");
+        }
+
+        if (context.dataQuality() != null && !nullToEmpty(context.dataQuality().warnings()).isEmpty()) {
+            int penalty = Math.min(nullToEmpty(context.dataQuality().warnings()).size() * 4, 12);
+            score -= penalty;
+            warnings.addAll(nullToEmpty(context.dataQuality().warnings()));
+        }
+
+        if (nullToEmpty(result.lureRanking()).isEmpty()) {
+            score -= 25;
+        }
+
+        if (!nullToEmpty(result.warnings()).isEmpty()) {
+            score -= Math.min(nullToEmpty(result.warnings()).size() * 5, 20);
+        }
+
+        return finalizeConfidence(score, reasons, warnings, result.confidence());
+    }
+
+    private ConfidenceAssessment assessSessionAdjustmentConfidence(AiSessionAdjustmentResult result, SessionAdjustmentContext context) {
+        int score = baseConfidenceScore(result.confidence());
+        List<String> reasons = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+
+        reasons.add("Modelo indicou " + normalizeConfidence(result.confidence()) + ".");
+
+        if (context.weather() == null) {
+            score -= 8;
+            warnings.add("Sem weather snapshot recente para a sessao/plano.");
+        } else {
+            score += 8;
+            reasons.add("Weather snapshot incluido.");
+        }
+
+        if (nullToEmpty(context.allowedLures()).isEmpty()) {
+            score -= 35;
+            warnings.add("Sessao sem lures permitidas no contexto.");
+        } else if (context.allowedLures().size() >= 3) {
+            score += 12;
+            reasons.add("Boa variedade de lures disponiveis para ajuste.");
+        } else {
+            score += 4;
+            reasons.add("Poucas lures disponiveis para ajuste.");
+        }
+
+        if (nullToEmpty(context.events()).isEmpty()) {
+            score -= 8;
+            warnings.add("Sessao sem eventos registados para orientar o ajuste.");
+        } else if (context.events().size() >= 2) {
+            score += 8;
+            reasons.add("Eventos da sessao ajudam a ajustar estrategia.");
+        }
+
+        if (context.situation() == null || context.situation().isBlank()) {
+            score -= 10;
+            warnings.add("Situacao atual nao foi descrita.");
+        } else {
+            score += 10;
+            reasons.add("Situacao atual descrita pelo utilizador.");
+        }
+
+        if (context.currentConditions() == null || context.currentConditions().isBlank()) {
+            score -= 4;
+        } else {
+            score += 4;
+            reasons.add("Condicoes atuais descritas pelo utilizador.");
+        }
+
+        if ("active".equalsIgnoreCase(context.session().status())) {
+            score += 6;
+            reasons.add("Sessao esta ativa.");
+        }
+
+        if (nullToEmpty(result.lureRanking()).isEmpty()) {
+            score -= 25;
+        }
+
+        if (!nullToEmpty(result.warnings()).isEmpty()) {
+            score -= Math.min(nullToEmpty(result.warnings()).size() * 5, 20);
+        }
+
+        return finalizeConfidence(score, reasons, warnings, result.confidence());
+    }
+
+    private ConfidenceAssessment assessSessionReviewConfidence(AiSessionReviewResult result, SessionReviewContext context) {
+        int score = baseConfidenceScore(result.confidence());
+        List<String> reasons = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+
+        reasons.add("Modelo indicou " + normalizeConfidence(result.confidence()) + ".");
+
+        if (nullToEmpty(context.usedLures()).isEmpty()) {
+            score -= 30;
+            warnings.add("Review sem lures usadas registadas.");
+        } else {
+            score += Math.min(context.usedLures().size() * 4, 12);
+            reasons.add("Lures usadas registadas.");
+        }
+
+        if (nullToEmpty(context.catches()).isEmpty()) {
+            score -= 10;
+            reasons.add("Sem capturas registadas.");
+        } else {
+            score += 14;
+            reasons.add("Capturas registadas ajudam a validar o padrao.");
+        }
+
+        if (nullToEmpty(context.events()).isEmpty()) {
+            score -= 8;
+            warnings.add("Sem eventos da sessao registados.");
+        } else {
+            score += Math.min(context.events().size() * 3, 9);
+            reasons.add("Eventos da sessao incluidos.");
+        }
+
+        if (context.weather() == null) {
+            score -= 6;
+            warnings.add("Sem weather snapshot para comparar condicoes.");
+        } else {
+            score += 6;
+            reasons.add("Weather snapshot incluido.");
+        }
+
+        if ("finished".equalsIgnoreCase(context.session().status())) {
+            score += 8;
+            reasons.add("Sessao finalizada.");
+        } else {
+            score -= 8;
+            warnings.add("Sessao ainda nao esta finalizada.");
+        }
+
+        if (context.session().rating() != null) {
+            score += 5;
+            reasons.add("Sessao tem avaliacao do utilizador.");
+        }
+
+        if (!nullToEmpty(result.warnings()).isEmpty()) {
+            score -= Math.min(nullToEmpty(result.warnings()).size() * 5, 20);
+        }
+
+        return finalizeConfidence(score, reasons, warnings, result.confidence());
+    }
+
+    private AiPlanResult applyConfidence(AiPlanResult result, ConfidenceAssessment confidenceAssessment) {
+        return new AiPlanResult(
+                result.summary(),
+                nullToEmpty(result.lureRanking()),
+                result.planA(),
+                result.planB(),
+                result.planC(),
+                nullToEmpty(result.avoid()),
+                confidenceAssessment.confidence(),
+                mergeWarnings(result.warnings(), confidenceAssessment.warnings())
+        );
+    }
+
+    private AiSessionAdjustmentResult applyConfidence(AiSessionAdjustmentResult result, ConfidenceAssessment confidenceAssessment) {
+        return new AiSessionAdjustmentResult(
+                result.summary(),
+                nullToEmpty(result.lureRanking()),
+                result.immediateAction(),
+                result.nextTechnique(),
+                result.fallbackAction(),
+                nullToEmpty(result.avoid()),
+                confidenceAssessment.confidence(),
+                mergeWarnings(result.warnings(), confidenceAssessment.warnings())
+        );
+    }
+
+    private AiSessionReviewResult applyConfidence(AiSessionReviewResult result, ConfidenceAssessment confidenceAssessment) {
+        return new AiSessionReviewResult(
+                result.summary(),
+                result.whatWorked(),
+                result.whatFailed(),
+                result.bestLure(),
+                result.bestLureReason(),
+                result.observedPattern(),
+                result.nextSessionSuggestion(),
+                nullToEmpty(result.keyLessons()),
+                confidenceAssessment.confidence(),
+                mergeWarnings(result.warnings(), confidenceAssessment.warnings())
+        );
+    }
+
+    private void applyConfidenceMetadata(AiRecommendation recommendation, ConfidenceAssessment confidenceAssessment) {
+        recommendation.setLatest(true);
+        recommendation.setConfidenceScore(confidenceAssessment.score());
+        recommendation.setConfidenceReason(confidenceAssessment.reason());
+    }
+
+    private ConfidenceAssessment finalizeConfidence(int score, List<String> reasons, List<String> warnings, String modelConfidence) {
+        int cappedScore = Math.max(0, Math.min(100, score));
+        String normalizedModelConfidence = normalizeConfidence(modelConfidence);
+        if ("low".equals(normalizedModelConfidence)) {
+            cappedScore = Math.min(cappedScore, 44);
+        } else if ("medium".equals(normalizedModelConfidence)) {
+            cappedScore = Math.min(cappedScore, 74);
+        }
+
+        String confidence = confidenceFromScore(cappedScore);
+        String reason = "Score calculado " + cappedScore + "/100: " + String.join(" ", reasons);
+
+        return new ConfidenceAssessment(confidence, cappedScore, reason, warnings);
+    }
+
+    private int baseConfidenceScore(String confidence) {
+        return switch (normalizeConfidence(confidence)) {
+            case "high" -> 70;
+            case "medium" -> 55;
+            default -> 35;
+        };
+    }
+
+    private String confidenceFromScore(int score) {
+        if (score >= 75) {
+            return "high";
+        }
+
+        if (score >= 45) {
+            return "medium";
+        }
+
+        return "low";
+    }
+
+    private boolean hasSpeciesMatch(PlannerContextResponse context) {
+        String targetSpecies = normalize(context.plan().targetSpecies());
+        if (targetSpecies.isBlank()) {
+            return false;
+        }
+
+        return nullToEmpty(context.selectedLures())
+                .stream()
+                .anyMatch(lure -> containsNormalized(lure.targetSpecies(), targetSpecies));
+    }
+
+    private boolean hasWaterMatch(PlannerContextResponse context) {
+        String spotWaterType = context.spot() == null ? "" : normalize(context.spot().waterType());
+        if (spotWaterType.isBlank()) {
+            return false;
+        }
+
+        return nullToEmpty(context.selectedLures())
+                .stream()
+                .anyMatch(lure -> normalize(lure.waterType()).equals(spotWaterType));
+    }
+
+    private long countSuccessfulSessions(PlannerContextResponse context) {
+        return java.util.stream.Stream.concat(
+                        nullToEmpty(context.recentSpotSessions()).stream(),
+                        nullToEmpty(context.recentSpeciesSessions()).stream()
+                )
+                .filter(session -> Boolean.TRUE.equals(session.success()))
+                .count();
+    }
+
+    private List<String> mergeWarnings(List<String> primaryWarnings, List<String> extraWarnings) {
+        LinkedHashSet<String> warnings = new LinkedHashSet<>();
+        warnings.addAll(nullToEmpty(primaryWarnings));
+        warnings.addAll(nullToEmpty(extraWarnings));
+        return List.copyOf(warnings);
+    }
+
+    private void supersedeLatestPlanRecommendations(Long planId, String recommendationType) {
+        List<AiRecommendation> latestRecommendations = aiRecommendationRepository.findLatestByPlanIdAndRecommendationType(planId, recommendationType);
+        supersede(latestRecommendations);
+    }
+
+    private void supersedeLatestSessionRecommendations(Long sessionId, String recommendationType) {
+        List<AiRecommendation> latestRecommendations = aiRecommendationRepository.findLatestBySessionIdAndRecommendationType(sessionId, recommendationType);
+        supersede(latestRecommendations);
+    }
+
+    private void supersede(List<AiRecommendation> recommendations) {
+        if (recommendations.isEmpty()) {
+            return;
+        }
+
+        Instant supersededAt = Instant.now();
+        for (AiRecommendation recommendation : recommendations) {
+            recommendation.setLatest(false);
+            recommendation.setSupersededAt(supersededAt);
+        }
+        aiRecommendationRepository.saveAll(recommendations);
+    }
+
+    private Boolean latestOrDefault(AiRecommendation recommendation) {
+        return recommendation.getLatest() == null || recommendation.getLatest();
+    }
+
     private String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
@@ -603,6 +1024,9 @@ public class AiRecommendationService {
                 recommendation.getPlanC(),
                 readJson(recommendation.getAvoidJson(), STRING_LIST_TYPE),
                 recommendation.getConfidence(),
+                recommendation.getConfidenceScore(),
+                recommendation.getConfidenceReason(),
+                latestOrDefault(recommendation),
                 readJson(recommendation.getWarningsJson(), STRING_LIST_TYPE),
                 recommendation.getCreatedAt()
         );
@@ -621,6 +1045,9 @@ public class AiRecommendationService {
                 recommendation.getPlanC(),
                 readJson(recommendation.getAvoidJson(), STRING_LIST_TYPE),
                 recommendation.getConfidence(),
+                recommendation.getConfidenceScore(),
+                recommendation.getConfidenceReason(),
+                latestOrDefault(recommendation),
                 readJson(recommendation.getWarningsJson(), STRING_LIST_TYPE),
                 recommendation.getCreatedAt()
         );
@@ -656,6 +1083,9 @@ public class AiRecommendationService {
                 result.nextSessionSuggestion(),
                 nullToEmpty(result.keyLessons()),
                 result.confidence(),
+                recommendation.getConfidenceScore(),
+                recommendation.getConfidenceReason(),
+                latestOrDefault(recommendation),
                 nullToEmpty(result.warnings()),
                 recommendation.getCreatedAt()
         );
@@ -890,6 +1320,14 @@ public class AiRecommendationService {
 
     private <T> List<T> nullToEmpty(List<T> values) {
         return values == null ? List.of() : values;
+    }
+
+    private record ConfidenceAssessment(
+            String confidence,
+            Integer score,
+            String reason,
+            List<String> warnings
+    ) {
     }
 
     private record SessionAdjustmentContext(

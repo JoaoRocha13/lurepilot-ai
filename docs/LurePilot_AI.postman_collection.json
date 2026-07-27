@@ -1606,7 +1606,30 @@
                 "plans",
                 "{{planId}}"
               ]
-            }
+            },
+            "description": "Returns only PLAN recommendation history for the selected fishing plan, ordered newest first."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest AI Plan Recommendation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/plans/{{planId}}/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "plans",
+                "{{planId}}",
+                "latest"
+              ]
+            },
+            "description": "Returns the latest version of the AI plan recommendation for a fishing plan. Normal responses include version, latest, confidence, confidenceScore and confidenceReason; rawResponse is only available in debug."
           },
           "response": []
         },
@@ -1626,7 +1649,8 @@
                 "{{recommendationId}}",
                 "debug"
               ]
-            }
+            },
+            "description": "Debug endpoint with contextJson and rawResponse. Use normal endpoints for app responses."
           },
           "response": []
         },
@@ -1655,6 +1679,51 @@
                 "session-adjustment"
               ]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "List Session Adjustments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/sessions/{{sessionId}}/adjustments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "sessions",
+                "{{sessionId}}",
+                "adjustments"
+              ]
+            },
+            "description": "Returns the session adjustment recommendation history for a fishing session."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest Session Adjustment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/sessions/{{sessionId}}/adjustments/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "sessions",
+                "{{sessionId}}",
+                "adjustments",
+                "latest"
+              ]
+            },
+            "description": "Returns the latest session adjustment recommendation for a fishing session."
           },
           "response": []
         },
@@ -1704,6 +1773,29 @@
                 "reviews"
               ]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest Session Review",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/sessions/{{sessionId}}/reviews/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "sessions",
+                "{{sessionId}}",
+                "reviews",
+                "latest"
+              ]
+            },
+            "description": "Returns the latest session review recommendation for a fishing session."
           },
           "response": []
         }

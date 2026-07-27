@@ -53,9 +53,29 @@ public class AiRecommendationController {
         return aiRecommendationService.getRecommendationsByPlan(planId);
     }
 
+    @GetMapping("/plans/{planId}/latest")
+    public AiPlanRecommendationResponse getLatestPlanRecommendation(@PathVariable Long planId) {
+        return aiRecommendationService.getLatestPlanRecommendation(planId);
+    }
+
+    @GetMapping("/sessions/{sessionId}/adjustments")
+    public List<AiSessionAdjustmentResponse> getSessionAdjustments(@PathVariable Long sessionId) {
+        return aiRecommendationService.getSessionAdjustments(sessionId);
+    }
+
+    @GetMapping("/sessions/{sessionId}/adjustments/latest")
+    public AiSessionAdjustmentResponse getLatestSessionAdjustment(@PathVariable Long sessionId) {
+        return aiRecommendationService.getLatestSessionAdjustment(sessionId);
+    }
+
     @GetMapping("/sessions/{sessionId}/reviews")
     public List<AiSessionReviewResponse> getSessionReviews(@PathVariable Long sessionId) {
         return aiRecommendationService.getSessionReviews(sessionId);
+    }
+
+    @GetMapping("/sessions/{sessionId}/reviews/latest")
+    public AiSessionReviewResponse getLatestSessionReview(@PathVariable Long sessionId) {
+        return aiRecommendationService.getLatestSessionReview(sessionId);
     }
 
     @GetMapping("/{id}/debug")

@@ -13,6 +13,10 @@ import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
 import com.lurepilot.backend.repository.FishingSpotRepository;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,12 +24,24 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class FishingSessionService {
+
+    private static final Map<String, String> SORT_FIELDS = Map.ofEntries(
+            Map.entry("id", "id"),
+            Map.entry("date", "date"),
+            Map.entry("starttime", "startTime"),
+            Map.entry("endtime", "endTime"),
+            Map.entry("status", "status"),
+            Map.entry("spotname", "spot.name"),
+            Map.entry("targetspecies", "targetSpecies"),
+            Map.entry("success", "success"),
+            Map.entry("rating", "rating"),
+            Map.entry("createdat", "createdAt")
+    );
 
     private final FishingSessionRepository fishingSessionRepository;
     private final FishingSpotRepository fishingSpotRepository;
@@ -79,34 +95,31 @@ public class FishingSessionService {
             String sortBy,
             String sortDirection
     ) {
-        List<FishingSession> filteredSessions = fishingSessionRepository.findAll()
-                .stream()
-                .filter(session -> matchesQuery(
+        Specification<FishingSession> specification = Specification.allOf(
+                SearchSpecifications.containsAny(
                         q,
-                        session.getSpot().getName(),
-                        session.getTargetSpecies(),
-                        session.getWaterClarity(),
-                        session.getWaterLevel(),
-                        session.getNotes(),
-                        session.getResultSummary(),
-                        session.getFinalNotes()
-                ))
-                .filter(session -> spotId == null || spotId.equals(session.getSpot().getId()))
-                .filter(session -> planId == null || session.getPlan() != null && planId.equals(session.getPlan().getId()))
-                .filter(session -> matchesContains(targetSpecies, session.getTargetSpecies()))
-                .filter(session -> matchesExact(waterClarity, session.getWaterClarity()))
-                .filter(session -> matchesExact(waterLevel, session.getWaterLevel()))
-                .filter(session -> matchesExact(status, statusOrDefault(session).name()))
-                .filter(session -> success == null || success.equals(session.getSuccess()))
-                .filter(session -> dateFrom == null || !session.getDate().isBefore(dateFrom))
-                .filter(session -> dateTo == null || !session.getDate().isAfter(dateTo))
-                .toList();
+                        "spot.name",
+                        "targetSpecies",
+                        "waterClarity",
+                        "waterLevel",
+                        "notes",
+                        "resultSummary",
+                        "finalNotes"
+                ),
+                SearchSpecifications.equalsValue(spotId, "spot.id"),
+                SearchSpecifications.equalsValue(planId, "plan.id"),
+                SearchSpecifications.contains(targetSpecies, "targetSpecies"),
+                SearchSpecifications.equalsIgnoreCase(waterClarity, "waterClarity"),
+                SearchSpecifications.equalsIgnoreCase(waterLevel, "waterLevel"),
+                statusSpecification(status),
+                SearchSpecifications.equalsValue(success, "success"),
+                SearchSpecifications.dateFrom(dateFrom, "date"),
+                SearchSpecifications.dateTo(dateTo, "date")
+        );
+        Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
+        Page<FishingSession> sessions = fishingSessionRepository.findAll(specification, pageable);
 
-        List<FishingSession> sortedSessions = filteredSessions.stream()
-                .sorted(ListQuerySupport.applyDirection(fishingSessionComparator(sortBy), sortDirection))
-                .toList();
-
-        return ListQuerySupport.toPage(sortedSessions, page, size, this::toSummaryResponse);
+        return ListQuerySupport.toPagedResponse(sessions, this::toSummaryResponse);
     }
 
     public FishingSessionResponse getSessionById(Long id) {
@@ -249,21 +262,6 @@ public class FishingSessionService {
         );
     }
 
-    private Comparator<FishingSession> fishingSessionComparator(String sortBy) {
-        return switch (normalize(sortBy)) {
-            case "date" -> ListQuerySupport.comparing(FishingSession::getDate);
-            case "starttime" -> ListQuerySupport.comparing(FishingSession::getStartTime);
-            case "endtime" -> ListQuerySupport.comparing(FishingSession::getEndTime);
-            case "status" -> ListQuerySupport.comparing(session -> statusOrDefault(session).name());
-            case "spotname" -> ListQuerySupport.comparing(session -> session.getSpot().getName());
-            case "targetspecies" -> ListQuerySupport.comparing(FishingSession::getTargetSpecies);
-            case "success" -> ListQuerySupport.comparing(FishingSession::getSuccess);
-            case "rating" -> ListQuerySupport.comparing(FishingSession::getRating);
-            case "createdat" -> ListQuerySupport.comparing(FishingSession::getCreatedAt);
-            default -> ListQuerySupport.comparing(FishingSession::getId);
-        };
-    }
-
     private FishingSessionStatus statusOrDefault(FishingSession session) {
         if (session.getStatus() != null) {
             return session.getStatus();
@@ -305,30 +303,42 @@ public class FishingSessionService {
         return minutes;
     }
 
-    private boolean matchesQuery(String query, String... values) {
-        if (query == null || query.isBlank()) {
-            return true;
+    private Specification<FishingSession> statusSpecification(String value) {
+        if (value == null || value.isBlank()) {
+            return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.conjunction();
         }
 
-        String normalizedQuery = normalize(query);
-        for (String value : values) {
-            if (value != null && normalize(value).contains(normalizedQuery)) {
-                return true;
-            }
+        FishingSessionStatus requestedStatus;
+        try {
+            requestedStatus = FishingSessionStatus.valueOf(value.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.disjunction();
         }
 
-        return false;
-    }
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            Predicate explicitStatus = criteriaBuilder.equal(root.get("status"), requestedStatus);
+            Predicate missingStatus = root.get("status").isNull();
 
-    private boolean matchesExact(String expected, String actual) {
-        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
-    }
+            Predicate legacyStatus = switch (requestedStatus) {
+                case PLANNED -> criteriaBuilder.and(
+                        missingStatus,
+                        root.get("startTime").isNull(),
+                        root.get("endTime").isNull(),
+                        root.get("success").isNull()
+                );
+                case ACTIVE -> criteriaBuilder.and(
+                        missingStatus,
+                        root.get("startTime").isNotNull(),
+                        root.get("endTime").isNull(),
+                        root.get("success").isNull()
+                );
+                case FINISHED -> criteriaBuilder.and(
+                        missingStatus,
+                        criteriaBuilder.or(root.get("endTime").isNotNull(), root.get("success").isNotNull())
+                );
+            };
 
-    private boolean matchesContains(String expected, String actual) {
-        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
-    }
-
-    private String normalize(String value) {
-        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+            return criteriaBuilder.or(explicitStatus, legacyStatus);
+        };
     }
 }

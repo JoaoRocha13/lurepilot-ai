@@ -17,6 +17,9 @@ public record AiSessionReviewResponse(
         String nextSessionSuggestion,
         List<String> keyLessons,
         String confidence,
+        Integer confidenceScore,
+        String confidenceReason,
+        Boolean latest,
         List<String> warnings,
         Instant createdAt
 ) {

@@ -6,15 +6,24 @@ import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.FishSpecies;
 import com.lurepilot.backend.repository.FishSpeciesRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class FishSpeciesService {
+
+    private static final Map<String, String> SORT_FIELDS = Map.of(
+            "id", "id",
+            "name", "name",
+            "strikezone", "strikeZone",
+            "createdat", "createdAt"
+    );
 
     private final FishSpeciesRepository fishSpeciesRepository;
 
@@ -49,26 +58,23 @@ public class FishSpeciesService {
             String sortBy,
             String sortDirection
     ) {
-        List<FishSpecies> filteredFishSpecies = fishSpeciesRepository.findAll()
-                .stream()
-                .filter(fishSpecies -> matchesQuery(
+        Specification<FishSpecies> specification = Specification.allOf(
+                SearchSpecifications.containsAny(
                         q,
-                        fishSpecies.getName(),
-                        fishSpecies.getDescription(),
-                        fishSpecies.getHabitatNotes(),
-                        fishSpecies.getActiveTimes(),
-                        fishSpecies.getStrikeZone(),
-                        fishSpecies.getCommonZones(),
-                        fishSpecies.getFavoriteLures()
-                ))
-                .filter(fishSpecies -> matchesContains(strikeZone, fishSpecies.getStrikeZone()))
-                .toList();
+                        "name",
+                        "description",
+                        "habitatNotes",
+                        "activeTimes",
+                        "strikeZone",
+                        "commonZones",
+                        "favoriteLures"
+                ),
+                SearchSpecifications.contains(strikeZone, "strikeZone")
+        );
+        Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
+        Page<FishSpecies> fishSpecies = fishSpeciesRepository.findAll(specification, pageable);
 
-        List<FishSpecies> sortedFishSpecies = filteredFishSpecies.stream()
-                .sorted(ListQuerySupport.applyDirection(fishSpeciesComparator(sortBy), sortDirection))
-                .toList();
-
-        return ListQuerySupport.toPage(sortedFishSpecies, page, size, this::toSummaryResponse);
+        return ListQuerySupport.toPagedResponse(fishSpecies, this::toSummaryResponse);
     }
 
     public FishSpeciesResponse getFishSpeciesById(Long id) {
@@ -126,35 +132,4 @@ public class FishSpeciesService {
         );
     }
 
-    private Comparator<FishSpecies> fishSpeciesComparator(String sortBy) {
-        return switch (normalize(sortBy)) {
-            case "name" -> ListQuerySupport.comparing(FishSpecies::getName);
-            case "strikezone" -> ListQuerySupport.comparing(FishSpecies::getStrikeZone);
-            case "createdat" -> ListQuerySupport.comparing(FishSpecies::getCreatedAt);
-            default -> ListQuerySupport.comparing(FishSpecies::getId);
-        };
-    }
-
-    private boolean matchesQuery(String query, String... values) {
-        if (query == null || query.isBlank()) {
-            return true;
-        }
-
-        String normalizedQuery = normalize(query);
-        for (String value : values) {
-            if (value != null && normalize(value).contains(normalizedQuery)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean matchesContains(String expected, String actual) {
-        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
-    }
-
-    private String normalize(String value) {
-        return value == null ? "" : value.trim().toLowerCase();
-    }
 }

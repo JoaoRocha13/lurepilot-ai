@@ -8,15 +8,31 @@ import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.repository.LureLibraryItemRepository;
 import com.lurepilot.backend.repository.LureRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class LureService {
+
+    private static final Map<String, String> SORT_FIELDS = Map.ofEntries(
+            Map.entry("id", "id"),
+            Map.entry("name", "name"),
+            Map.entry("type", "type"),
+            Map.entry("brand", "brand"),
+            Map.entry("targetspecies", "targetSpecies"),
+            Map.entry("watertype", "waterType"),
+            Map.entry("active", "active"),
+            Map.entry("quantity", "quantity"),
+            Map.entry("condition", "condition"),
+            Map.entry("libraryitemname", "libraryItem.name"),
+            Map.entry("createdat", "createdAt")
+    );
 
     private final LureRepository lureRepository;
     private final LureLibraryItemRepository lureLibraryItemRepository;
@@ -63,39 +79,36 @@ public class LureService {
             String sortBy,
             String sortDirection
     ) {
-        List<Lure> filteredLures = lureRepository.findAll()
-                .stream()
-                .filter(lure -> matchesQuery(
+        Specification<Lure> specification = Specification.allOf(
+                SearchSpecifications.containsAny(
                         q,
-                        lure.getName(),
-                        lure.getType(),
-                        lure.getColor(),
-                        lure.getSize(),
-                        lure.getBrand(),
-                        lure.getNotes(),
-                        lure.getTargetSpecies(),
-                        lure.getWaterType(),
-                        lure.getLibraryItem() == null ? null : lure.getLibraryItem().getName(),
-                        lure.getCondition(),
-                        lure.getPersonalNotes(),
-                        lure.getFavoriteForSpecies(),
-                        lure.getFavoriteForSpot()
-                ))
-                .filter(lure -> matchesExact(type, lure.getType()))
-                .filter(lure -> matchesExact(waterType, lure.getWaterType()))
-                .filter(lure -> matchesContains(targetSpecies, lure.getTargetSpecies()))
-                .filter(lure -> matchesContains(brand, lure.getBrand()))
-                .filter(lure -> libraryItemId == null || lure.getLibraryItem() != null && libraryItemId.equals(lure.getLibraryItem().getId()))
-                .toList();
+                        "name",
+                        "type",
+                        "color",
+                        "size",
+                        "brand",
+                        "notes",
+                        "targetSpecies",
+                        "waterType",
+                        "libraryItem.name",
+                        "condition",
+                        "personalNotes",
+                        "favoriteForSpecies",
+                        "favoriteForSpot"
+                ),
+                SearchSpecifications.equalsIgnoreCase(type, "type"),
+                SearchSpecifications.equalsIgnoreCase(waterType, "waterType"),
+                SearchSpecifications.contains(targetSpecies, "targetSpecies"),
+                SearchSpecifications.contains(brand, "brand"),
+                SearchSpecifications.equalsValue(libraryItemId, "libraryItem.id"),
+                SearchSpecifications.isActive(active),
+                SearchSpecifications.equalsIgnoreCase(condition, "condition"),
+                SearchSpecifications.quantityAtLeast(minQuantity)
+        );
+        Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
+        Page<Lure> lures = lureRepository.findAll(specification, pageable);
 
-        List<Lure> sortedLures = filteredLures.stream()
-                .filter(lure -> active == null || active.equals(activeOrDefault(lure)))
-                .filter(lure -> matchesExact(condition, lure.getCondition()))
-                .filter(lure -> minQuantity == null || quantityOrDefault(lure) >= minQuantity)
-                .sorted(ListQuerySupport.applyDirection(lureComparator(sortBy), sortDirection))
-                .toList();
-
-        return ListQuerySupport.toPage(sortedLures, page, size, this::toSummaryResponse);
+        return ListQuerySupport.toPagedResponse(lures, this::toSummaryResponse);
     }
 
     public LureResponse getLureById(Long id) {
@@ -195,21 +208,6 @@ public class LureService {
         lure.setFavoriteForSpot(request.favoriteForSpot());
     }
 
-    private Comparator<Lure> lureComparator(String sortBy) {
-        return switch (normalize(sortBy)) {
-            case "name" -> ListQuerySupport.comparing(Lure::getName);
-            case "type" -> ListQuerySupport.comparing(Lure::getType);
-            case "brand" -> ListQuerySupport.comparing(Lure::getBrand);
-            case "targetspecies" -> ListQuerySupport.comparing(Lure::getTargetSpecies);
-            case "watertype" -> ListQuerySupport.comparing(Lure::getWaterType);
-            case "active" -> ListQuerySupport.comparing(Lure::getActive);
-            case "quantity" -> ListQuerySupport.comparing(Lure::getQuantity);
-            case "condition" -> ListQuerySupport.comparing(Lure::getCondition);
-            case "createdat" -> ListQuerySupport.comparing(Lure::getCreatedAt);
-            default -> ListQuerySupport.comparing(Lure::getId);
-        };
-    }
-
     private Boolean activeOrDefault(Lure lure) {
         return lure.getActive() == null ? true : lure.getActive();
     }
@@ -218,30 +216,4 @@ public class LureService {
         return lure.getQuantity() == null ? 1 : lure.getQuantity();
     }
 
-    private boolean matchesQuery(String query, String... values) {
-        if (query == null || query.isBlank()) {
-            return true;
-        }
-
-        String normalizedQuery = normalize(query);
-        for (String value : values) {
-            if (value != null && normalize(value).contains(normalizedQuery)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean matchesExact(String expected, String actual) {
-        return expected == null || expected.isBlank() || normalize(expected).equals(normalize(actual));
-    }
-
-    private boolean matchesContains(String expected, String actual) {
-        return expected == null || expected.isBlank() || normalize(actual).contains(normalize(expected));
-    }
-
-    private String normalize(String value) {
-        return value == null ? "" : value.trim().toLowerCase();
-    }
 }

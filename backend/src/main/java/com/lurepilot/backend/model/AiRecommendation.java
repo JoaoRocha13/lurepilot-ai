@@ -62,6 +62,15 @@ public class AiRecommendation {
 
     private String confidence;
 
+    private Integer confidenceScore;
+
+    @Column(length = 1000)
+    private String confidenceReason;
+
+    private Boolean latest = true;
+
+    private Instant supersededAt;
+
     @Lob
     private String warningsJson;
 
@@ -95,6 +104,9 @@ public class AiRecommendation {
     public void prePersist() {
         if (createdAt == null) {
             createdAt = Instant.now();
+        }
+        if (latest == null) {
+            latest = true;
         }
     }
 
@@ -152,6 +164,38 @@ public class AiRecommendation {
 
     public String getConfidence() {
         return confidence;
+    }
+
+    public Integer getConfidenceScore() {
+        return confidenceScore;
+    }
+
+    public void setConfidenceScore(Integer confidenceScore) {
+        this.confidenceScore = confidenceScore;
+    }
+
+    public String getConfidenceReason() {
+        return confidenceReason;
+    }
+
+    public void setConfidenceReason(String confidenceReason) {
+        this.confidenceReason = confidenceReason;
+    }
+
+    public Boolean getLatest() {
+        return latest;
+    }
+
+    public void setLatest(Boolean latest) {
+        this.latest = latest;
+    }
+
+    public Instant getSupersededAt() {
+        return supersededAt;
+    }
+
+    public void setSupersededAt(Instant supersededAt) {
+        this.supersededAt = supersededAt;
     }
 
     public String getWarningsJson() {

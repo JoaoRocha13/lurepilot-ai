@@ -15,6 +15,9 @@ public record AiSessionAdjustmentResponse(
         String fallbackAction,
         List<String> avoid,
         String confidence,
+        Integer confidenceScore,
+        String confidenceReason,
+        Boolean latest,
         List<String> warnings,
         Instant createdAt
 ) {

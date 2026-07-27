@@ -8,6 +8,10 @@ public record AiRecommendationDebugResponse(
         Long sessionId,
         String recommendationType,
         Integer version,
+        Boolean latest,
+        Integer confidenceScore,
+        String confidenceReason,
+        Instant supersededAt,
         String contextJson,
         String rawResponse,
         Instant createdAt
