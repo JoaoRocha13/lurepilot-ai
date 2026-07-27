@@ -48,6 +48,31 @@ public class LureLibraryItemService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lure library item not found"));
     }
 
+    public LureLibraryItemResponse updateLureLibraryItem(Long id, CreateLureLibraryItemRequest request) {
+        LureLibraryItem item = lureLibraryItemRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lure library item not found"));
+
+        item.setName(request.name());
+        item.setType(request.type());
+        item.setImageUrl(request.imageUrl());
+        item.setDifficulty(request.difficulty());
+        item.setEffectiveness(request.effectiveness());
+        item.setDescription(request.description());
+        item.setUsageNotes(request.usageNotes());
+        item.setActionType(request.actionType());
+        item.setIdealConditions(request.idealConditions());
+
+        return toResponse(lureLibraryItemRepository.save(item));
+    }
+
+    public void deleteLureLibraryItem(Long id) {
+        if (!lureLibraryItemRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lure library item not found");
+        }
+
+        lureLibraryItemRepository.deleteById(id);
+    }
+
     private LureLibraryItemResponse toResponse(LureLibraryItem item) {
         return new LureLibraryItemResponse(
                 item.getId(),

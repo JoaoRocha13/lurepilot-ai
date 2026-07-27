@@ -7,9 +7,11 @@ import com.lurepilot.backend.dto.StartFishingSessionRequest;
 import com.lurepilot.backend.service.FishingSessionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,6 +43,17 @@ public class FishingSessionController {
     @GetMapping("/{id}")
     public FishingSessionResponse getSessionById(@PathVariable Long id) {
         return fishingSessionService.getSessionById(id);
+    }
+
+    @PutMapping("/{id}")
+    public FishingSessionResponse updateSession(@PathVariable Long id, @Valid @RequestBody CreateFishingSessionRequest request) {
+        return fishingSessionService.updateSession(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSession(@PathVariable Long id) {
+        fishingSessionService.deleteSession(id);
     }
 
     @PostMapping("/{id}/start")

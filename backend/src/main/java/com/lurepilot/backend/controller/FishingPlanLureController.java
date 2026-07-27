@@ -5,6 +5,7 @@ import com.lurepilot.backend.dto.FishingPlanLureResponse;
 import com.lurepilot.backend.service.FishingPlanLureService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,5 +35,11 @@ public class FishingPlanLureController {
     @GetMapping
     public List<FishingPlanLureResponse> getLuresByPlan(@PathVariable Long planId) {
         return fishingPlanLureService.getLuresByPlan(planId);
+    }
+
+    @DeleteMapping("/{planLureId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeLureFromPlan(@PathVariable Long planId, @PathVariable Long planLureId) {
+        fishingPlanLureService.removeLureFromPlan(planId, planLureId);
     }
 }

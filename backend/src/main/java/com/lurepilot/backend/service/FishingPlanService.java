@@ -53,6 +53,31 @@ public class FishingPlanService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found"));
     }
 
+    public FishingPlanResponse updatePlan(Long id, CreateFishingPlanRequest request) {
+        FishingPlan fishingPlan = fishingPlanRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found"));
+        FishingSpot spot = fishingSpotRepository.findById(request.spotId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing spot not found"));
+
+        fishingPlan.setSpot(spot);
+        fishingPlan.setPlannedDate(request.plannedDate());
+        fishingPlan.setPlannedTime(request.plannedTime());
+        fishingPlan.setTargetSpecies(request.targetSpecies());
+        fishingPlan.setWaterClarity(request.waterClarity());
+        fishingPlan.setWaterLevel(request.waterLevel());
+        fishingPlan.setNotes(request.notes());
+
+        return toResponse(fishingPlanRepository.save(fishingPlan));
+    }
+
+    public void deletePlan(Long id) {
+        if (!fishingPlanRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found");
+        }
+
+        fishingPlanRepository.deleteById(id);
+    }
+
     private FishingPlanResponse toResponse(FishingPlan fishingPlan) {
         FishingSpot spot = fishingPlan.getSpot();
 

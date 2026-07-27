@@ -48,6 +48,32 @@ public class SessionEventService {
                 .toList();
     }
 
+    public SessionEventResponse updateEvent(Long sessionId, Long eventId, CreateSessionEventRequest request) {
+        SessionEvent sessionEvent = findEventForSession(sessionId, eventId);
+
+        sessionEvent.setEventTime(request.eventTime());
+        sessionEvent.setEventType(request.eventType());
+        sessionEvent.setDescription(request.description());
+
+        return toResponse(sessionEventRepository.save(sessionEvent));
+    }
+
+    public void deleteEvent(Long sessionId, Long eventId) {
+        SessionEvent sessionEvent = findEventForSession(sessionId, eventId);
+        sessionEventRepository.delete(sessionEvent);
+    }
+
+    private SessionEvent findEventForSession(Long sessionId, Long eventId) {
+        SessionEvent sessionEvent = sessionEventRepository.findById(eventId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Session event not found"));
+
+        if (!sessionId.equals(sessionEvent.getSession().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session event not found");
+        }
+
+        return sessionEvent;
+    }
+
     private SessionEventResponse toResponse(SessionEvent sessionEvent) {
         return new SessionEventResponse(
                 sessionEvent.getId(),

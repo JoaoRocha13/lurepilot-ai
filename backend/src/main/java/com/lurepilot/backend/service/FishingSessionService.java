@@ -68,6 +68,36 @@ public class FishingSessionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found"));
     }
 
+    public FishingSessionResponse updateSession(Long id, CreateFishingSessionRequest request) {
+        FishingSession session = findSession(id);
+        FishingSpot spot = fishingSpotRepository.findById(request.spotId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing spot not found"));
+        FishingPlan plan = findPlanOrNull(request.planId());
+
+        session.setSpot(spot);
+        session.setPlan(plan);
+        session.setDate(request.date());
+        session.setStartTime(request.startTime());
+        session.setEndTime(request.endTime());
+        session.setTargetSpecies(request.targetSpecies());
+        session.setWaterClarity(request.waterClarity());
+        session.setWaterLevel(request.waterLevel());
+        session.setNotes(request.notes());
+        session.setSuccess(request.success());
+        session.setDurationMinutes(calculateDurationMinutes(request.startTime(), request.endTime()));
+        session.setStatus(resolveStatus(request.startTime(), request.endTime(), request.success()));
+
+        return toResponse(fishingSessionRepository.save(session));
+    }
+
+    public void deleteSession(Long id) {
+        if (!fishingSessionRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
+        }
+
+        fishingSessionRepository.deleteById(id);
+    }
+
     public FishingSessionResponse startSession(Long id, StartFishingSessionRequest request) {
         FishingSession session = findSession(id);
 
@@ -163,6 +193,18 @@ public class FishingSessionService {
         }
 
         if (session.getStartTime() != null) {
+            return FishingSessionStatus.ACTIVE;
+        }
+
+        return FishingSessionStatus.PLANNED;
+    }
+
+    private FishingSessionStatus resolveStatus(LocalTime startTime, LocalTime endTime, Boolean success) {
+        if (endTime != null || success != null) {
+            return FishingSessionStatus.FINISHED;
+        }
+
+        if (startTime != null) {
             return FishingSessionStatus.ACTIVE;
         }
 

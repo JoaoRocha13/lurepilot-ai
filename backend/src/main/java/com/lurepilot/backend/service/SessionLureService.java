@@ -55,6 +55,34 @@ public class SessionLureService {
                 .toList();
     }
 
+    public SessionLureResponse updateSessionLure(Long sessionId, Long sessionLureId, AddSessionLureRequest request) {
+        SessionLure sessionLure = findSessionLureForSession(sessionId, sessionLureId);
+        Lure lure = lureRepository.findById(request.lureId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lure not found"));
+
+        sessionLure.setLure(lure);
+        sessionLure.setUsedFrom(request.usedFrom());
+        sessionLure.setUsedTo(request.usedTo());
+        sessionLure.setResultNotes(request.resultNotes());
+
+        return toResponse(sessionLureRepository.save(sessionLure));
+    }
+
+    public void deleteSessionLure(Long sessionId, Long sessionLureId) {
+        sessionLureRepository.delete(findSessionLureForSession(sessionId, sessionLureId));
+    }
+
+    private SessionLure findSessionLureForSession(Long sessionId, Long sessionLureId) {
+        SessionLure sessionLure = sessionLureRepository.findById(sessionLureId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Session lure not found"));
+
+        if (!sessionId.equals(sessionLure.getSession().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session lure not found for session");
+        }
+
+        return sessionLure;
+    }
+
     private SessionLureResponse toResponse(SessionLure sessionLure) {
         Lure lure = sessionLure.getLure();
 

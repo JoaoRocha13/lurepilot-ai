@@ -40,6 +40,22 @@
     {
       "key": "ipmaGlobalIdLocal",
       "value": "1110600"
+    },
+    {
+      "key": "planLureId",
+      "value": "1"
+    },
+    {
+      "key": "eventId",
+      "value": "1"
+    },
+    {
+      "key": "catchId",
+      "value": "1"
+    },
+    {
+      "key": "sessionLureId",
+      "value": "1"
     }
   ],
   "item": [
@@ -262,6 +278,51 @@
               ]
             }
           }
+        },
+        {
+          "name": "Update Fish Species",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/fish/{{fishId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fish",
+                "{{fishId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Achiga\",\n  \"description\": \"Predador de agua doce muito associado a estruturas, margens e vegetacao.\",\n  \"imageUrl\": \"https://example.com/images/achiga.jpg\",\n  \"habitatNotes\": \"Barragens, lagos e rios lentos com cobertura, pedra, madeira ou vegetacao.\",\n  \"activeTimes\": \"Mais ativo ao amanhecer, fim de tarde e em periodos de pouca luz.\",\n  \"strikeZone\": \"Pode atacar no fundo, meia agua ou superficie dependendo da temperatura e atividade.\",\n  \"commonZones\": \"Margens com sombra, estruturas submersas, vegetacao, pontas e drop-offs.\",\n  \"favoriteLures\": \"Soft bait, crankbait, jerkbait, jig, spinnerbait e topwater.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Fish Species",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fish/{{fishId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fish",
+                "{{fishId}}"
+              ]
+            }
+          }
         }
       ]
     },
@@ -315,6 +376,51 @@
           "name": "Get Lure Library Item By Id",
           "request": {
             "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lure-library/{{lureLibraryItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lure-library",
+                "{{lureLibraryItemId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Lure Library Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/lure-library/{{lureLibraryItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lure-library",
+                "{{lureLibraryItemId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jerkbait\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/jerkbait.jpg\",\n  \"difficulty\": \"MEDIUM\",\n  \"effectiveness\": \"HIGH\",\n  \"description\": \"Amostra dura para provocar ataques de predadores suspensos.\",\n  \"usageNotes\": \"Usar com toques de ponta de cana e pausas entre recolhas.\",\n  \"actionType\": \"twitch, jerk, stop-and-go\",\n  \"idealConditions\": \"Agua clara, peixe suspenso, margens com estrutura e pouca atividade a superficie.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Lure Library Item",
+          "request": {
+            "method": "DELETE",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/lure-library/{{lureLibraryItemId}}",
@@ -507,6 +613,51 @@
           }
         },
         {
+          "name": "Update Fishing Plan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spotId\": 1,\n  \"plannedDate\": \"2026-07-23\",\n  \"plannedTime\": \"19:00\",\n  \"targetSpecies\": \"BASS\",\n  \"waterClarity\": \"CLEAR\",\n  \"waterLevel\": \"LOW\",\n  \"notes\": \"Fim de tarde, agua baixa e clara.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Fishing Plan",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}"
+              ]
+            }
+          }
+        },
+        {
           "name": "Add Lure To Fishing Plan",
           "request": {
             "method": "POST",
@@ -549,6 +700,26 @@
                 "plans",
                 "{{planId}}",
                 "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Lure From Fishing Plan",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}/lures/{{planLureId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}",
+                "lures",
+                "{{planLureId}}"
               ]
             }
           }
@@ -625,6 +796,51 @@
           "name": "Get Fishing Session By Id",
           "request": {
             "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Fishing Session",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spotId\": 1,\n  \"planId\": 1,\n  \"date\": \"2026-07-23\",\n  \"startTime\": \"19:00\",\n  \"endTime\": \"21:00\",\n  \"targetSpecies\": \"BASS\",\n  \"waterClarity\": \"CLEAR\",\n  \"waterLevel\": \"LOW\",\n  \"notes\": \"Sessao curta ao fim da tarde.\",\n  \"success\": true,\n  \"resultSummary\": \"Uma captura e varios sinais junto a pedra.\",\n  \"finalNotes\": \"Vinil trabalhou melhor quando a luz baixou.\",\n  \"rating\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Fishing Session",
+          "request": {
+            "method": "DELETE",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/sessions/{{sessionId}}",
@@ -745,6 +961,55 @@
           }
         },
         {
+          "name": "Update Session Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/events/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "events",
+                "{{eventId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventTime\": \"19:45\",\n  \"eventType\": \"LURE_CHANGE\",\n  \"description\": \"Troca para vinil junto a estrutura.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Session Event",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/events/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "events",
+                "{{eventId}}"
+              ]
+            }
+          }
+        },
+        {
           "name": "Create Catch",
           "request": {
             "method": "POST",
@@ -792,6 +1057,55 @@
           }
         },
         {
+          "name": "Update Catch",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/catches/{{catchId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "catches",
+                "{{catchId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 36.0,\n  \"weightKg\": 0.9,\n  \"released\": true,\n  \"notes\": \"Captura atualizada junto a estrutura com vinil.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Catch",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/catches/{{catchId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "catches",
+                "{{catchId}}"
+              ]
+            }
+          }
+        },
+        {
           "name": "Add Lure To Session",
           "request": {
             "method": "POST",
@@ -834,6 +1148,55 @@
                 "sessions",
                 "{{sessionId}}",
                 "lures"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Session Lure",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/lures/{{sessionLureId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "lures",
+                "{{sessionLureId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lureId\": 1,\n  \"usedFrom\": \"19:30\",\n  \"usedTo\": \"20:00\",\n  \"resultNotes\": \"Teve um toque junto a estrutura.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Session Lure",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/lures/{{sessionLureId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "lures",
+                "{{sessionLureId}}"
               ]
             }
           }

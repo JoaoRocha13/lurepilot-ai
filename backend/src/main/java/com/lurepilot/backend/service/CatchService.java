@@ -51,6 +51,34 @@ public class CatchService {
                 .toList();
     }
 
+    public CatchResponse updateCatch(Long sessionId, Long catchId, CreateCatchRequest request) {
+        Catch catchRecord = findCatchForSession(sessionId, catchId);
+
+        catchRecord.setSpecies(request.species());
+        catchRecord.setQuantity(request.quantity());
+        catchRecord.setSizeCm(request.sizeCm());
+        catchRecord.setWeightKg(request.weightKg());
+        catchRecord.setReleased(request.released());
+        catchRecord.setNotes(request.notes());
+
+        return toResponse(catchRepository.save(catchRecord));
+    }
+
+    public void deleteCatch(Long sessionId, Long catchId) {
+        catchRepository.delete(findCatchForSession(sessionId, catchId));
+    }
+
+    private Catch findCatchForSession(Long sessionId, Long catchId) {
+        Catch catchRecord = catchRepository.findById(catchId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Catch not found"));
+
+        if (!sessionId.equals(catchRecord.getSession().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Catch not found for session");
+        }
+
+        return catchRecord;
+    }
+
     private CatchResponse toResponse(Catch catchRecord) {
         return new CatchResponse(
                 catchRecord.getId(),

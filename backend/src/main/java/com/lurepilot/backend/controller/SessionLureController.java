@@ -5,9 +5,11 @@ import com.lurepilot.backend.dto.SessionLureResponse;
 import com.lurepilot.backend.service.SessionLureService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,5 +36,20 @@ public class SessionLureController {
     @GetMapping
     public List<SessionLureResponse> getLuresBySession(@PathVariable Long sessionId) {
         return sessionLureService.getLuresBySession(sessionId);
+    }
+
+    @PutMapping("/{sessionLureId}")
+    public SessionLureResponse updateSessionLure(
+            @PathVariable Long sessionId,
+            @PathVariable Long sessionLureId,
+            @Valid @RequestBody AddSessionLureRequest request
+    ) {
+        return sessionLureService.updateSessionLure(sessionId, sessionLureId, request);
+    }
+
+    @DeleteMapping("/{sessionLureId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSessionLure(@PathVariable Long sessionId, @PathVariable Long sessionLureId) {
+        sessionLureService.deleteSessionLure(sessionId, sessionLureId);
     }
 }

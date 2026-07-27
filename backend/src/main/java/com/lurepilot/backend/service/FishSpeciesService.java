@@ -47,6 +47,30 @@ public class FishSpeciesService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish species not found"));
     }
 
+    public FishSpeciesResponse updateFishSpecies(Long id, CreateFishSpeciesRequest request) {
+        FishSpecies fishSpecies = fishSpeciesRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish species not found"));
+
+        fishSpecies.setName(request.name());
+        fishSpecies.setDescription(request.description());
+        fishSpecies.setImageUrl(request.imageUrl());
+        fishSpecies.setHabitatNotes(request.habitatNotes());
+        fishSpecies.setActiveTimes(request.activeTimes());
+        fishSpecies.setStrikeZone(request.strikeZone());
+        fishSpecies.setCommonZones(request.commonZones());
+        fishSpecies.setFavoriteLures(request.favoriteLures());
+
+        return toResponse(fishSpeciesRepository.save(fishSpecies));
+    }
+
+    public void deleteFishSpecies(Long id) {
+        if (!fishSpeciesRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish species not found");
+        }
+
+        fishSpeciesRepository.deleteById(id);
+    }
+
     private FishSpeciesResponse toResponse(FishSpecies fishSpecies) {
         return new FishSpeciesResponse(
                 fishSpecies.getId(),

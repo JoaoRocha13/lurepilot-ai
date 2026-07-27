@@ -53,6 +53,17 @@ public class FishingPlanLureService {
                 .toList();
     }
 
+    public void removeLureFromPlan(Long planId, Long planLureId) {
+        FishingPlanLure fishingPlanLure = fishingPlanLureRepository.findById(planLureId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan lure not found"));
+
+        if (!planId.equals(fishingPlanLure.getPlan().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan lure not found");
+        }
+
+        fishingPlanLureRepository.delete(fishingPlanLure);
+    }
+
     private FishingPlanLureResponse toResponse(FishingPlanLure fishingPlanLure) {
         Lure lure = fishingPlanLure.getLure();
         LureLibraryItem libraryItem = lure.getLibraryItem();
