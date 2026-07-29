@@ -59,6 +59,11 @@ Frontend direction:
 - iOS/Android later from the same React Native direction
 - The old Vite frontend folder exists from early setup, but future frontend development should follow the project specification.
 
+Media direction:
+
+- Static catalogue images can live under `frontend/assets/images`, for example lures, fish, spots and UI images.
+- User-generated photos, such as fish photos taken during a session, should be handled as uploads later and stored through backend-managed paths/URLs instead of being committed as frontend assets.
+
 ## Architecture
 
 The backend follows a layered MVC architecture:
