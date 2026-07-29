@@ -20,7 +20,8 @@ Implemented backend areas:
 - Fishing sessions with planned, active and finished states
 - Session events
 - Session lures
-- Catches
+- Catches with optional photo metadata
+- Catch gallery endpoint for photo-based history navigation
 - IPMA weather snapshots
 - AI plan recommendations through LM Studio
 - AI session adjustment
@@ -63,6 +64,7 @@ Media direction:
 
 - Static catalogue images can live under `frontend/assets/images`, for example lures, fish, spots and UI images.
 - User-generated photos, such as fish photos taken during a session, should be handled as uploads later and stored through backend-managed paths/URLs instead of being committed as frontend assets.
+- The backend now exposes a catch gallery endpoint. Each gallery item includes `catchId` and `sessionId`, so the future frontend menu icon can open the gallery and each photo can navigate back to its fishing session.
 
 ## Architecture
 
@@ -132,6 +134,7 @@ Planning and fishing data:
 - `/api/sessions/{sessionId}/events`
 - `/api/sessions/{sessionId}/lures`
 - `/api/sessions/{sessionId}/catches`
+- `GET /api/gallery/catches`
 
 AI:
 

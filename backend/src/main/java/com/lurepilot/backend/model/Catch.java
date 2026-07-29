@@ -14,7 +14,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "catches", indexes = {
         @Index(name = "idx_catches_session", columnList = "session_id"),
-        @Index(name = "idx_catches_species", columnList = "species")
+        @Index(name = "idx_catches_species", columnList = "species"),
+        @Index(name = "idx_catches_released", columnList = "released")
 })
 public class Catch {
 
@@ -41,10 +42,34 @@ public class Catch {
     @Column(length = 1000)
     private String notes;
 
+    @Column(length = 1000)
+    private String photoUrl;
+
+    @Column(length = 1000)
+    private String photoThumbnailUrl;
+
+    @Column(length = 255)
+    private String photoCaption;
+
     public Catch() {
     }
 
     public Catch(FishingSession session, String species, Integer quantity, Double sizeCm, Double weightKg, Boolean released, String notes) {
+        this(session, species, quantity, sizeCm, weightKg, released, notes, null, null, null);
+    }
+
+    public Catch(
+            FishingSession session,
+            String species,
+            Integer quantity,
+            Double sizeCm,
+            Double weightKg,
+            Boolean released,
+            String notes,
+            String photoUrl,
+            String photoThumbnailUrl,
+            String photoCaption
+    ) {
         this.session = session;
         this.species = species;
         this.quantity = quantity;
@@ -52,6 +77,9 @@ public class Catch {
         this.weightKg = weightKg;
         this.released = released;
         this.notes = notes;
+        this.photoUrl = photoUrl;
+        this.photoThumbnailUrl = photoThumbnailUrl;
+        this.photoCaption = photoCaption;
     }
 
     public Long getId() {
@@ -112,5 +140,29 @@ public class Catch {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getPhotoThumbnailUrl() {
+        return photoThumbnailUrl;
+    }
+
+    public void setPhotoThumbnailUrl(String photoThumbnailUrl) {
+        this.photoThumbnailUrl = photoThumbnailUrl;
+    }
+
+    public String getPhotoCaption() {
+        return photoCaption;
+    }
+
+    public void setPhotoCaption(String photoCaption) {
+        this.photoCaption = photoCaption;
     }
 }

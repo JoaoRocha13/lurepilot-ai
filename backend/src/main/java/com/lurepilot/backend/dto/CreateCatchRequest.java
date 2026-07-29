@@ -21,6 +21,15 @@ public record CreateCatchRequest(
         Boolean released,
 
         @Size(max = 1000)
-        String notes
+        String notes,
+
+        @Size(max = 1000)
+        String photoUrl,
+
+        @Size(max = 1000)
+        String photoThumbnailUrl,
+
+        @Size(max = 255)
+        String photoCaption
 ) {
 }

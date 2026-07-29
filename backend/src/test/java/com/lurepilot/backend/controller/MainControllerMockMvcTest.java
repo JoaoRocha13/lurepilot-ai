@@ -2,6 +2,7 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.config.GlobalExceptionHandler;
 import com.lurepilot.backend.dto.AnalyticsSummaryResponse;
+import com.lurepilot.backend.dto.CatchGalleryItemResponse;
 import com.lurepilot.backend.dto.FishSpeciesResponse;
 import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
 import com.lurepilot.backend.dto.FishingPlanResponse;
@@ -20,6 +21,7 @@ import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.dto.RecommendationExecutionResponse;
 import com.lurepilot.backend.service.AiRecommendationService;
 import com.lurepilot.backend.service.AnalyticsService;
+import com.lurepilot.backend.service.CatchService;
 import com.lurepilot.backend.service.FishSpeciesService;
 import com.lurepilot.backend.service.FishingPlanService;
 import com.lurepilot.backend.service.FishingSessionService;
@@ -222,6 +224,62 @@ class MainControllerMockMvcTest {
                 .andExpect(jsonPath("$.items[0].status").value("finished"));
 
         verify(service).searchSessions("pedra", 1L, 2L, "BASS", "CLEAR", "LOW", "finished", true, dateFrom, dateTo, 0, 20, "id", "asc");
+    }
+
+    @Test
+    void listCatchGalleryAcceptsSearchFilters() throws Exception {
+        CatchService service = mock(CatchService.class);
+        LocalDate dateFrom = LocalDate.of(2026, 7, 1);
+        LocalDate dateTo = LocalDate.of(2026, 7, 31);
+        when(service.searchGalleryCatches("bass", "Black Bass", 2L, 1L, true, true, true, dateFrom, dateTo, 1, 6, "sessionDate", "desc")).thenReturn(new PagedResponse<>(
+                List.of(new CatchGalleryItemResponse(
+                        9L,
+                        2L,
+                        LocalDate.of(2026, 7, 24),
+                        LocalTime.of(7, 0),
+                        1L,
+                        "Barragem Norte",
+                        "Black Bass",
+                        1,
+                        35.0,
+                        0.8,
+                        true,
+                        "/uploads/catches/9.jpg",
+                        "/uploads/catches/thumbs/9.jpg",
+                        "Primeira captura da manha",
+                        true,
+                        4
+                )),
+                1,
+                1,
+                6,
+                1,
+                false,
+                true
+        ));
+
+        mockMvc(new GalleryController(service))
+                .perform(get("/api/gallery/catches")
+                        .param("q", "bass")
+                        .param("species", "Black Bass")
+                        .param("sessionId", "2")
+                        .param("spotId", "1")
+                        .param("released", "true")
+                        .param("sessionSuccess", "true")
+                        .param("withPhotoOnly", "true")
+                        .param("dateFrom", "2026-07-01")
+                        .param("dateTo", "2026-07-31")
+                        .param("page", "1")
+                        .param("size", "6")
+                        .param("sortBy", "sessionDate")
+                        .param("sortDirection", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].catchId").value(9))
+                .andExpect(jsonPath("$.items[0].sessionId").value(2))
+                .andExpect(jsonPath("$.items[0].photoUrl").value("/uploads/catches/9.jpg"))
+                .andExpect(jsonPath("$.items[0].spotName").value("Barragem Norte"));
+
+        verify(service).searchGalleryCatches("bass", "Black Bass", 2L, 1L, true, true, true, dateFrom, dateTo, 1, 6, "sessionDate", "desc");
     }
 
     @Test

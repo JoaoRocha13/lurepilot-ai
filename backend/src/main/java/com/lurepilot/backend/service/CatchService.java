@@ -1,26 +1,51 @@
 package com.lurepilot.backend.service;
 
+import com.lurepilot.backend.dto.CatchGalleryItemResponse;
 import com.lurepilot.backend.dto.CatchResponse;
 import com.lurepilot.backend.dto.CreateCatchRequest;
+import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.Catch;
 import com.lurepilot.backend.model.FishingSession;
 import com.lurepilot.backend.repository.CatchRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CatchService {
 
+    private static final Map<String, String> GALLERY_SORT_FIELDS = Map.ofEntries(
+            Map.entry("id", "id"),
+            Map.entry("catchid", "id"),
+            Map.entry("sessiondate", "session.date"),
+            Map.entry("sessionstarttime", "session.startTime"),
+            Map.entry("spotname", "session.spot.name"),
+            Map.entry("species", "species"),
+            Map.entry("quantity", "quantity"),
+            Map.entry("sizecm", "sizeCm"),
+            Map.entry("weightkg", "weightKg"),
+            Map.entry("released", "released")
+    );
+
     private final CatchRepository catchRepository;
     private final FishingSessionRepository fishingSessionRepository;
+    private final ListProjectionService listProjectionService;
 
-    public CatchService(CatchRepository catchRepository, FishingSessionRepository fishingSessionRepository) {
+    public CatchService(
+            CatchRepository catchRepository,
+            FishingSessionRepository fishingSessionRepository,
+            ListProjectionService listProjectionService
+    ) {
         this.catchRepository = catchRepository;
         this.fishingSessionRepository = fishingSessionRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public CatchResponse createCatch(Long sessionId, CreateCatchRequest request) {
@@ -34,7 +59,10 @@ public class CatchService {
                 request.sizeCm(),
                 request.weightKg(),
                 request.released(),
-                request.notes()
+                request.notes(),
+                request.photoUrl(),
+                request.photoThumbnailUrl(),
+                request.photoCaption()
         );
 
         return toResponse(catchRepository.save(catchRecord));
@@ -60,8 +88,50 @@ public class CatchService {
         catchRecord.setWeightKg(request.weightKg());
         catchRecord.setReleased(request.released());
         catchRecord.setNotes(request.notes());
+        catchRecord.setPhotoUrl(request.photoUrl());
+        catchRecord.setPhotoThumbnailUrl(request.photoThumbnailUrl());
+        catchRecord.setPhotoCaption(request.photoCaption());
 
         return toResponse(catchRepository.save(catchRecord));
+    }
+
+    public PagedResponse<CatchGalleryItemResponse> searchGalleryCatches(
+            String q,
+            String species,
+            Long sessionId,
+            Long spotId,
+            Boolean released,
+            Boolean sessionSuccess,
+            Boolean withPhotoOnly,
+            LocalDate dateFrom,
+            LocalDate dateTo,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection
+    ) {
+        Specification<Catch> specification = Specification.allOf(
+                SearchSpecifications.containsAny(
+                        q,
+                        "species",
+                        "notes",
+                        "photoCaption",
+                        "session.spot.name",
+                        "session.targetSpecies",
+                        "session.resultSummary"
+                ),
+                SearchSpecifications.contains(species, "species"),
+                SearchSpecifications.equalsValue(sessionId, "session.id"),
+                SearchSpecifications.equalsValue(spotId, "session.spot.id"),
+                SearchSpecifications.equalsValue(released, "released"),
+                SearchSpecifications.equalsValue(sessionSuccess, "session.success"),
+                SearchSpecifications.dateFrom(dateFrom, "session.date"),
+                SearchSpecifications.dateTo(dateTo, "session.date"),
+                hasPhoto(withPhotoOnly)
+        );
+        Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, GALLERY_SORT_FIELDS);
+
+        return listProjectionService.findCatchGalleryItems(specification, pageable);
     }
 
     public void deleteCatch(Long sessionId, Long catchId) {
@@ -88,7 +158,23 @@ public class CatchService {
                 catchRecord.getSizeCm(),
                 catchRecord.getWeightKg(),
                 catchRecord.getReleased(),
-                catchRecord.getNotes()
+                catchRecord.getNotes(),
+                catchRecord.getPhotoUrl(),
+                catchRecord.getPhotoThumbnailUrl(),
+                catchRecord.getPhotoCaption()
         );
+    }
+
+    private Specification<Catch> hasPhoto(Boolean withPhotoOnly) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (!Boolean.TRUE.equals(withPhotoOnly)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            return criteriaBuilder.and(
+                    root.get("photoUrl").isNotNull(),
+                    criteriaBuilder.notEqual(criteriaBuilder.trim(root.get("photoUrl")), "")
+            );
+        };
     }
 }

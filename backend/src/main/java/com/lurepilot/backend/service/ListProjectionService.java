@@ -1,12 +1,14 @@
 package com.lurepilot.backend.service;
 
 import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
+import com.lurepilot.backend.dto.CatchGalleryItemResponse;
 import com.lurepilot.backend.dto.FishingPlanSummaryResponse;
 import com.lurepilot.backend.dto.FishingSessionSummaryResponse;
 import com.lurepilot.backend.dto.FishingSpotSummaryResponse;
 import com.lurepilot.backend.dto.LureBoxItemSummaryResponse;
 import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
+import com.lurepilot.backend.model.Catch;
 import com.lurepilot.backend.model.FishSpecies;
 import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingSession;
@@ -169,6 +171,39 @@ public class ListProjectionService {
                             root.get("targetSpecies"),
                             root.get("success"),
                             root.get("rating")
+                    );
+                }
+        );
+    }
+
+    public PagedResponse<CatchGalleryItemResponse> findCatchGalleryItems(Specification<Catch> specification, Pageable pageable) {
+        return findProjectedPage(
+                Catch.class,
+                CatchGalleryItemResponse.class,
+                specification,
+                pageable,
+                (root, criteriaBuilder) -> {
+                    Join<Catch, FishingSession> session = root.join("session", JoinType.LEFT);
+                    Join<FishingSession, FishingSpot> spot = session.join("spot", JoinType.LEFT);
+
+                    return criteriaBuilder.construct(
+                            CatchGalleryItemResponse.class,
+                            root.get("id"),
+                            session.get("id"),
+                            session.get("date"),
+                            session.get("startTime"),
+                            spot.get("id"),
+                            spot.get("name"),
+                            root.get("species"),
+                            root.get("quantity"),
+                            root.get("sizeCm"),
+                            root.get("weightKg"),
+                            root.get("released"),
+                            root.get("photoUrl"),
+                            root.get("photoThumbnailUrl"),
+                            root.get("photoCaption"),
+                            session.get("success"),
+                            session.get("rating")
                     );
                 }
         );

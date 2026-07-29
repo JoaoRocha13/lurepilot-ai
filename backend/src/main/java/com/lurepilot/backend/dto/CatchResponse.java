@@ -8,6 +8,9 @@ public record CatchResponse(
         Double sizeCm,
         Double weightKg,
         Boolean released,
-        String notes
+        String notes,
+        String photoUrl,
+        String photoThumbnailUrl,
+        String photoCaption
 ) {
 }

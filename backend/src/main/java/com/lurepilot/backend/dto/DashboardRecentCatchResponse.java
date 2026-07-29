@@ -9,6 +9,8 @@ public record DashboardRecentCatchResponse(
         Integer quantity,
         Double sizeCm,
         Double weightKg,
-        Boolean released
+        Boolean released,
+        String photoUrl,
+        String photoThumbnailUrl
 ) {
 }

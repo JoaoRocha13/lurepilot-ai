@@ -305,7 +305,9 @@ public class DashboardService {
                 catchRecord.getQuantity(),
                 catchRecord.getSizeCm(),
                 catchRecord.getWeightKg(),
-                catchRecord.getReleased()
+                catchRecord.getReleased(),
+                catchRecord.getPhotoUrl(),
+                catchRecord.getPhotoThumbnailUrl()
         );
     }
 

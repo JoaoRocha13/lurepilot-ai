@@ -109,6 +109,128 @@
       ]
     },
     {
+      "name": "Catch Gallery",
+      "item": [
+        {
+          "name": "List Catch Gallery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Returns a paged gallery of catch photos. Each item includes catchId and sessionId so the frontend can open the related session when the user taps a gallery item.",
+            "url": {
+              "raw": "{{baseUrl}}/api/gallery/catches?withPhotoOnly=true&page=0&size=20&sortBy=id&sortDirection=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gallery",
+                "catches"
+              ],
+              "query": [
+                {
+                  "key": "withPhotoOnly",
+                  "value": "true",
+                  "description": "true returns only catches with photoUrl; false returns all catches"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id",
+                  "description": "Allowed: id, catchId, sessionDate, sessionStartTime, spotName, species, quantity, sizeCm, weightKg, released"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Catch Gallery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Searches catch gallery items by text, species, spot, session result and date range.",
+            "url": {
+              "raw": "{{baseUrl}}/api/gallery/catches?q=bass&species=Black Bass&spotId=1&released=true&sessionSuccess=true&withPhotoOnly=true&dateFrom=2026-07-01&dateTo=2026-07-31&page=0&size=12&sortBy=sessionDate&sortDirection=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gallery",
+                "catches"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "bass"
+                },
+                {
+                  "key": "species",
+                  "value": "Black Bass"
+                },
+                {
+                  "key": "spotId",
+                  "value": "1"
+                },
+                {
+                  "key": "sessionId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "released",
+                  "value": "true"
+                },
+                {
+                  "key": "sessionSuccess",
+                  "value": "true"
+                },
+                {
+                  "key": "withPhotoOnly",
+                  "value": "true"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "12"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "sessionDate"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "desc"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Frontend Options",
       "item": [
         {
@@ -1670,7 +1792,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 34.5,\n  \"weightKg\": 0.8,\n  \"released\": true,\n  \"notes\": \"Captura junto a estrutura com jerkbait.\"\n}"
+              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 34.5,\n  \"weightKg\": 0.8,\n  \"released\": true,\n  \"notes\": \"Captura junto a estrutura com jerkbait.\",\n  \"photoUrl\": \"/uploads/catches/demo-bass.jpg\",\n  \"photoThumbnailUrl\": \"/uploads/catches/thumbs/demo-bass.jpg\",\n  \"photoCaption\": \"Black Bass junto a estrutura.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/catches",
@@ -1683,7 +1805,8 @@
                 "{{sessionId}}",
                 "catches"
               ]
-            }
+            },
+            "description": "Creates a catch inside a fishing session. Photo fields are optional URL/path metadata for future app uploads."
           }
         },
         {
@@ -1730,8 +1853,9 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 36.0,\n  \"weightKg\": 0.9,\n  \"released\": true,\n  \"notes\": \"Captura atualizada junto a estrutura com vinil.\"\n}"
-            }
+              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 36.0,\n  \"weightKg\": 0.9,\n  \"released\": true,\n  \"notes\": \"Captura atualizada junto a estrutura com vinil.\",\n  \"photoUrl\": \"/uploads/catches/demo-bass-updated.jpg\",\n  \"photoThumbnailUrl\": \"/uploads/catches/thumbs/demo-bass-updated.jpg\",\n  \"photoCaption\": \"Captura atualizada para a galeria.\"\n}"
+            },
+            "description": "Updates a catch inside a fishing session, including optional photo URL/path metadata."
           }
         },
         {
