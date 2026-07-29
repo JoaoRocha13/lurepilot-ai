@@ -22,6 +22,7 @@ import com.lurepilot.backend.model.FishingSessionStatus;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
+import com.lurepilot.backend.model.RecommendationExecution;
 import com.lurepilot.backend.model.SessionEvent;
 import com.lurepilot.backend.model.SessionLure;
 import com.lurepilot.backend.model.WeatherSnapshot;
@@ -30,9 +31,11 @@ import com.lurepilot.backend.repository.CatchRepository;
 import com.lurepilot.backend.repository.FishingPlanLureRepository;
 import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
+import com.lurepilot.backend.repository.RecommendationExecutionRepository;
 import com.lurepilot.backend.repository.SessionEventRepository;
 import com.lurepilot.backend.repository.SessionLureRepository;
 import com.lurepilot.backend.repository.WeatherSnapshotRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +57,7 @@ public class AiRecommendationService {
     private static final String PLAN_RECOMMENDATION = "PLAN";
     private static final String SESSION_ADJUSTMENT = "SESSION_ADJUSTMENT";
     private static final String SESSION_REVIEW = "SESSION_REVIEW";
+    private static final int EXECUTION_HISTORY_LIMIT = 20;
 
     private static final TypeReference<List<AiLureRankingResponse>> LURE_RANKING_TYPE = new TypeReference<>() {
     };
@@ -68,6 +72,7 @@ public class AiRecommendationService {
     private final SessionEventRepository sessionEventRepository;
     private final CatchRepository catchRepository;
     private final WeatherSnapshotRepository weatherSnapshotRepository;
+    private final RecommendationExecutionRepository recommendationExecutionRepository;
     private final WeatherSnapshotService weatherSnapshotService;
     private final PlannerContextService plannerContextService;
     private final LmStudioClient lmStudioClient;
@@ -82,6 +87,7 @@ public class AiRecommendationService {
             SessionEventRepository sessionEventRepository,
             CatchRepository catchRepository,
             WeatherSnapshotRepository weatherSnapshotRepository,
+            RecommendationExecutionRepository recommendationExecutionRepository,
             WeatherSnapshotService weatherSnapshotService,
             PlannerContextService plannerContextService,
             LmStudioClient lmStudioClient,
@@ -95,6 +101,7 @@ public class AiRecommendationService {
         this.sessionEventRepository = sessionEventRepository;
         this.catchRepository = catchRepository;
         this.weatherSnapshotRepository = weatherSnapshotRepository;
+        this.recommendationExecutionRepository = recommendationExecutionRepository;
         this.weatherSnapshotService = weatherSnapshotService;
         this.plannerContextService = plannerContextService;
         this.lmStudioClient = lmStudioClient;
@@ -276,6 +283,7 @@ public class AiRecommendationService {
     public AiRecommendationDebugResponse getRecommendationDebug(Long id) {
         AiRecommendation recommendation = aiRecommendationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI recommendation not found"));
+        ResponseConfidence confidence = responseConfidence(recommendation);
 
         return new AiRecommendationDebugResponse(
                 recommendation.getId(),
@@ -284,8 +292,8 @@ public class AiRecommendationService {
                 recommendation.getRecommendationType(),
                 recommendation.getVersion(),
                 latestOrDefault(recommendation),
-                recommendation.getConfidenceScore(),
-                recommendation.getConfidenceReason(),
+                confidence.score(),
+                confidence.reason(),
                 recommendation.getSupersededAt(),
                 recommendation.getContextJson(),
                 recommendation.getRawResponse(),
@@ -711,6 +719,14 @@ public class AiRecommendationService {
             reasons.add("Historico recente sem resultados positivos registados.");
         }
 
+        ExecutionHistoryImpact executionHistoryImpact = assessExecutionHistory(
+                "para este plano/spot/especie",
+                buildPlanExecutionStats(context)
+        );
+        score += executionHistoryImpact.scoreDelta();
+        reasons.addAll(executionHistoryImpact.reasons());
+        warnings.addAll(executionHistoryImpact.warnings());
+
         if (context.dataQuality() != null && !nullToEmpty(context.dataQuality().warnings()).isEmpty()) {
             int penalty = Math.min(nullToEmpty(context.dataQuality().warnings()).size() * 4, 12);
             score -= penalty;
@@ -782,6 +798,14 @@ public class AiRecommendationService {
             reasons.add("Sessao esta ativa.");
         }
 
+        ExecutionHistoryImpact executionHistoryImpact = assessExecutionHistory(
+                "para ajustes desta sessao/plano",
+                buildSessionExecutionStats(context.session().id(), context.planId(), SESSION_ADJUSTMENT)
+        );
+        score += executionHistoryImpact.scoreDelta();
+        reasons.addAll(executionHistoryImpact.reasons());
+        warnings.addAll(executionHistoryImpact.warnings());
+
         if (nullToEmpty(result.lureRanking()).isEmpty()) {
             score -= 25;
         }
@@ -845,6 +869,14 @@ public class AiRecommendationService {
             reasons.add("Sessao tem avaliacao do utilizador.");
         }
 
+        ExecutionHistoryImpact executionHistoryImpact = assessExecutionHistory(
+                "da sessao revista",
+                buildSessionReviewExecutionStats(context.session().id())
+        );
+        score += executionHistoryImpact.scoreDelta();
+        reasons.addAll(executionHistoryImpact.reasons());
+        warnings.addAll(executionHistoryImpact.warnings());
+
         if (!nullToEmpty(result.warnings()).isEmpty()) {
             score -= Math.min(nullToEmpty(result.warnings()).size() * 5, 20);
         }
@@ -904,8 +936,6 @@ public class AiRecommendationService {
         String normalizedModelConfidence = normalizeConfidence(modelConfidence);
         if ("low".equals(normalizedModelConfidence)) {
             cappedScore = Math.min(cappedScore, 44);
-        } else if ("medium".equals(normalizedModelConfidence)) {
-            cappedScore = Math.min(cappedScore, 74);
         }
 
         String confidence = confidenceFromScore(cappedScore);
@@ -932,6 +962,220 @@ public class AiRecommendationService {
         }
 
         return "low";
+    }
+
+    private ExecutionHistoryStats buildPlanExecutionStats(PlannerContextResponse context) {
+        List<RecommendationExecution> executions = new ArrayList<>();
+        Set<Long> seenIds = new LinkedHashSet<>();
+
+        Long planId = context.plan() == null ? null : context.plan().id();
+        if (planId != null) {
+            addUniqueExecutions(
+                    executions,
+                    seenIds,
+                    recommendationExecutionRepository.findRecentByPlanAndType(
+                            planId,
+                            PLAN_RECOMMENDATION,
+                            PageRequest.of(0, EXECUTION_HISTORY_LIMIT)
+                    )
+            );
+        }
+
+        Long spotId = context.spot() == null ? null : context.spot().id();
+        String targetSpecies = context.plan() == null ? null : context.plan().targetSpecies();
+        if (spotId != null && targetSpecies != null && !targetSpecies.isBlank()) {
+            addUniqueExecutions(
+                    executions,
+                    seenIds,
+                    recommendationExecutionRepository.findRecentBySpotSpeciesAndType(
+                            spotId,
+                            targetSpecies,
+                            PLAN_RECOMMENDATION,
+                            PageRequest.of(0, EXECUTION_HISTORY_LIMIT)
+                    )
+            );
+        }
+
+        return summarizeExecutionHistory(executions);
+    }
+
+    private ExecutionHistoryStats buildSessionExecutionStats(Long sessionId, Long planId, String recommendationType) {
+        List<RecommendationExecution> executions = new ArrayList<>();
+        Set<Long> seenIds = new LinkedHashSet<>();
+
+        if (sessionId != null) {
+            addUniqueExecutions(
+                    executions,
+                    seenIds,
+                    recommendationExecutionRepository.findRecentBySessionAndType(
+                            sessionId,
+                            recommendationType,
+                            PageRequest.of(0, EXECUTION_HISTORY_LIMIT)
+                    )
+            );
+        }
+
+        if (planId != null) {
+            addUniqueExecutions(
+                    executions,
+                    seenIds,
+                    recommendationExecutionRepository.findRecentByPlanAndType(
+                            planId,
+                            recommendationType,
+                            PageRequest.of(0, EXECUTION_HISTORY_LIMIT)
+                    )
+            );
+        }
+
+        return summarizeExecutionHistory(executions);
+    }
+
+    private ExecutionHistoryStats buildSessionReviewExecutionStats(Long sessionId) {
+        if (sessionId == null) {
+            return ExecutionHistoryStats.empty();
+        }
+
+        return summarizeExecutionHistory(recommendationExecutionRepository.findBySessionIdOrderByCreatedAtDescIdDesc(sessionId));
+    }
+
+    private void addUniqueExecutions(List<RecommendationExecution> executions, Set<Long> seenIds, List<RecommendationExecution> source) {
+        for (RecommendationExecution execution : nullToEmpty(source)) {
+            Long id = execution.getId();
+            if (id == null || seenIds.add(id)) {
+                executions.add(execution);
+            }
+        }
+    }
+
+    private ExecutionHistoryStats summarizeExecutionHistory(List<RecommendationExecution> executions) {
+        int totalCount = 0;
+        int followedCount = 0;
+        int successfulFollowedCount = 0;
+        int failedFollowedCount = 0;
+        int ratingCount = 0;
+        int ratingSum = 0;
+
+        for (RecommendationExecution execution : nullToEmpty(executions)) {
+            totalCount++;
+            boolean followed = Boolean.TRUE.equals(execution.getFollowed());
+            boolean success = Boolean.TRUE.equals(execution.getSuccess());
+
+            if (followed) {
+                followedCount++;
+                if (success) {
+                    successfulFollowedCount++;
+                } else if (Boolean.FALSE.equals(execution.getSuccess())) {
+                    failedFollowedCount++;
+                }
+            }
+
+            if (execution.getRating() != null) {
+                ratingCount++;
+                ratingSum += execution.getRating();
+            }
+        }
+
+        Double averageRating = ratingCount == 0 ? null : (double) ratingSum / ratingCount;
+        return new ExecutionHistoryStats(totalCount, followedCount, successfulFollowedCount, failedFollowedCount, averageRating);
+    }
+
+    private ExecutionHistoryImpact assessExecutionHistory(String label, ExecutionHistoryStats stats) {
+        if (stats.totalCount() == 0) {
+            return new ExecutionHistoryImpact(0, List.of(), List.of());
+        }
+
+        int scoreDelta = 0;
+        List<String> reasons = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+
+        reasons.add("Historico de execucao " + label + ": "
+                + stats.followedCount() + "/" + stats.totalCount()
+                + " recomendacoes marcadas como seguidas.");
+
+        if (stats.followedCount() == 0) {
+            warnings.add("Existem recomendacoes anteriores, mas ainda nenhuma foi marcada como seguida.");
+            return new ExecutionHistoryImpact(-2, reasons, warnings);
+        }
+
+        double successRate = (double) stats.successfulFollowedCount() / stats.followedCount() * 100;
+        if (stats.followedCount() >= 3) {
+            if (successRate >= 70) {
+                scoreDelta += 12;
+                reasons.add("Quando seguidas, recomendacoes semelhantes tiveram bons resultados (" + roundedPercent(successRate) + "%).");
+            } else if (successRate >= 45) {
+                scoreDelta += 5;
+                reasons.add("Quando seguidas, recomendacoes semelhantes tiveram resultado misto (" + roundedPercent(successRate) + "%).");
+            } else {
+                scoreDelta -= 12;
+                warnings.add("Quando seguidas, recomendacoes semelhantes tiveram poucos resultados positivos (" + roundedPercent(successRate) + "%).");
+            }
+        } else if (stats.successfulFollowedCount() > 0) {
+            scoreDelta += 4;
+            reasons.add("Existe algum feedback positivo de execucao.");
+        } else if (stats.failedFollowedCount() > 0) {
+            scoreDelta -= 4;
+            warnings.add("Existe algum feedback negativo de execucao.");
+        }
+
+        if (stats.averageRating() != null) {
+            if (stats.averageRating() >= 4.0) {
+                scoreDelta += 5;
+                reasons.add("Avaliacoes anteriores foram fortes.");
+            } else if (stats.averageRating() <= 2.0) {
+                scoreDelta -= 5;
+                warnings.add("Avaliacoes anteriores foram fracas.");
+            }
+        }
+
+        return new ExecutionHistoryImpact(scoreDelta, reasons, warnings);
+    }
+
+    private ResponseConfidence responseConfidence(AiRecommendation recommendation) {
+        int storedScore = recommendation.getConfidenceScore() == null
+                ? baseConfidenceScore(recommendation.getConfidence())
+                : recommendation.getConfidenceScore();
+        String storedConfidence = recommendation.getConfidence() == null || recommendation.getConfidence().isBlank()
+                ? confidenceFromScore(storedScore)
+                : normalizeConfidence(recommendation.getConfidence());
+        String storedReason = recommendation.getConfidenceReason();
+
+        if (recommendation.getId() == null) {
+            return new ResponseConfidence(storedConfidence, storedScore, storedReason);
+        }
+
+        ExecutionHistoryStats stats = summarizeExecutionHistory(
+                recommendationExecutionRepository.findByRecommendationIdOrderByCreatedAtDescIdDesc(recommendation.getId())
+        );
+        if (stats.totalCount() == 0) {
+            return new ResponseConfidence(storedConfidence, storedScore, storedReason);
+        }
+
+        ExecutionHistoryImpact impact = assessExecutionHistory("desta recomendacao", stats);
+        int score = Math.max(0, Math.min(100, storedScore + impact.scoreDelta()));
+        String reason = appendExecutionFeedback(storedReason, stats);
+
+        return new ResponseConfidence(confidenceFromScore(score), score, reason);
+    }
+
+    private String appendExecutionFeedback(String reason, ExecutionHistoryStats stats) {
+        String feedback = "Feedback de execucao: " + stats.followedCount() + "/" + stats.totalCount()
+                + " execucoes marcadas como seguidas";
+
+        if (stats.followedCount() > 0) {
+            double successRate = (double) stats.successfulFollowedCount() / stats.followedCount() * 100;
+            feedback += ", sucesso quando seguida " + roundedPercent(successRate) + "%";
+        }
+
+        if (stats.averageRating() != null) {
+            feedback += ", avaliacao media " + String.format(Locale.ROOT, "%.1f", stats.averageRating());
+        }
+
+        feedback += ".";
+        return reason == null || reason.isBlank() ? feedback : reason + " " + feedback;
+    }
+
+    private int roundedPercent(double value) {
+        return (int) Math.round(value);
     }
 
     private boolean hasSpeciesMatch(PlannerContextResponse context) {
@@ -1013,6 +1257,8 @@ public class AiRecommendationService {
     }
 
     private AiPlanRecommendationResponse toResponse(AiRecommendation recommendation) {
+        ResponseConfidence confidence = responseConfidence(recommendation);
+
         return new AiPlanRecommendationResponse(
                 recommendation.getId(),
                 recommendation.getPlan().getId(),
@@ -1023,9 +1269,9 @@ public class AiRecommendationService {
                 recommendation.getPlanB(),
                 recommendation.getPlanC(),
                 readJson(recommendation.getAvoidJson(), STRING_LIST_TYPE),
-                recommendation.getConfidence(),
-                recommendation.getConfidenceScore(),
-                recommendation.getConfidenceReason(),
+                confidence.confidence(),
+                confidence.score(),
+                confidence.reason(),
                 latestOrDefault(recommendation),
                 readJson(recommendation.getWarningsJson(), STRING_LIST_TYPE),
                 recommendation.getCreatedAt()
@@ -1033,6 +1279,8 @@ public class AiRecommendationService {
     }
 
     private AiSessionAdjustmentResponse toSessionAdjustmentResponse(AiRecommendation recommendation) {
+        ResponseConfidence confidence = responseConfidence(recommendation);
+
         return new AiSessionAdjustmentResponse(
                 recommendation.getId(),
                 recommendation.getSession().getId(),
@@ -1044,9 +1292,9 @@ public class AiRecommendationService {
                 recommendation.getPlanB(),
                 recommendation.getPlanC(),
                 readJson(recommendation.getAvoidJson(), STRING_LIST_TYPE),
-                recommendation.getConfidence(),
-                recommendation.getConfidenceScore(),
-                recommendation.getConfidenceReason(),
+                confidence.confidence(),
+                confidence.score(),
+                confidence.reason(),
                 latestOrDefault(recommendation),
                 readJson(recommendation.getWarningsJson(), STRING_LIST_TYPE),
                 recommendation.getCreatedAt()
@@ -1054,6 +1302,7 @@ public class AiRecommendationService {
     }
 
     private AiSessionReviewResponse toSessionReviewResponse(AiRecommendation recommendation) {
+        ResponseConfidence confidence = responseConfidence(recommendation);
         AiSessionReviewResult result = recommendation.getExtraJson() == null
                 ? new AiSessionReviewResult(
                 recommendation.getSummary(),
@@ -1082,9 +1331,9 @@ public class AiRecommendationService {
                 result.observedPattern(),
                 result.nextSessionSuggestion(),
                 nullToEmpty(result.keyLessons()),
-                result.confidence(),
-                recommendation.getConfidenceScore(),
-                recommendation.getConfidenceReason(),
+                confidence.confidence(),
+                confidence.score(),
+                confidence.reason(),
                 latestOrDefault(recommendation),
                 nullToEmpty(result.warnings()),
                 recommendation.getCreatedAt()
@@ -1326,6 +1575,32 @@ public class AiRecommendationService {
             String confidence,
             Integer score,
             String reason,
+            List<String> warnings
+    ) {
+    }
+
+    private record ResponseConfidence(
+            String confidence,
+            Integer score,
+            String reason
+    ) {
+    }
+
+    private record ExecutionHistoryStats(
+            int totalCount,
+            int followedCount,
+            int successfulFollowedCount,
+            int failedFollowedCount,
+            Double averageRating
+    ) {
+        private static ExecutionHistoryStats empty() {
+            return new ExecutionHistoryStats(0, 0, 0, 0, null);
+        }
+    }
+
+    private record ExecutionHistoryImpact(
+            int scoreDelta,
+            List<String> reasons,
             List<String> warnings
     ) {
     }

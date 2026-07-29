@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface FishingSessionRepository extends JpaRepository<FishingSession, Long>, JpaSpecificationExecutor<FishingSession> {
 
@@ -17,6 +19,8 @@ public interface FishingSessionRepository extends JpaRepository<FishingSession, 
     List<FishingSession> findTop5ByOrderByDateDescIdDesc();
 
     List<FishingSession> findTop5ByStatusOrderByDateDescStartTimeDescIdDesc(FishingSessionStatus status);
+
+    Optional<FishingSession> findFirstByStatusAndDateGreaterThanEqualOrderByDateAscStartTimeAscIdAsc(FishingSessionStatus status, LocalDate date);
 
     List<FishingSession> findTop5BySpotIdOrderByDateDescIdDesc(Long spotId);
 

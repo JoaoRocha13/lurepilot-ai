@@ -10,6 +10,8 @@ public interface WeatherSnapshotRepository extends JpaRepository<WeatherSnapshot
 
     List<WeatherSnapshot> findTop5ByOrderByCapturedAtDescIdDesc();
 
+    Optional<WeatherSnapshot> findFirstByOrderByCapturedAtDescIdDesc();
+
     List<WeatherSnapshot> findByPlanIdOrderByCapturedAtDescIdDesc(Long planId);
 
     List<WeatherSnapshot> findBySessionIdOrderByCapturedAtDescIdDesc(Long sessionId);

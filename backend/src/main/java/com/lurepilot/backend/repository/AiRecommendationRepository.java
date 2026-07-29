@@ -1,6 +1,7 @@
 package com.lurepilot.backend.repository;
 
 import com.lurepilot.backend.model.AiRecommendation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +40,25 @@ public interface AiRecommendationRepository extends JpaRepository<AiRecommendati
     long countByPlanIdAndRecommendationType(Long planId, String recommendationType);
 
     long countBySessionIdAndRecommendationType(Long sessionId, String recommendationType);
+
+    @Query("""
+            select a from AiRecommendation a
+            where (a.latest = true or a.latest is null)
+              and not exists (
+                  select e.id from RecommendationExecution e
+                  where e.recommendation.id = a.id
+              )
+            order by a.createdAt desc, a.id desc
+            """)
+    List<AiRecommendation> findPendingEvaluation(Pageable pageable);
+
+    @Query("""
+            select count(a) from AiRecommendation a
+            where (a.latest = true or a.latest is null)
+              and not exists (
+                  select e.id from RecommendationExecution e
+                  where e.recommendation.id = a.id
+              )
+            """)
+    long countPendingEvaluation();
 }

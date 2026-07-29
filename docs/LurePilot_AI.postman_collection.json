@@ -91,7 +91,7 @@
         {
           "name": "Get Dashboard",
           "request": {
-            "description": "Returns dashboard counters plus upcoming plans, active sessions, recent sessions, recent catches and recent weather snapshots.",
+            "description": "Returns dashboard counters plus next planned session, active sessions, recent results, best recent lure, success rate, relevant weather snapshot and pending recommendation evaluations.",
             "method": "GET",
             "header": [],
             "url": {
