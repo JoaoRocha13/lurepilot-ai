@@ -38,6 +38,7 @@ public class GlobalExceptionHandler {
 
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
+                "VALIDATION_FAILED",
                 "Validation failed",
                 request.getRequestURI(),
                 fieldErrors
@@ -60,6 +61,7 @@ public class GlobalExceptionHandler {
 
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
+                "VALIDATION_FAILED",
                 "Validation failed",
                 request.getRequestURI(),
                 fieldErrors
@@ -73,6 +75,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
+                "MALFORMED_JSON",
                 "Invalid or malformed JSON request body",
                 request.getRequestURI(),
                 List.of()
@@ -86,9 +89,10 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
-                "Invalid value for parameter: " + ex.getName(),
+                "INVALID_QUERY_PARAMETER",
+                "Invalid value for query or path parameter: " + ex.getName(),
                 request.getRequestURI(),
-                List.of(new ApiFieldErrorResponse(ex.getName(), "Invalid value", ex.getValue()))
+                List.of(new ApiFieldErrorResponse(ex.getName(), expectedTypeMessage(ex.getRequiredType()), ex.getValue()))
         );
     }
 
@@ -102,6 +106,7 @@ public class GlobalExceptionHandler {
 
         return buildResponse(
                 status,
+                codeFor(status),
                 message,
                 request.getRequestURI(),
                 List.of()
@@ -115,6 +120,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
                 HttpStatus.CONFLICT,
+                "DATA_INTEGRITY_CONFLICT",
                 "Request conflicts with existing persisted data",
                 request.getRequestURI(),
                 List.of()
@@ -128,6 +134,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
+                "INTERNAL_SERVER_ERROR",
                 "Unexpected internal server error",
                 request.getRequestURI(),
                 List.of()
@@ -136,6 +143,7 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ApiErrorResponse> buildResponse(
             HttpStatus status,
+            String code,
             String message,
             String path,
             List<ApiFieldErrorResponse> fieldErrors
@@ -144,6 +152,7 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 status.value(),
                 status.getReasonPhrase(),
+                code,
                 message,
                 path,
                 fieldErrors
@@ -155,5 +164,23 @@ public class GlobalExceptionHandler {
     private HttpStatus resolveStatus(HttpStatusCode statusCode) {
         HttpStatus status = HttpStatus.resolve(statusCode.value());
         return status == null ? HttpStatus.INTERNAL_SERVER_ERROR : status;
+    }
+
+    private String expectedTypeMessage(Class<?> requiredType) {
+        if (requiredType == null) {
+            return "Invalid value";
+        }
+
+        return "Invalid value. Expected " + requiredType.getSimpleName();
+    }
+
+    private String codeFor(HttpStatus status) {
+        return switch (status) {
+            case BAD_REQUEST -> "BAD_REQUEST";
+            case NOT_FOUND -> "NOT_FOUND";
+            case CONFLICT -> "CONFLICT";
+            case BAD_GATEWAY -> "UPSTREAM_SERVICE_ERROR";
+            default -> "HTTP_" + status.value();
+        };
     }
 }

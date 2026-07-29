@@ -10,10 +10,12 @@ import com.lurepilot.backend.dto.FishingSessionResponse;
 import com.lurepilot.backend.dto.FishingSessionSummaryResponse;
 import com.lurepilot.backend.dto.FishingSpotResponse;
 import com.lurepilot.backend.dto.FishingSpotSummaryResponse;
+import com.lurepilot.backend.dto.FrontendOptionsResponse;
 import com.lurepilot.backend.dto.InsightTopLureResponse;
 import com.lurepilot.backend.dto.LureBoxItemSummaryResponse;
 import com.lurepilot.backend.dto.LureLibraryItemResponse;
 import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
+import com.lurepilot.backend.dto.OptionResponse;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.dto.RecommendationExecutionResponse;
 import com.lurepilot.backend.service.AiRecommendationService;
@@ -22,9 +24,10 @@ import com.lurepilot.backend.service.FishSpeciesService;
 import com.lurepilot.backend.service.FishingPlanService;
 import com.lurepilot.backend.service.FishingSessionService;
 import com.lurepilot.backend.service.FishingSpotService;
+import com.lurepilot.backend.service.FrontendOptionsService;
+import com.lurepilot.backend.service.InsightsService;
 import com.lurepilot.backend.service.LureLibraryItemService;
 import com.lurepilot.backend.service.LureService;
-import com.lurepilot.backend.service.InsightsService;
 import com.lurepilot.backend.service.RecommendationExecutionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -230,6 +233,7 @@ class MainControllerMockMvcTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.message").value("Validation failed"))
                 .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("name")))
                 .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("latitude")))
@@ -246,6 +250,7 @@ class MainControllerMockMvcTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.message").value("Validation failed"))
                 .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("planId")));
     }
@@ -345,6 +350,47 @@ class MainControllerMockMvcTest {
                 .andExpect(jsonPath("$[0].successRate").value(75.0));
 
         verify(service).getTopLures(dateFrom, dateTo, "Black Bass", 1L, 2L, 3);
+    }
+
+    @Test
+    void getFrontendOptionsReturnsComboboxData() throws Exception {
+        FrontendOptionsService service = mock(FrontendOptionsService.class);
+        when(service.getAllOptions()).thenReturn(new FrontendOptionsResponse(
+                List.of(new OptionResponse("Freshwater", "Agua doce")),
+                List.of(new OptionResponse("Clear", "Clara")),
+                List.of(new OptionResponse("Normal", "Normal")),
+                List.of(new OptionResponse("Soft bait", "Vinil / soft bait")),
+                List.of(new OptionResponse("Easy", "Facil")),
+                List.of(new OptionResponse("High", "Alta")),
+                List.of(new OptionResponse("Good", "Boa")),
+                List.of(new OptionResponse("Surface", "Superficie")),
+                List.of(new OptionResponse("planned", "Planeada")),
+                List.of(new OptionResponse("STRIKE", "Ataque")),
+                List.of(new OptionResponse("PLAN", "Plano AI")),
+                List.of(new OptionResponse("PLAN_A", "Plano A")),
+                List.of(new OptionResponse("CATCH", "Captura")),
+                List.of(new OptionResponse("asc", "Ascendente"))
+        ));
+
+        mockMvc(new FrontendOptionsController(service))
+                .perform(get("/api/options"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.waterTypes[0].value").value("Freshwater"))
+                .andExpect(jsonPath("$.sessionStatuses[0].value").value("planned"))
+                .andExpect(jsonPath("$.recommendationTypes[0].value").value("PLAN"));
+
+        verify(service).getAllOptions();
+    }
+
+    @Test
+    void invalidPathParameterReturnsStableErrorCode() throws Exception {
+        FishingSpotService service = mock(FishingSpotService.class);
+
+        mockMvc(new FishingSpotController(service))
+                .perform(get("/api/spots/not-a-number"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_QUERY_PARAMETER"))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("id"));
     }
 
     private MockMvc mockMvc(Object controller) {

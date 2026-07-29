@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, AI recommendations, insights and IPMA weather snapshots.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, AI recommendations, insights, frontend options and IPMA weather snapshots.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -102,6 +102,295 @@
               "path": [
                 "api",
                 "dashboard"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Frontend Options",
+      "item": [
+        {
+          "name": "Get All Frontend Options",
+          "request": {
+            "description": "Returns all dropdown/combobox options needed by the first React Native Web screens.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Water Types",
+          "request": {
+            "description": "Suggested water type values for spots and lures.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/water-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "water-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Water Clarities",
+          "request": {
+            "description": "Suggested water clarity values for plans and sessions.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/water-clarities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "water-clarities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Water Levels",
+          "request": {
+            "description": "Suggested water level values for plans and sessions.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/water-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "water-levels"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lure Types",
+          "request": {
+            "description": "Suggested lure type values for lure box and lure library.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/lure-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "lure-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lure Difficulties",
+          "request": {
+            "description": "Suggested lure difficulty values for the lure library.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/lure-difficulties",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "lure-difficulties"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lure Effectiveness Levels",
+          "request": {
+            "description": "Suggested lure effectiveness values for the lure library.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/lure-effectiveness-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "lure-effectiveness-levels"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lure Conditions",
+          "request": {
+            "description": "Suggested personal lure condition values for the lure box.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/lure-conditions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "lure-conditions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fish Strike Zones",
+          "request": {
+            "description": "Suggested strike zone values for fish species records.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/fish-strike-zones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "fish-strike-zones"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Session Statuses",
+          "request": {
+            "description": "Session status values used by list filters and session lifecycle screens.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/session-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "session-statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Session Event Types",
+          "request": {
+            "description": "Suggested event type values for active fishing sessions.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/session-event-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "session-event-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendation Types",
+          "request": {
+            "description": "AI recommendation type values used by filters and tracking.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/recommendation-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "recommendation-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendation Steps",
+          "request": {
+            "description": "Recommendation step values for execution tracking.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/recommendation-steps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "recommendation-steps"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendation Results",
+          "request": {
+            "description": "Suggested result values for recommendation execution tracking.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/recommendation-results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "recommendation-results"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Sort Directions",
+          "request": {
+            "description": "Sort direction values accepted by paginated list endpoints.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/options/sort-directions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "sort-directions"
               ]
             }
           }
