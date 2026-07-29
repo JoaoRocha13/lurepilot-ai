@@ -8,7 +8,6 @@ import com.lurepilot.backend.model.Lure;
 import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.repository.LureLibraryItemRepository;
 import com.lurepilot.backend.repository.LureRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -36,10 +35,12 @@ public class LureService {
 
     private final LureRepository lureRepository;
     private final LureLibraryItemRepository lureLibraryItemRepository;
+    private final ListProjectionService listProjectionService;
 
-    public LureService(LureRepository lureRepository, LureLibraryItemRepository lureLibraryItemRepository) {
+    public LureService(LureRepository lureRepository, LureLibraryItemRepository lureLibraryItemRepository, ListProjectionService listProjectionService) {
         this.lureRepository = lureRepository;
         this.lureLibraryItemRepository = lureLibraryItemRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public LureResponse createLure(CreateLureRequest request) {
@@ -106,9 +107,8 @@ public class LureService {
                 SearchSpecifications.quantityAtLeast(minQuantity)
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
-        Page<Lure> lures = lureRepository.findAll(specification, pageable);
 
-        return ListQuerySupport.toPagedResponse(lures, this::toSummaryResponse);
+        return listProjectionService.findLureBoxSummaries(specification, pageable);
     }
 
     public LureResponse getLureById(Long id) {
@@ -176,26 +176,6 @@ public class LureService {
                 lure.getFavoriteForSpecies(),
                 lure.getFavoriteForSpot(),
                 lure.getCreatedAt()
-        );
-    }
-
-    private LureBoxItemSummaryResponse toSummaryResponse(Lure lure) {
-        LureLibraryItem libraryItem = lure.getLibraryItem();
-
-        return new LureBoxItemSummaryResponse(
-                lure.getId(),
-                lure.getName(),
-                lure.getType(),
-                lure.getColor(),
-                lure.getSize(),
-                lure.getBrand(),
-                libraryItem == null ? null : libraryItem.getId(),
-                libraryItem == null ? null : libraryItem.getName(),
-                lure.getTargetSpecies(),
-                lure.getWaterType(),
-                activeOrDefault(lure),
-                quantityOrDefault(lure),
-                lure.getCondition()
         );
     }
 

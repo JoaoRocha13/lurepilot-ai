@@ -5,13 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "fishing_spots")
+@Table(name = "fishing_spots", indexes = {
+        @Index(name = "idx_spots_name", columnList = "name"),
+        @Index(name = "idx_spots_water_type", columnList = "water_type"),
+        @Index(name = "idx_spots_favorite_species", columnList = "favorite_species"),
+        @Index(name = "idx_spots_created_at", columnList = "created_at")
+})
 public class FishingSpot {
 
     @Id

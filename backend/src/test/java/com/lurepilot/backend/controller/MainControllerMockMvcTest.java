@@ -1,6 +1,7 @@
 package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.config.GlobalExceptionHandler;
+import com.lurepilot.backend.dto.AnalyticsSummaryResponse;
 import com.lurepilot.backend.dto.FishSpeciesResponse;
 import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
 import com.lurepilot.backend.dto.FishingPlanResponse;
@@ -13,13 +14,16 @@ import com.lurepilot.backend.dto.LureBoxItemSummaryResponse;
 import com.lurepilot.backend.dto.LureLibraryItemResponse;
 import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
+import com.lurepilot.backend.dto.RecommendationExecutionResponse;
 import com.lurepilot.backend.service.AiRecommendationService;
+import com.lurepilot.backend.service.AnalyticsService;
 import com.lurepilot.backend.service.FishSpeciesService;
 import com.lurepilot.backend.service.FishingPlanService;
 import com.lurepilot.backend.service.FishingSessionService;
 import com.lurepilot.backend.service.FishingSpotService;
 import com.lurepilot.backend.service.LureLibraryItemService;
 import com.lurepilot.backend.service.LureService;
+import com.lurepilot.backend.service.RecommendationExecutionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -28,6 +32,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasItem;
@@ -241,6 +246,79 @@ class MainControllerMockMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed"))
                 .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("planId")));
+    }
+
+    @Test
+    void createRecommendationExecutionAcceptsTrackingPayload() throws Exception {
+        RecommendationExecutionService service = mock(RecommendationExecutionService.class);
+        when(service.createExecution(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any())).thenReturn(new RecommendationExecutionResponse(
+                5L,
+                1L,
+                2L,
+                3L,
+                "PLAN",
+                1,
+                "PLAN_A",
+                true,
+                "CATCH",
+                true,
+                4,
+                LocalTime.of(19, 0),
+                LocalTime.of(19, 20),
+                "Resultou junto a estrutura.",
+                Instant.parse("2026-07-29T14:00:00Z")
+        ));
+
+        mockMvc(new RecommendationExecutionController(service))
+                .perform(post("/api/recommendations/1/executions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "sessionId": 3,
+                                  "recommendationStep": "planA",
+                                  "followed": true,
+                                  "result": "CATCH",
+                                  "success": true,
+                                  "rating": 4,
+                                  "startedAt": "19:00",
+                                  "endedAt": "19:20",
+                                  "notes": "Resultou junto a estrutura."
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.recommendationStep").value("PLAN_A"))
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    void getAnalyticsSummaryReturnsBasicCounters() throws Exception {
+        AnalyticsService service = mock(AnalyticsService.class);
+        when(service.getSummary()).thenReturn(new AnalyticsSummaryResponse(
+                10,
+                8,
+                4,
+                40.0,
+                3,
+                5,
+                3.5,
+                2,
+                2,
+                1,
+                100.0,
+                50.0,
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of()
+        ));
+
+        mockMvc(new AnalyticsController(service))
+                .perform(get("/api/analytics/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSessions").value(10))
+                .andExpect(jsonPath("$.sessionSuccessRate").value(40.0))
+                .andExpect(jsonPath("$.recommendationFollowRate").value(100.0));
     }
 
     private MockMvc mockMvc(Object controller) {

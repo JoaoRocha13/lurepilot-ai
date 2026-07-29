@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
@@ -15,7 +16,13 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name = "ai_recommendations")
+@Table(name = "ai_recommendations", indexes = {
+        @Index(name = "idx_ai_rec_plan_type_latest", columnList = "plan_id, recommendation_type, latest"),
+        @Index(name = "idx_ai_rec_session_type_latest", columnList = "session_id, recommendation_type, latest"),
+        @Index(name = "idx_ai_rec_plan_type_version", columnList = "plan_id, recommendation_type, version"),
+        @Index(name = "idx_ai_rec_session_type_version", columnList = "session_id, recommendation_type, version"),
+        @Index(name = "idx_ai_rec_created_at", columnList = "created_at")
+})
 public class AiRecommendation {
 
     @Id

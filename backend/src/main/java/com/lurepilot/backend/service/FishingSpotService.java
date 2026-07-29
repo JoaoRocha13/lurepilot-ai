@@ -6,7 +6,6 @@ import com.lurepilot.backend.dto.FishingSpotSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.repository.FishingSpotRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -27,9 +26,11 @@ public class FishingSpotService {
     );
 
     private final FishingSpotRepository fishingSpotRepository;
+    private final ListProjectionService listProjectionService;
 
-    public FishingSpotService(FishingSpotRepository fishingSpotRepository) {
+    public FishingSpotService(FishingSpotRepository fishingSpotRepository, ListProjectionService listProjectionService) {
         this.fishingSpotRepository = fishingSpotRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public FishingSpotResponse createSpot(CreateFishingSpotRequest request) {
@@ -64,9 +65,8 @@ public class FishingSpotService {
                 SearchSpecifications.contains(favoriteSpecies, "favoriteSpecies")
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
-        Page<FishingSpot> spots = fishingSpotRepository.findAll(specification, pageable);
 
-        return ListQuerySupport.toPagedResponse(spots, this::toSummaryResponse);
+        return listProjectionService.findFishingSpotSummaries(specification, pageable);
     }
 
     public FishingSpotResponse getSpotById(Long id) {
@@ -107,17 +107,6 @@ public class FishingSpotService {
                 fishingSpot.getWaterType(),
                 fishingSpot.getFavoriteSpecies(),
                 fishingSpot.getCreatedAt()
-        );
-    }
-
-    private FishingSpotSummaryResponse toSummaryResponse(FishingSpot fishingSpot) {
-        return new FishingSpotSummaryResponse(
-                fishingSpot.getId(),
-                fishingSpot.getName(),
-                fishingSpot.getLatitude(),
-                fishingSpot.getLongitude(),
-                fishingSpot.getWaterType(),
-                fishingSpot.getFavoriteSpecies()
         );
     }
 

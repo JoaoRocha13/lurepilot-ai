@@ -5,13 +5,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "lure_library_items")
+@Table(name = "lure_library_items", indexes = {
+        @Index(name = "idx_lure_library_name", columnList = "name"),
+        @Index(name = "idx_lure_library_type", columnList = "type"),
+        @Index(name = "idx_lure_library_difficulty", columnList = "difficulty"),
+        @Index(name = "idx_lure_library_effectiveness", columnList = "effectiveness"),
+        @Index(name = "idx_lure_library_created_at", columnList = "created_at")
+})
 public class LureLibraryItem {
 
     @Id

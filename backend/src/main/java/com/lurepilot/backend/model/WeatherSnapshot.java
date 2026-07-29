@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -15,7 +16,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "weather_snapshots")
+@Table(name = "weather_snapshots", indexes = {
+        @Index(name = "idx_weather_plan", columnList = "plan_id"),
+        @Index(name = "idx_weather_session", columnList = "session_id"),
+        @Index(name = "idx_weather_location", columnList = "source_global_id_local"),
+        @Index(name = "idx_weather_forecast_date", columnList = "forecast_date"),
+        @Index(name = "idx_weather_captured_at", columnList = "captured_at")
+})
 public class WeatherSnapshot {
 
     @Id

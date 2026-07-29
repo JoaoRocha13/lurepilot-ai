@@ -6,7 +6,6 @@ import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.FishSpecies;
 import com.lurepilot.backend.repository.FishSpeciesRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -26,9 +25,11 @@ public class FishSpeciesService {
     );
 
     private final FishSpeciesRepository fishSpeciesRepository;
+    private final ListProjectionService listProjectionService;
 
-    public FishSpeciesService(FishSpeciesRepository fishSpeciesRepository) {
+    public FishSpeciesService(FishSpeciesRepository fishSpeciesRepository, ListProjectionService listProjectionService) {
         this.fishSpeciesRepository = fishSpeciesRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public FishSpeciesResponse createFishSpecies(CreateFishSpeciesRequest request) {
@@ -72,9 +73,8 @@ public class FishSpeciesService {
                 SearchSpecifications.contains(strikeZone, "strikeZone")
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
-        Page<FishSpecies> fishSpecies = fishSpeciesRepository.findAll(specification, pageable);
 
-        return ListQuerySupport.toPagedResponse(fishSpecies, this::toSummaryResponse);
+        return listProjectionService.findFishSpeciesSummaries(specification, pageable);
     }
 
     public FishSpeciesResponse getFishSpeciesById(Long id) {
@@ -119,16 +119,6 @@ public class FishSpeciesService {
                 fishSpecies.getCommonZones(),
                 fishSpecies.getFavoriteLures(),
                 fishSpecies.getCreatedAt()
-        );
-    }
-
-    private FishSpeciesSummaryResponse toSummaryResponse(FishSpecies fishSpecies) {
-        return new FishSpeciesSummaryResponse(
-                fishSpecies.getId(),
-                fishSpecies.getName(),
-                fishSpecies.getImageUrl(),
-                fishSpecies.getStrikeZone(),
-                fishSpecies.getFavoriteLures()
         );
     }
 

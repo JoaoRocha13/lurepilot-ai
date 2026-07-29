@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -16,7 +17,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "fishing_plans")
+@Table(name = "fishing_plans", indexes = {
+        @Index(name = "idx_plans_spot", columnList = "spot_id"),
+        @Index(name = "idx_plans_date", columnList = "planned_date"),
+        @Index(name = "idx_plans_target_species", columnList = "target_species"),
+        @Index(name = "idx_plans_water_clarity", columnList = "water_clarity"),
+        @Index(name = "idx_plans_water_level", columnList = "water_level"),
+        @Index(name = "idx_plans_created_at", columnList = "created_at")
+})
 public class FishingPlan {
 
     @Id

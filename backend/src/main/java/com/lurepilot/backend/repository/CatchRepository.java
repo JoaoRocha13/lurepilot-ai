@@ -14,4 +14,12 @@ public interface CatchRepository extends JpaRepository<Catch, Long> {
 
     @Query("select coalesce(sum(c.quantity), 0) from Catch c")
     long sumTotalQuantity();
+
+    @Query("""
+            select c.species, coalesce(sum(c.quantity), 0)
+            from Catch c
+            group by c.species
+            order by coalesce(sum(c.quantity), 0) desc
+            """)
+    List<Object[]> summarizeCatchQuantityBySpecies();
 }

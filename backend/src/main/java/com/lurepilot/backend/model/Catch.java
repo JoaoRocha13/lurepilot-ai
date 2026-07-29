@@ -6,12 +6,16 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "catches")
+@Table(name = "catches", indexes = {
+        @Index(name = "idx_catches_session", columnList = "session_id"),
+        @Index(name = "idx_catches_species", columnList = "species")
+})
 public class Catch {
 
     @Id

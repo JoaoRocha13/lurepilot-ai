@@ -8,7 +8,6 @@ import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingSpot;
 import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSpotRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -36,10 +35,12 @@ public class FishingPlanService {
 
     private final FishingPlanRepository fishingPlanRepository;
     private final FishingSpotRepository fishingSpotRepository;
+    private final ListProjectionService listProjectionService;
 
-    public FishingPlanService(FishingPlanRepository fishingPlanRepository, FishingSpotRepository fishingSpotRepository) {
+    public FishingPlanService(FishingPlanRepository fishingPlanRepository, FishingSpotRepository fishingSpotRepository, ListProjectionService listProjectionService) {
         this.fishingPlanRepository = fishingPlanRepository;
         this.fishingSpotRepository = fishingSpotRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public FishingPlanResponse createPlan(CreateFishingPlanRequest request) {
@@ -86,9 +87,8 @@ public class FishingPlanService {
                 SearchSpecifications.dateTo(dateTo, "plannedDate")
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
-        Page<FishingPlan> plans = fishingPlanRepository.findAll(specification, pageable);
 
-        return ListQuerySupport.toPagedResponse(plans, this::toSummaryResponse);
+        return listProjectionService.findFishingPlanSummaries(specification, pageable);
     }
 
     public FishingPlanResponse getPlanById(Long id) {
@@ -136,21 +136,6 @@ public class FishingPlanService {
                 fishingPlan.getWaterLevel(),
                 fishingPlan.getNotes(),
                 fishingPlan.getCreatedAt()
-        );
-    }
-
-    private FishingPlanSummaryResponse toSummaryResponse(FishingPlan fishingPlan) {
-        FishingSpot spot = fishingPlan.getSpot();
-
-        return new FishingPlanSummaryResponse(
-                fishingPlan.getId(),
-                spot.getId(),
-                spot.getName(),
-                fishingPlan.getPlannedDate(),
-                fishingPlan.getPlannedTime(),
-                fishingPlan.getTargetSpecies(),
-                fishingPlan.getWaterClarity(),
-                fishingPlan.getWaterLevel()
         );
     }
 

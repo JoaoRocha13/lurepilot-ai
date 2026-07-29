@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -13,7 +14,18 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name = "lures")
+@Table(name = "lures", indexes = {
+        @Index(name = "idx_lures_name", columnList = "name"),
+        @Index(name = "idx_lures_type", columnList = "type"),
+        @Index(name = "idx_lures_water_type", columnList = "water_type"),
+        @Index(name = "idx_lures_target_species", columnList = "target_species"),
+        @Index(name = "idx_lures_brand", columnList = "brand"),
+        @Index(name = "idx_lures_library_item", columnList = "library_item_id"),
+        @Index(name = "idx_lures_active", columnList = "active"),
+        @Index(name = "idx_lures_quantity", columnList = "quantity"),
+        @Index(name = "idx_lures_condition", columnList = "lure_condition"),
+        @Index(name = "idx_lures_created_at", columnList = "created_at")
+})
 public class Lure {
 
     @Id

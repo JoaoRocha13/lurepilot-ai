@@ -14,7 +14,6 @@ import com.lurepilot.backend.repository.FishingPlanRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
 import com.lurepilot.backend.repository.FishingSpotRepository;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -46,11 +45,18 @@ public class FishingSessionService {
     private final FishingSessionRepository fishingSessionRepository;
     private final FishingSpotRepository fishingSpotRepository;
     private final FishingPlanRepository fishingPlanRepository;
+    private final ListProjectionService listProjectionService;
 
-    public FishingSessionService(FishingSessionRepository fishingSessionRepository, FishingSpotRepository fishingSpotRepository, FishingPlanRepository fishingPlanRepository) {
+    public FishingSessionService(
+            FishingSessionRepository fishingSessionRepository,
+            FishingSpotRepository fishingSpotRepository,
+            FishingPlanRepository fishingPlanRepository,
+            ListProjectionService listProjectionService
+    ) {
         this.fishingSessionRepository = fishingSessionRepository;
         this.fishingSpotRepository = fishingSpotRepository;
         this.fishingPlanRepository = fishingPlanRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public FishingSessionResponse createSession(CreateFishingSessionRequest request) {
@@ -117,9 +123,8 @@ public class FishingSessionService {
                 SearchSpecifications.dateTo(dateTo, "date")
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
-        Page<FishingSession> sessions = fishingSessionRepository.findAll(specification, pageable);
 
-        return ListQuerySupport.toPagedResponse(sessions, this::toSummaryResponse);
+        return listProjectionService.findFishingSessionSummaries(specification, pageable);
     }
 
     public FishingSessionResponse getSessionById(Long id) {
@@ -240,25 +245,6 @@ public class FishingSessionService {
                 fishingSession.getFinalNotes(),
                 fishingSession.getRating(),
                 fishingSession.getCreatedAt()
-        );
-    }
-
-    private FishingSessionSummaryResponse toSummaryResponse(FishingSession fishingSession) {
-        FishingSpot spot = fishingSession.getSpot();
-        FishingPlan plan = fishingSession.getPlan();
-
-        return new FishingSessionSummaryResponse(
-                fishingSession.getId(),
-                spot.getId(),
-                spot.getName(),
-                plan == null ? null : plan.getId(),
-                fishingSession.getDate(),
-                fishingSession.getStartTime(),
-                fishingSession.getEndTime(),
-                statusOrDefault(fishingSession).name().toLowerCase(Locale.ROOT),
-                fishingSession.getTargetSpecies(),
-                fishingSession.getSuccess(),
-                fishingSession.getRating()
         );
     }
 

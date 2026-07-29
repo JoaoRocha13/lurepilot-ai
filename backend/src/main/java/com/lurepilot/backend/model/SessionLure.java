@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -13,7 +14,11 @@ import jakarta.persistence.Table;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "session_lures")
+@Table(name = "session_lures", indexes = {
+        @Index(name = "idx_session_lures_session", columnList = "session_id"),
+        @Index(name = "idx_session_lures_lure", columnList = "lure_id"),
+        @Index(name = "idx_session_lures_used_from", columnList = "used_from")
+})
 public class SessionLure {
 
     @Id

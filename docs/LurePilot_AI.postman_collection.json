@@ -56,6 +56,10 @@
     {
       "key": "sessionLureId",
       "value": "1"
+    },
+    {
+      "key": "recommendationExecutionId",
+      "value": "1"
     }
   ],
   "item": [
@@ -1796,6 +1800,129 @@
               ]
             },
             "description": "Returns the latest session review recommendation for a fishing session."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Recommendation Execution Tracking",
+      "item": [
+        {
+          "name": "Create Recommendation Execution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/{{recommendationId}}/executions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{recommendationId}}",
+                "executions"
+              ]
+            },
+            "description": "Records whether the user followed PLAN_A, PLAN_B, PLAN_C or a session adjustment, plus result, success, rating and notes.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": 1,\n  \"recommendationStep\": \"PLAN_A\",\n  \"followed\": true,\n  \"result\": \"CATCH\",\n  \"success\": true,\n  \"rating\": 4,\n  \"startedAt\": \"19:00\",\n  \"endedAt\": \"19:20\",\n  \"notes\": \"Segui o Plan A junto a estruturas e houve uma captura.\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Executions By Recommendation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/{{recommendationId}}/executions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{recommendationId}}",
+                "executions"
+              ]
+            },
+            "description": "Returns execution tracking history for one AI recommendation."
+          },
+          "response": []
+        },
+        {
+          "name": "List Executions By Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plans/{{planId}}/recommendation-executions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planId}}",
+                "recommendation-executions"
+              ]
+            },
+            "description": "Returns recommendation execution records linked to a fishing plan."
+          },
+          "response": []
+        },
+        {
+          "name": "List Executions By Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/recommendation-executions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{sessionId}}",
+                "recommendation-executions"
+              ]
+            },
+            "description": "Returns recommendation execution records linked to a fishing session."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Analytics Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analytics",
+                "summary"
+              ]
+            },
+            "description": "Returns basic analytics using stored sessions, catches, session lures and recommendation execution tracking."
           },
           "response": []
         }

@@ -44,6 +44,20 @@ final class ListQuerySupport {
         );
     }
 
+    static <T> PagedResponse<T> toPagedResponse(List<T> items, long totalItems, Pageable pageable) {
+        int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / pageable.getPageSize());
+
+        return new PagedResponse<>(
+                items,
+                totalItems,
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                totalPages,
+                pageable.getPageNumber() + 1 < totalPages,
+                pageable.getPageNumber() > 0 && totalPages > 0
+        );
+    }
+
     static <T, R> PagedResponse<R> toPage(List<T> values, int page, int size, Function<T, R> mapper) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);

@@ -6,7 +6,6 @@ import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.repository.LureLibraryItemRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -28,9 +27,11 @@ public class LureLibraryItemService {
     );
 
     private final LureLibraryItemRepository lureLibraryItemRepository;
+    private final ListProjectionService listProjectionService;
 
-    public LureLibraryItemService(LureLibraryItemRepository lureLibraryItemRepository) {
+    public LureLibraryItemService(LureLibraryItemRepository lureLibraryItemRepository, ListProjectionService listProjectionService) {
         this.lureLibraryItemRepository = lureLibraryItemRepository;
+        this.listProjectionService = listProjectionService;
     }
 
     public LureLibraryItemResponse createLureLibraryItem(CreateLureLibraryItemRequest request) {
@@ -80,9 +81,8 @@ public class LureLibraryItemService {
                 SearchSpecifications.equalsIgnoreCase(effectiveness, "effectiveness")
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
-        Page<LureLibraryItem> items = lureLibraryItemRepository.findAll(specification, pageable);
 
-        return ListQuerySupport.toPagedResponse(items, this::toSummaryResponse);
+        return listProjectionService.findLureLibraryItemSummaries(specification, pageable);
     }
 
     public LureLibraryItemResponse getLureLibraryItemById(Long id) {
@@ -129,18 +129,6 @@ public class LureLibraryItemService {
                 item.getActionType(),
                 item.getIdealConditions(),
                 item.getCreatedAt()
-        );
-    }
-
-    private LureLibraryItemSummaryResponse toSummaryResponse(LureLibraryItem item) {
-        return new LureLibraryItemSummaryResponse(
-                item.getId(),
-                item.getName(),
-                item.getType(),
-                item.getImageUrl(),
-                item.getDifficulty(),
-                item.getEffectiveness(),
-                item.getActionType()
         );
     }
 
