@@ -5,6 +5,7 @@ import com.lurepilot.backend.model.FishingSessionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,4 +45,75 @@ public interface FishingSessionRepository extends JpaRepository<FishingSession, 
             order by count(s) desc
             """)
     List<Object[]> summarizeSuccessBySpot();
+
+    @Query("""
+            select s.spot.id,
+                   s.spot.name,
+                   count(distinct s.id),
+                   count(distinct case when s.success = true then s.id else null end),
+                   coalesce(sum(c.quantity), 0),
+                   max(s.date)
+            from FishingSession s
+            left join Catch c on c.session = s
+            where (:dateFrom is null or s.date >= :dateFrom)
+              and (:dateTo is null or s.date <= :dateTo)
+              and (:species is null or lower(s.targetSpecies) = lower(:species))
+              and (:spotId is null or s.spot.id = :spotId)
+              and (:lureId is null or exists (
+                  select sl.id from SessionLure sl
+                  where sl.session = s
+                    and sl.lure.id = :lureId
+              ))
+            group by s.spot.id, s.spot.name
+            order by count(distinct case when s.success = true then s.id else null end) desc,
+                     coalesce(sum(c.quantity), 0) desc,
+                     count(distinct s.id) desc,
+                     max(s.date) desc
+            """)
+    List<Object[]> findBestSpotInsights(
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo,
+            @Param("species") String species,
+            @Param("spotId") Long spotId,
+            @Param("lureId") Long lureId,
+            org.springframework.data.domain.Pageable pageable
+    );
+
+    @Query("""
+            select s.waterClarity,
+                   s.waterLevel,
+                   w.weatherTypeId,
+                   w.windDirection,
+                   w.windSpeedClass,
+                   count(distinct s.id),
+                   count(distinct case when s.success = true then s.id else null end),
+                   coalesce(sum(c.quantity), 0),
+                   avg(s.rating),
+                   max(s.date)
+            from FishingSession s
+            left join WeatherSnapshot w on w.session = s
+            left join Catch c on c.session = s
+            where (:dateFrom is null or s.date >= :dateFrom)
+              and (:dateTo is null or s.date <= :dateTo)
+              and (:species is null or lower(s.targetSpecies) = lower(:species))
+              and (:spotId is null or s.spot.id = :spotId)
+              and (:lureId is null or exists (
+                  select sl.id from SessionLure sl
+                  where sl.session = s
+                    and sl.lure.id = :lureId
+              ))
+            group by s.waterClarity, s.waterLevel, w.weatherTypeId, w.windDirection, w.windSpeedClass
+            order by count(distinct case when s.success = true then s.id else null end) desc,
+                     coalesce(sum(c.quantity), 0) desc,
+                     count(distinct s.id) desc,
+                     avg(s.rating) desc
+            """)
+    List<Object[]> findBestConditionInsights(
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo,
+            @Param("species") String species,
+            @Param("spotId") Long spotId,
+            @Param("lureId") Long lureId,
+            org.springframework.data.domain.Pageable pageable
+    );
 }

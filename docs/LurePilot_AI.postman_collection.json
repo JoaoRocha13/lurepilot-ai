@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, AI recommendations and IPMA weather snapshots.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, AI recommendations, insights and IPMA weather snapshots.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -1925,6 +1925,210 @@
             "description": "Returns basic analytics using stored sessions, catches, session lures and recommendation execution tracking."
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Insights",
+      "item": [
+        {
+          "name": "Get Top Lures",
+          "request": {
+            "description": "Returns practical top lures based on session usage, successful sessions and catches. Optional filters: dateFrom, dateTo, species, spotId, lureId and limit.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/insights/top-lures?species=Black Bass&dateFrom=2026-07-01&dateTo=2026-07-31&limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insights",
+                "top-lures"
+              ],
+              "query": [
+                {
+                  "key": "species",
+                  "value": "Black Bass"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31"
+                },
+                {
+                  "key": "spotId",
+                  "value": "{{spotId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lureId",
+                  "value": "{{lureId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Best Spots",
+          "request": {
+            "description": "Returns best fishing spots based on sessions, successful sessions and catches. Optional filters: dateFrom, dateTo, species, spotId, lureId and limit.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/insights/best-spots?species=Black Bass&limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insights",
+                "best-spots"
+              ],
+              "query": [
+                {
+                  "key": "species",
+                  "value": "Black Bass"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01",
+                  "disabled": true
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31",
+                  "disabled": true
+                },
+                {
+                  "key": "spotId",
+                  "value": "{{spotId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lureId",
+                  "value": "{{lureId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Best Conditions",
+          "request": {
+            "description": "Returns practical condition buckets based on water clarity, water level and linked weather snapshots. Optional filters: dateFrom, dateTo, species, spotId, lureId and limit.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/insights/best-conditions?species=Black Bass&limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insights",
+                "best-conditions"
+              ],
+              "query": [
+                {
+                  "key": "species",
+                  "value": "Black Bass"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01",
+                  "disabled": true
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31",
+                  "disabled": true
+                },
+                {
+                  "key": "spotId",
+                  "value": "{{spotId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lureId",
+                  "value": "{{lureId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendation Performance",
+          "request": {
+            "description": "Returns which AI recommendation types and steps worked best based on tracked executions. Optional filters: dateFrom, dateTo, species, spotId, lureId, recommendationType and limit.",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/insights/recommendation-performance?recommendationType=PLAN&limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insights",
+                "recommendation-performance"
+              ],
+              "query": [
+                {
+                  "key": "recommendationType",
+                  "value": "PLAN"
+                },
+                {
+                  "key": "species",
+                  "value": "Black Bass",
+                  "disabled": true
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-07-01",
+                  "disabled": true
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-07-31",
+                  "disabled": true
+                },
+                {
+                  "key": "spotId",
+                  "value": "{{spotId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lureId",
+                  "value": "{{lureId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
         }
       ]
     },

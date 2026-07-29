@@ -10,6 +10,7 @@ import com.lurepilot.backend.dto.FishingSessionResponse;
 import com.lurepilot.backend.dto.FishingSessionSummaryResponse;
 import com.lurepilot.backend.dto.FishingSpotResponse;
 import com.lurepilot.backend.dto.FishingSpotSummaryResponse;
+import com.lurepilot.backend.dto.InsightTopLureResponse;
 import com.lurepilot.backend.dto.LureBoxItemSummaryResponse;
 import com.lurepilot.backend.dto.LureLibraryItemResponse;
 import com.lurepilot.backend.dto.LureLibraryItemSummaryResponse;
@@ -23,6 +24,7 @@ import com.lurepilot.backend.service.FishingSessionService;
 import com.lurepilot.backend.service.FishingSpotService;
 import com.lurepilot.backend.service.LureLibraryItemService;
 import com.lurepilot.backend.service.LureService;
+import com.lurepilot.backend.service.InsightsService;
 import com.lurepilot.backend.service.RecommendationExecutionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -319,6 +321,30 @@ class MainControllerMockMvcTest {
                 .andExpect(jsonPath("$.totalSessions").value(10))
                 .andExpect(jsonPath("$.sessionSuccessRate").value(40.0))
                 .andExpect(jsonPath("$.recommendationFollowRate").value(100.0));
+    }
+
+    @Test
+    void getInsightTopLuresAcceptsSimpleFilters() throws Exception {
+        InsightsService service = mock(InsightsService.class);
+        LocalDate dateFrom = LocalDate.of(2026, 7, 1);
+        LocalDate dateTo = LocalDate.of(2026, 7, 31);
+        when(service.getTopLures(dateFrom, dateTo, "Black Bass", 1L, 2L, 3)).thenReturn(List.of(
+                new InsightTopLureResponse(2L, "Vinil verde natural", "SOFT_BAIT", 4L, 3L, 75.0, 5L, LocalDate.of(2026, 7, 24))
+        ));
+
+        mockMvc(new InsightsController(service))
+                .perform(get("/api/insights/top-lures")
+                        .param("dateFrom", "2026-07-01")
+                        .param("dateTo", "2026-07-31")
+                        .param("species", "Black Bass")
+                        .param("spotId", "1")
+                        .param("lureId", "2")
+                        .param("limit", "3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].lureName").value("Vinil verde natural"))
+                .andExpect(jsonPath("$[0].successRate").value(75.0));
+
+        verify(service).getTopLures(dateFrom, dateTo, "Black Bass", 1L, 2L, 3);
     }
 
     private MockMvc mockMvc(Object controller) {

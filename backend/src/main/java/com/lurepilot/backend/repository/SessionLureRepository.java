@@ -23,6 +23,36 @@ public interface SessionLureRepository extends JpaRepository<SessionLure, Long> 
     List<Object[]> findBestRecentLures(@Param("dateFrom") LocalDate dateFrom, Pageable pageable);
 
     @Query("""
+            select sl.lure.id,
+                   sl.lure.name,
+                   sl.lure.type,
+                   count(distinct sl.id),
+                   count(distinct case when sl.session.success = true then sl.session.id else null end),
+                   coalesce(sum(c.quantity), 0),
+                   max(sl.session.date)
+            from SessionLure sl
+            left join Catch c on c.session = sl.session
+            where (:dateFrom is null or sl.session.date >= :dateFrom)
+              and (:dateTo is null or sl.session.date <= :dateTo)
+              and (:species is null or lower(sl.session.targetSpecies) = lower(:species))
+              and (:spotId is null or sl.session.spot.id = :spotId)
+              and (:lureId is null or sl.lure.id = :lureId)
+            group by sl.lure.id, sl.lure.name, sl.lure.type
+            order by count(distinct case when sl.session.success = true then sl.session.id else null end) desc,
+                     coalesce(sum(c.quantity), 0) desc,
+                     count(distinct sl.id) desc,
+                     max(sl.session.date) desc
+            """)
+    List<Object[]> findTopLureInsights(
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo,
+            @Param("species") String species,
+            @Param("spotId") Long spotId,
+            @Param("lureId") Long lureId,
+            Pageable pageable
+    );
+
+    @Query("""
             select sl.lure.name, count(sl), sum(case when sl.session.success = true then 1 else 0 end)
             from SessionLure sl
             group by sl.lure.id, sl.lure.name
