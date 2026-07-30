@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/assets/images/brand/logo.png" alt="LurePilot AI logo" width="280" />
+</p>
+
 # LurePilot AI
 
 Local AI fishing copilot built with a Spring Boot backend, PostgreSQL, IPMA weather data and a local LLM through LM Studio.
@@ -63,6 +67,8 @@ Frontend direction:
 Media direction:
 
 - Static catalogue images can live under `frontend/assets/images`, for example lures, fish, spots and UI images.
+- Static image filenames should use `lowercase-kebab-case`, for example `black-bass.png`, `sea-bass.png`, `clear-sky.png` and `app-icon.png`.
+- Current frontend asset folders are `brand`, `fish/freshwater`, `fish/saltwater`, `lures`, `lure-actions`, `lure-action-icons`, `placeholders`, `spots`, `ui` and `weather`.
 - User-generated photos, such as fish photos taken during a session, should be handled as uploads later and stored through backend-managed paths/URLs instead of being committed as frontend assets.
 - The backend now exposes a catch gallery endpoint. Each gallery item includes `catchId` and `sessionId`, so the future frontend menu icon can open the gallery and each photo can navigate back to its fishing session.
 
