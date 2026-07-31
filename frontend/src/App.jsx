@@ -14,7 +14,7 @@ import {
 
 import appIcon from '../assets/images/brand/app-icon.png'
 import blackBass from '../assets/images/fish/freshwater/black-bass.png'
-import dashboardIcon from '../assets/images/ui/dahsboard-icon.png'
+import dashboardIcon from '../assets/images/ui/dashboard-icon.png'
 import fishingPlanIcon from '../assets/images/ui/fishingplan-icon.png'
 import galleryIcon from '../assets/images/ui/gallery-icon.png'
 import libraryIcon from '../assets/images/ui/library-icon.png'

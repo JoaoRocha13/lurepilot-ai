@@ -10,7 +10,7 @@ The product direction is a practical fishing copilot, not just a diary. It helps
 
 ## Current Status
 
-The backend MVP is the active focus and is ready to support the first React Native Web screens.
+The backend MVP is stable enough to support the first React Native Web screens, and the frontend shell has started.
 
 Implemented backend areas:
 
@@ -42,6 +42,10 @@ Implemented backend areas:
 Initial frontend area:
 
 - React Native Web app shell with main menu, dashboard preview and backend status.
+- Main menu entries: Dashboard, Gallery, Spots, Plans, Session, Lure Box, Library and Profile.
+- Menu uses static UI icons from `frontend/assets/images/ui`.
+- The first screen consumes `GET /api/health` and `GET /api/dashboard`, with a sample fallback when the backend is unavailable.
+- A working `PT / EN` language switch exists in the sidebar for the initial UI shell.
 
 ## Stack
 
@@ -66,13 +70,14 @@ Frontend direction:
 
 - React Native Web first
 - iOS/Android later from the same React Native direction
-- The old Vite frontend folder exists from early setup, but future frontend development should follow the project specification.
+- The current Vite frontend is being used as the React Native Web host, with `react-native` aliased to `react-native-web`.
 
 Media direction:
 
 - Static catalogue images can live under `frontend/assets/images`, for example lures, fish, spots and UI images.
 - Static image filenames should use `lowercase-kebab-case`, for example `black-bass.png`, `sea-bass.png`, `clear-sky.png` and `app-icon.png`.
 - Current frontend asset folders are `brand`, `fish/freshwater`, `fish/saltwater`, `lures`, `lure-actions`, `lure-action-icons`, `placeholders`, `spots`, `ui` and `weather`.
+- UI navigation icons live in `frontend/assets/images/ui` and are imported directly by the React Native Web shell.
 - User-generated photos, such as fish photos taken during a session, should be handled as uploads later and stored through backend-managed paths/URLs instead of being committed as frontend assets.
 - The backend now exposes a catch gallery endpoint. Each gallery item includes `catchId` and `sessionId`, so the future frontend menu icon can open the gallery and each photo can navigate back to its fishing session.
 
@@ -108,6 +113,14 @@ Run the backend:
 ```bash
 cd backend
 ./mvnw spring-boot:run
+```
+
+Run the frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 Health check:
