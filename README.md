@@ -39,6 +39,10 @@ Implemented backend areas:
 - Flyway database migrations
 - Postman collection
 
+Initial frontend area:
+
+- React Native Web app shell with main menu, dashboard preview and backend status.
+
 ## Stack
 
 Backend:
