@@ -86,7 +86,7 @@ class MainControllerMockMvcTest {
     @Test
     void listFishAcceptsSearchFilters() throws Exception {
         FishSpeciesService service = mock(FishSpeciesService.class);
-        when(service.searchFishSpecies("achiga", "surface", 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
+        when(service.searchFishSpecies("achiga", "surface", "FRESHWATER", 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
                 List.of(new FishSpeciesSummaryResponse(1L, "Achiga", null, "surface", null)),
                 1,
                 0,
@@ -99,11 +99,12 @@ class MainControllerMockMvcTest {
         mockMvc(new FishSpeciesController(service))
                 .perform(get("/api/fish")
                         .param("q", "achiga")
-                        .param("strikeZone", "surface"))
+                        .param("strikeZone", "surface")
+                        .param("waterEnvironment", "FRESHWATER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].name").value("Achiga"));
 
-        verify(service).searchFishSpecies("achiga", "surface", 0, 20, "id", "asc");
+        verify(service).searchFishSpecies("achiga", "surface", "FRESHWATER", 0, 20, "id", "asc");
     }
 
     @Test
@@ -248,7 +249,10 @@ class MainControllerMockMvcTest {
                         "/uploads/catches/thumbs/9.jpg",
                         "Primeira captura da manha",
                         true,
-                        4
+                        4,
+                        7L,
+                        "Vinil verde natural",
+                        "/assets/lures/vinil-verde-natural.png"
                 )),
                 1,
                 1,

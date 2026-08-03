@@ -12,7 +12,7 @@ public record CreateLureLibraryItemRequest(
         @Size(max = 100)
         String type,
 
-        @Size(max = 500)
+        @Size(max = 5000000)
         String imageUrl,
 
         @Size(max = 100)
@@ -31,6 +31,16 @@ public record CreateLureLibraryItemRequest(
         String actionType,
 
         @Size(max = 1000)
-        String idealConditions
+        String idealConditions,
+
+        @Size(max = 5000000)
+        String actionIconUrl,
+
+        @Size(max = 5000000)
+        String actionImageUrl
 ) {
+
+    public CreateLureLibraryItemRequest(String name, String type, String imageUrl, String difficulty, String effectiveness, String description, String usageNotes, String actionType, String idealConditions) {
+        this(name, type, imageUrl, difficulty, effectiveness, description, usageNotes, actionType, idealConditions, null, null);
+    }
 }

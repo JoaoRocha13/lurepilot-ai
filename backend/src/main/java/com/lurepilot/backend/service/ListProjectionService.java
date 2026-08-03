@@ -70,6 +70,7 @@ public class ListProjectionService {
                         root.get("id"),
                         root.get("name"),
                         root.get("imageUrl"),
+                        root.get("waterEnvironment"),
                         root.get("strikeZone"),
                         root.get("favoriteLures")
                 )
@@ -185,6 +186,7 @@ public class ListProjectionService {
                 (root, criteriaBuilder) -> {
                     Join<Catch, FishingSession> session = root.join("session", JoinType.LEFT);
                     Join<FishingSession, FishingSpot> spot = session.join("spot", JoinType.LEFT);
+                    Join<Catch, LureLibraryItem> lure = root.join("lureLibraryItem", JoinType.LEFT);
 
                     return criteriaBuilder.construct(
                             CatchGalleryItemResponse.class,
@@ -203,7 +205,10 @@ public class ListProjectionService {
                             root.get("photoThumbnailUrl"),
                             root.get("photoCaption"),
                             session.get("success"),
-                            session.get("rating")
+                            session.get("rating"),
+                            lure.get("id"),
+                            lure.get("name"),
+                            lure.get("imageUrl")
                     );
                 }
         );

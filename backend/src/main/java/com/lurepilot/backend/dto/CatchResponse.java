@@ -11,6 +11,9 @@ public record CatchResponse(
         String notes,
         String photoUrl,
         String photoThumbnailUrl,
-        String photoCaption
+        String photoCaption,
+        Long lureLibraryItemId,
+        String lureName,
+        String lureImageUrl
 ) {
 }

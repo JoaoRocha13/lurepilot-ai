@@ -38,12 +38,13 @@ public class FishSpeciesController {
     public PagedResponse<FishSpeciesSummaryResponse> getAllFishSpecies(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String strikeZone,
+            @RequestParam(required = false) String waterEnvironment,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return fishSpeciesService.searchFishSpecies(q, strikeZone, page, size, sortBy, sortDirection);
+        return fishSpeciesService.searchFishSpecies(q, strikeZone, waterEnvironment, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

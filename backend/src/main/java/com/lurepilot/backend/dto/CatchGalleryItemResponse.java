@@ -19,6 +19,9 @@ public record CatchGalleryItemResponse(
         String photoThumbnailUrl,
         String photoCaption,
         Boolean sessionSuccess,
-        Integer sessionRating
+        Integer sessionRating,
+        Long lureLibraryItemId,
+        String lureName,
+        String lureImageUrl
 ) {
 }

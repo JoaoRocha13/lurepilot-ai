@@ -24,8 +24,8 @@ Implemented backend areas:
 - Fishing sessions with planned, active and finished states
 - Session events
 - Session lures
-- Catches with optional photo metadata
-- Catch gallery endpoint for photo-based history navigation
+- Catches with optional photo metadata and optional lure-library association
+- Catch gallery endpoint for photo-based history navigation, including the lure name/image when recorded
 - IPMA weather snapshots
 - AI plan recommendations through LM Studio
 - AI session adjustment
@@ -46,6 +46,7 @@ Initial frontend area:
 - Menu uses static UI icons from `frontend/assets/images/ui`.
 - The first screen consumes `GET /api/health` and `GET /api/dashboard`, with a sample fallback when the backend is unavailable.
 - A working `PT / EN` language switch exists in the sidebar for the initial UI shell.
+- The gallery supports creating, editing and deleting captures from the React Native Web interface. Species are selected from the fish library, lures from the lure library, and each capture remains linked to its fishing session.
 
 ## Stack
 

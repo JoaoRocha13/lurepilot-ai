@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 @Table(name = "catches", indexes = {
         @Index(name = "idx_catches_session", columnList = "session_id"),
         @Index(name = "idx_catches_species", columnList = "species"),
+        @Index(name = "idx_catches_lure_library_item", columnList = "lure_library_item_id"),
         @Index(name = "idx_catches_released", columnList = "released")
 })
 public class Catch {
@@ -26,6 +27,10 @@ public class Catch {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "session_id", nullable = false)
     private FishingSession session;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lure_library_item_id")
+    private LureLibraryItem lureLibraryItem;
 
     @Column(nullable = false)
     private String species;
@@ -92,6 +97,14 @@ public class Catch {
 
     public void setSession(FishingSession session) {
         this.session = session;
+    }
+
+    public LureLibraryItem getLureLibraryItem() {
+        return lureLibraryItem;
+    }
+
+    public void setLureLibraryItem(LureLibraryItem lureLibraryItem) {
+        this.lureLibraryItem = lureLibraryItem;
     }
 
     public String getSpecies() {

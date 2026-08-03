@@ -6,8 +6,10 @@ import com.lurepilot.backend.dto.CreateCatchRequest;
 import com.lurepilot.backend.dto.PagedResponse;
 import com.lurepilot.backend.model.Catch;
 import com.lurepilot.backend.model.FishingSession;
+import com.lurepilot.backend.model.LureLibraryItem;
 import com.lurepilot.backend.repository.CatchRepository;
 import com.lurepilot.backend.repository.FishingSessionRepository;
+import com.lurepilot.backend.repository.LureLibraryItemRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -36,15 +38,18 @@ public class CatchService {
 
     private final CatchRepository catchRepository;
     private final FishingSessionRepository fishingSessionRepository;
+    private final LureLibraryItemRepository lureLibraryItemRepository;
     private final ListProjectionService listProjectionService;
 
     public CatchService(
             CatchRepository catchRepository,
             FishingSessionRepository fishingSessionRepository,
+            LureLibraryItemRepository lureLibraryItemRepository,
             ListProjectionService listProjectionService
     ) {
         this.catchRepository = catchRepository;
         this.fishingSessionRepository = fishingSessionRepository;
+        this.lureLibraryItemRepository = lureLibraryItemRepository;
         this.listProjectionService = listProjectionService;
     }
 
@@ -64,6 +69,7 @@ public class CatchService {
                 request.photoThumbnailUrl(),
                 request.photoCaption()
         );
+        catchRecord.setLureLibraryItem(findLureLibraryItemOrNull(request.lureLibraryItemId()));
 
         return toResponse(catchRepository.save(catchRecord));
     }
@@ -91,6 +97,7 @@ public class CatchService {
         catchRecord.setPhotoUrl(request.photoUrl());
         catchRecord.setPhotoThumbnailUrl(request.photoThumbnailUrl());
         catchRecord.setPhotoCaption(request.photoCaption());
+        catchRecord.setLureLibraryItem(findLureLibraryItemOrNull(request.lureLibraryItemId()));
 
         return toResponse(catchRepository.save(catchRecord));
     }
@@ -161,8 +168,20 @@ public class CatchService {
                 catchRecord.getNotes(),
                 catchRecord.getPhotoUrl(),
                 catchRecord.getPhotoThumbnailUrl(),
-                catchRecord.getPhotoCaption()
+                catchRecord.getPhotoCaption(),
+                catchRecord.getLureLibraryItem() == null ? null : catchRecord.getLureLibraryItem().getId(),
+                catchRecord.getLureLibraryItem() == null ? null : catchRecord.getLureLibraryItem().getName(),
+                catchRecord.getLureLibraryItem() == null ? null : catchRecord.getLureLibraryItem().getImageUrl()
         );
+    }
+
+    private LureLibraryItem findLureLibraryItemOrNull(Long lureLibraryItemId) {
+        if (lureLibraryItemId == null) {
+            return null;
+        }
+
+        return lureLibraryItemRepository.findById(lureLibraryItemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lure library item not found"));
     }
 
     private Specification<Catch> hasPhoto(Boolean withPhotoOnly) {

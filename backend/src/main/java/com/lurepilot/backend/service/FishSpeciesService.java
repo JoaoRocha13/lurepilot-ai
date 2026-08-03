@@ -20,6 +20,7 @@ public class FishSpeciesService {
     private static final Map<String, String> SORT_FIELDS = Map.of(
             "id", "id",
             "name", "name",
+            "waterenvironment", "waterEnvironment",
             "strikezone", "strikeZone",
             "createdat", "createdAt"
     );
@@ -35,6 +36,7 @@ public class FishSpeciesService {
     public FishSpeciesResponse createFishSpecies(CreateFishSpeciesRequest request) {
         FishSpecies fishSpecies = new FishSpecies(
                 request.name(),
+                request.waterEnvironment(),
                 request.description(),
                 request.imageUrl(),
                 request.habitatNotes(),
@@ -48,12 +50,13 @@ public class FishSpeciesService {
     }
 
     public PagedResponse<FishSpeciesSummaryResponse> getAllFishSpecies() {
-        return searchFishSpecies(null, null, 0, 20, "id", "asc");
+        return searchFishSpecies(null, null, null, 0, 20, "id", "asc");
     }
 
     public PagedResponse<FishSpeciesSummaryResponse> searchFishSpecies(
             String q,
             String strikeZone,
+            String waterEnvironment,
             int page,
             int size,
             String sortBy,
@@ -63,6 +66,7 @@ public class FishSpeciesService {
                 SearchSpecifications.containsAny(
                         q,
                         "name",
+                        "waterEnvironment",
                         "description",
                         "habitatNotes",
                         "activeTimes",
@@ -70,7 +74,8 @@ public class FishSpeciesService {
                         "commonZones",
                         "favoriteLures"
                 ),
-                SearchSpecifications.contains(strikeZone, "strikeZone")
+                SearchSpecifications.contains(strikeZone, "strikeZone"),
+                SearchSpecifications.equalsIgnoreCase(waterEnvironment, "waterEnvironment")
         );
         Pageable pageable = ListQuerySupport.toPageable(page, size, sortBy, sortDirection, SORT_FIELDS);
 
@@ -88,6 +93,7 @@ public class FishSpeciesService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish species not found"));
 
         fishSpecies.setName(request.name());
+        fishSpecies.setWaterEnvironment(request.waterEnvironment());
         fishSpecies.setDescription(request.description());
         fishSpecies.setImageUrl(request.imageUrl());
         fishSpecies.setHabitatNotes(request.habitatNotes());
@@ -111,6 +117,7 @@ public class FishSpeciesService {
         return new FishSpeciesResponse(
                 fishSpecies.getId(),
                 fishSpecies.getName(),
+                fishSpecies.getWaterEnvironment(),
                 fishSpecies.getDescription(),
                 fishSpecies.getImageUrl(),
                 fishSpecies.getHabitatNotes(),

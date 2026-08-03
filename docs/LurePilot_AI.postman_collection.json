@@ -116,7 +116,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "description": "Returns a paged gallery of catch photos. Each item includes catchId and sessionId so the frontend can open the related session when the user taps a gallery item.",
+            "description": "Returns a paged gallery of catch photos. Each item includes catchId, sessionId and the optional lure library item with its name and image, so the frontend can open the related session and show the lure used.",
             "url": {
               "raw": "{{baseUrl}}/api/gallery/catches?withPhotoOnly=true&page=0&size=20&sortBy=id&sortDirection=desc",
               "host": [
@@ -693,7 +693,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Achiga\",\n  \"description\": \"Predador de agua doce muito associado a estruturas, margens e vegetacao.\",\n  \"imageUrl\": \"https://example.com/images/achiga.jpg\",\n  \"habitatNotes\": \"Barragens, lagos e rios lentos com cobertura, pedra, madeira ou vegetacao.\",\n  \"activeTimes\": \"Mais ativo ao amanhecer, fim de tarde e em periodos de pouca luz.\",\n  \"strikeZone\": \"Pode atacar no fundo, meia agua ou superficie dependendo da temperatura e atividade.\",\n  \"commonZones\": \"Margens com sombra, estruturas submersas, vegetacao, pontas e drop-offs.\",\n  \"favoriteLures\": \"Soft bait, crankbait, jerkbait, jig, spinnerbait e topwater.\"\n}"
+              "raw": "{\n  \"name\": \"Achiga\",\n  \"waterEnvironment\": \"FRESHWATER\",\n  \"description\": \"Predador de agua doce muito associado a estruturas, margens e vegetacao.\",\n  \"imageUrl\": \"https://example.com/images/achiga.jpg\",\n  \"habitatNotes\": \"Barragens, lagos e rios lentos com cobertura, pedra, madeira ou vegetacao.\",\n  \"activeTimes\": \"Mais ativo ao amanhecer, fim de tarde e em periodos de pouca luz.\",\n  \"strikeZone\": \"Pode atacar no fundo, meia agua ou superficie dependendo da temperatura e atividade.\",\n  \"commonZones\": \"Margens com sombra, estruturas submersas, vegetacao, pontas e drop-offs.\",\n  \"favoriteLures\": \"Soft bait, crankbait, jerkbait, jig, spinnerbait e topwater.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/fish",
@@ -727,11 +727,11 @@
         {
           "name": "Search Fish Species",
           "request": {
-            "description": "Optional filters: q, strikeZone. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
+            "description": "Optional filters: q, strikeZone, waterEnvironment (FRESHWATER or SALTWATER). Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/fish?q=achiga&strikeZone=surface&page=0&size=10&sortBy=name&sortDirection=asc",
+              "raw": "{{baseUrl}}/api/fish?q=achiga&strikeZone=surface&waterEnvironment=FRESHWATER&page=0&size=10&sortBy=name&sortDirection=asc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -747,6 +747,10 @@
                 {
                   "key": "strikeZone",
                   "value": "surface"
+                },
+                {
+                  "key": "waterEnvironment",
+                  "value": "FRESHWATER"
                 },
                 {
                   "key": "page",
@@ -809,7 +813,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Achiga\",\n  \"description\": \"Predador de agua doce muito associado a estruturas, margens e vegetacao.\",\n  \"imageUrl\": \"https://example.com/images/achiga.jpg\",\n  \"habitatNotes\": \"Barragens, lagos e rios lentos com cobertura, pedra, madeira ou vegetacao.\",\n  \"activeTimes\": \"Mais ativo ao amanhecer, fim de tarde e em periodos de pouca luz.\",\n  \"strikeZone\": \"Pode atacar no fundo, meia agua ou superficie dependendo da temperatura e atividade.\",\n  \"commonZones\": \"Margens com sombra, estruturas submersas, vegetacao, pontas e drop-offs.\",\n  \"favoriteLures\": \"Soft bait, crankbait, jerkbait, jig, spinnerbait e topwater.\"\n}"
+              "raw": "{\n  \"name\": \"Achiga\",\n  \"waterEnvironment\": \"FRESHWATER\",\n  \"description\": \"Predador de agua doce muito associado a estruturas, margens e vegetacao.\",\n  \"imageUrl\": \"https://example.com/images/achiga.jpg\",\n  \"habitatNotes\": \"Barragens, lagos e rios lentos com cobertura, pedra, madeira ou vegetacao.\",\n  \"activeTimes\": \"Mais ativo ao amanhecer, fim de tarde e em periodos de pouca luz.\",\n  \"strikeZone\": \"Pode atacar no fundo, meia agua ou superficie dependendo da temperatura e atividade.\",\n  \"commonZones\": \"Margens com sombra, estruturas submersas, vegetacao, pontas e drop-offs.\",\n  \"favoriteLures\": \"Soft bait, crankbait, jerkbait, jig, spinnerbait e topwater.\"\n}"
             }
           }
         },
@@ -848,7 +852,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Jerkbait\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/jerkbait.jpg\",\n  \"difficulty\": \"MEDIUM\",\n  \"effectiveness\": \"HIGH\",\n  \"description\": \"Amostra dura para provocar ataques de predadores suspensos.\",\n  \"usageNotes\": \"Usar com toques de ponta de cana e pausas entre recolhas.\",\n  \"actionType\": \"twitch, jerk, stop-and-go\",\n  \"idealConditions\": \"Agua clara, peixe suspenso, margens com estrutura e pouca atividade a superficie.\"\n}"
+              "raw": "{\n  \"name\": \"Jerkbait\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/jerkbait.jpg\",\n  \"difficulty\": \"MEDIUM\",\n  \"effectiveness\": \"HIGH\",\n  \"description\": \"Amostra dura para provocar ataques de predadores suspensos.\",\n  \"usageNotes\": \"Usar com toques de ponta de cana e pausas entre recolhas.\",\n  \"actionType\": \"Jerk e twitch\",\n  \"idealConditions\": \"Agua clara, peixe suspenso, margens com estrutura e pouca atividade a superficie.\",\n  \"actionIconUrl\": \"https://example.com/images/lure-action-icons/jerk-twitch-icon.png\",\n  \"actionImageUrl\": \"https://example.com/images/lure-actions/jerk-twitch.png\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/lure-library",
@@ -972,7 +976,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Jerkbait\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/jerkbait.jpg\",\n  \"difficulty\": \"MEDIUM\",\n  \"effectiveness\": \"HIGH\",\n  \"description\": \"Amostra dura para provocar ataques de predadores suspensos.\",\n  \"usageNotes\": \"Usar com toques de ponta de cana e pausas entre recolhas.\",\n  \"actionType\": \"twitch, jerk, stop-and-go\",\n  \"idealConditions\": \"Agua clara, peixe suspenso, margens com estrutura e pouca atividade a superficie.\"\n}"
+              "raw": "{\n  \"name\": \"Jerkbait\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/jerkbait.jpg\",\n  \"difficulty\": \"MEDIUM\",\n  \"effectiveness\": \"HIGH\",\n  \"description\": \"Amostra dura para provocar ataques de predadores suspensos.\",\n  \"usageNotes\": \"Usar com toques de ponta de cana e pausas entre recolhas.\",\n  \"actionType\": \"Jerk e twitch\",\n  \"idealConditions\": \"Agua clara, peixe suspenso, margens com estrutura e pouca atividade a superficie.\",\n  \"actionIconUrl\": \"https://example.com/images/lure-action-icons/jerk-twitch-icon.png\",\n  \"actionImageUrl\": \"https://example.com/images/lure-actions/jerk-twitch.png\"\n}"
             }
           }
         },
@@ -1792,7 +1796,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 34.5,\n  \"weightKg\": 0.8,\n  \"released\": true,\n  \"notes\": \"Captura junto a estrutura com jerkbait.\",\n  \"photoUrl\": \"/uploads/catches/demo-bass.jpg\",\n  \"photoThumbnailUrl\": \"/uploads/catches/thumbs/demo-bass.jpg\",\n  \"photoCaption\": \"Black Bass junto a estrutura.\"\n}"
+              "raw": "{\n  \"species\": \"Black Bass\",\n  \"lureLibraryItemId\": 1,\n  \"quantity\": 1,\n  \"sizeCm\": 34.5,\n  \"weightKg\": 0.8,\n  \"released\": true,\n  \"notes\": \"Captura junto a estrutura com jerkbait.\",\n  \"photoUrl\": \"/uploads/catches/demo-bass.jpg\",\n  \"photoThumbnailUrl\": \"/uploads/catches/thumbs/demo-bass.jpg\",\n  \"photoCaption\": \"Black Bass junto a estrutura.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/catches",
@@ -1806,7 +1810,7 @@
                 "catches"
               ]
             },
-            "description": "Creates a catch inside a fishing session. Photo fields are optional URL/path metadata for future app uploads."
+            "description": "Creates a catch inside a fishing session. species should be selected from the fish library and lureLibraryItemId can reference a lure library item. Photo fields are optional URL/path metadata for future app uploads."
           }
         },
         {
@@ -1853,9 +1857,9 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"species\": \"BASS\",\n  \"quantity\": 1,\n  \"sizeCm\": 36.0,\n  \"weightKg\": 0.9,\n  \"released\": true,\n  \"notes\": \"Captura atualizada junto a estrutura com vinil.\",\n  \"photoUrl\": \"/uploads/catches/demo-bass-updated.jpg\",\n  \"photoThumbnailUrl\": \"/uploads/catches/thumbs/demo-bass-updated.jpg\",\n  \"photoCaption\": \"Captura atualizada para a galeria.\"\n}"
+              "raw": "{\n  \"species\": \"Black Bass\",\n  \"lureLibraryItemId\": 2,\n  \"quantity\": 1,\n  \"sizeCm\": 36.0,\n  \"weightKg\": 0.9,\n  \"released\": true,\n  \"notes\": \"Captura atualizada junto a estrutura com vinil.\",\n  \"photoUrl\": \"/uploads/catches/demo-bass-updated.jpg\",\n  \"photoThumbnailUrl\": \"/uploads/catches/thumbs/demo-bass-updated.jpg\",\n  \"photoCaption\": \"Captura atualizada para a galeria.\"\n}"
             },
-            "description": "Updates a catch inside a fishing session, including optional photo URL/path metadata."
+            "description": "Updates a catch inside a fishing session, including its fish library name, optional lure library item and photo URL/path metadata."
           }
         },
         {

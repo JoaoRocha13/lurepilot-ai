@@ -14,6 +14,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "fish_species", indexes = {
         @Index(name = "idx_fish_species_name", columnList = "name"),
+        @Index(name = "idx_fish_species_water_environment", columnList = "water_environment"),
         @Index(name = "idx_fish_species_strike_zone", columnList = "strike_zone"),
         @Index(name = "idx_fish_species_created_at", columnList = "created_at")
 })
@@ -26,9 +27,13 @@ public class FishSpecies {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 20)
+    private String waterEnvironment;
+
     @Column(length = 1000)
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(length = 1000)
@@ -52,8 +57,9 @@ public class FishSpecies {
     public FishSpecies() {
     }
 
-    public FishSpecies(String name, String description, String imageUrl, String habitatNotes, String activeTimes, String strikeZone, String commonZones, String favoriteLures) {
+    public FishSpecies(String name, String waterEnvironment, String description, String imageUrl, String habitatNotes, String activeTimes, String strikeZone, String commonZones, String favoriteLures) {
         this.name = name;
+        this.waterEnvironment = waterEnvironment;
         this.description = description;
         this.imageUrl = imageUrl;
         this.habitatNotes = habitatNotes;
@@ -61,6 +67,10 @@ public class FishSpecies {
         this.strikeZone = strikeZone;
         this.commonZones = commonZones;
         this.favoriteLures = favoriteLures;
+    }
+
+    public FishSpecies(String name, String description, String imageUrl, String habitatNotes, String activeTimes, String strikeZone, String commonZones, String favoriteLures) {
+        this(name, "FRESHWATER", description, imageUrl, habitatNotes, activeTimes, strikeZone, commonZones, favoriteLures);
     }
 
     @PrePersist
@@ -80,6 +90,14 @@ public class FishSpecies {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getWaterEnvironment() {
+        return waterEnvironment;
+    }
+
+    public void setWaterEnvironment(String waterEnvironment) {
+        this.waterEnvironment = waterEnvironment;
     }
 
     public String getDescription() {

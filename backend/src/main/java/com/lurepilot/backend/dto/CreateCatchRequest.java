@@ -10,6 +10,8 @@ public record CreateCatchRequest(
         @Size(max = 100)
         String species,
 
+        Long lureLibraryItemId,
+
         @NotNull
         @Min(1)
         Integer quantity,

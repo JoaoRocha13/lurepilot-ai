@@ -31,7 +31,14 @@ public class LureLibraryItem {
     @Column(nullable = false)
     private String type;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String actionIconUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String actionImageUrl;
 
     private String difficulty;
 
@@ -67,6 +74,12 @@ public class LureLibraryItem {
         this.idealConditions = idealConditions;
     }
 
+    public LureLibraryItem(String name, String type, String imageUrl, String difficulty, String effectiveness, String description, String usageNotes, String actionType, String idealConditions, String actionIconUrl, String actionImageUrl) {
+        this(name, type, imageUrl, difficulty, effectiveness, description, usageNotes, actionType, idealConditions);
+        this.actionIconUrl = actionIconUrl;
+        this.actionImageUrl = actionImageUrl;
+    }
+
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
@@ -100,6 +113,22 @@ public class LureLibraryItem {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getActionIconUrl() {
+        return actionIconUrl;
+    }
+
+    public void setActionIconUrl(String actionIconUrl) {
+        this.actionIconUrl = actionIconUrl;
+    }
+
+    public String getActionImageUrl() {
+        return actionImageUrl;
+    }
+
+    public void setActionImageUrl(String actionImageUrl) {
+        this.actionImageUrl = actionImageUrl;
     }
 
     public String getDifficulty() {

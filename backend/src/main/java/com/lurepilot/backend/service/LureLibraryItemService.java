@@ -44,7 +44,9 @@ public class LureLibraryItemService {
                 request.description(),
                 request.usageNotes(),
                 request.actionType(),
-                request.idealConditions()
+                request.idealConditions(),
+                request.actionIconUrl(),
+                request.actionImageUrl()
         );
 
         return toResponse(lureLibraryItemRepository.save(item));
@@ -104,6 +106,8 @@ public class LureLibraryItemService {
         item.setUsageNotes(request.usageNotes());
         item.setActionType(request.actionType());
         item.setIdealConditions(request.idealConditions());
+        item.setActionIconUrl(request.actionIconUrl());
+        item.setActionImageUrl(request.actionImageUrl());
 
         return toResponse(lureLibraryItemRepository.save(item));
     }
@@ -128,6 +132,8 @@ public class LureLibraryItemService {
                 item.getUsageNotes(),
                 item.getActionType(),
                 item.getIdealConditions(),
+                item.getActionIconUrl(),
+                item.getActionImageUrl(),
                 item.getCreatedAt()
         );
     }

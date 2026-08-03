@@ -8,10 +8,14 @@ public record CreateFishSpeciesRequest(
         @Size(max = 255)
         String name,
 
+        @NotBlank
+        @jakarta.validation.constraints.Pattern(regexp = "(?i)FRESHWATER|SALTWATER")
+        String waterEnvironment,
+
         @Size(max = 1000)
         String description,
 
-        @Size(max = 500)
+        @Size(max = 5000000)
         String imageUrl,
 
         @Size(max = 1000)

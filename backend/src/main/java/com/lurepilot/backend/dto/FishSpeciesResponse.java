@@ -5,6 +5,7 @@ import java.time.Instant;
 public record FishSpeciesResponse(
         Long id,
         String name,
+        String waterEnvironment,
         String description,
         String imageUrl,
         String habitatNotes,
