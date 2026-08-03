@@ -46,7 +46,11 @@ Initial frontend area:
 - Menu uses static UI icons from `frontend/assets/images/ui`.
 - The first screen consumes `GET /api/health` and `GET /api/dashboard`, with a sample fallback when the backend is unavailable.
 - A working `PT / EN` language switch exists in the sidebar for the initial UI shell.
+- The library switches between fish and lure catalogues in a three-column visual grid, with image-based detail views and create, edit and delete flows.
+- Fish catalogue entries support freshwater/saltwater classification, an evident environment filter, image selection, strike-zone/common-zone choices and favorite lures from the catalogue.
+- Lure catalogue entries support image selection, difficulty/effectiveness comboboxes with visual score bars, and one-to-one action icon/large action image associations.
 - The gallery supports creating, editing and deleting captures from the React Native Web interface. Species are selected from the fish library, lures from the lure library, and each capture remains linked to its fishing session.
+- Gallery detail prioritizes the catch image and shows only size, optional weight, session, spot and the selected lure; there is no video section.
 
 ## Stack
 

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, AI recommendations, insights, frontend options and IPMA weather snapshots.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, catch gallery, AI recommendations, insights, frontend options and IPMA weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -116,7 +116,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "description": "Returns a paged gallery of catch photos. Each item includes catchId, sessionId and the optional lure library item with its name and image, so the frontend can open the related session and show the lure used.",
+            "description": "Returns a paged gallery of catch photos. Each item includes catchId, sessionId and the optional lure library item with its name and image, so the frontend can open the related session and show the lure used. The visual gallery prioritizes the image and keeps the normal detail focused on size, optional weight, session and spot.",
             "url": {
               "raw": "{{baseUrl}}/api/gallery/catches?withPhotoOnly=true&page=0&size=20&sortBy=id&sortDirection=desc",
               "host": [
@@ -684,6 +684,7 @@
         {
           "name": "Create Fish Species",
           "request": {
+            "description": "Creates a fish library entry used by the React Native Web catalogue. waterEnvironment is required and supports FRESHWATER or SALTWATER; imageUrl and the descriptive fields feed the visual fish cards and detail view.",
             "method": "POST",
             "header": [
               {
@@ -727,7 +728,7 @@
         {
           "name": "Search Fish Species",
           "request": {
-            "description": "Optional filters: q, strikeZone, waterEnvironment (FRESHWATER or SALTWATER). Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
+            "description": "Optional filters: q, strikeZone, waterEnvironment (FRESHWATER or SALTWATER). Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope. The frontend uses waterEnvironment for the evident freshwater/saltwater library filter.",
             "method": "GET",
             "header": [],
             "url": {
@@ -843,6 +844,7 @@
         {
           "name": "Create Lure Library Item",
           "request": {
+            "description": "Creates a lure catalogue entry used by the React Native Web library. difficulty and effectiveness are selected levels in the UI; imageUrl is the catalogue image and actionIconUrl/actionImageUrl store the manually associated action visuals.",
             "method": "POST",
             "header": [
               {
@@ -886,7 +888,7 @@
         {
           "name": "Search Lure Library Items",
           "request": {
-            "description": "Optional filters: q, type, difficulty, effectiveness. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
+            "description": "Optional filters: q, type, difficulty, effectiveness. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope. The frontend uses the detail endpoint to show the large action image when the action icon is selected.",
             "method": "GET",
             "header": [],
             "url": {
