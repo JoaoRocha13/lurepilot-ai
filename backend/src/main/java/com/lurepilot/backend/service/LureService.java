@@ -55,6 +55,7 @@ public class LureService {
                 request.targetSpecies(),
                 request.waterType()
         );
+        lure.setImageUrl(request.imageUrl());
         lure.setLibraryItem(findLibraryItemOrNull(request.libraryItemId()));
         applyInventoryFields(lure, request);
 
@@ -123,6 +124,7 @@ public class LureService {
 
         lure.setName(request.name());
         lure.setType(request.type());
+        lure.setImageUrl(request.imageUrl());
         lure.setColor(request.color());
         lure.setSize(request.size());
         lure.setWeight(request.weight());
@@ -160,6 +162,7 @@ public class LureService {
                 lure.getId(),
                 lure.getName(),
                 lure.getType(),
+                lure.getImageUrl(),
                 lure.getColor(),
                 lure.getSize(),
                 lure.getWeight(),

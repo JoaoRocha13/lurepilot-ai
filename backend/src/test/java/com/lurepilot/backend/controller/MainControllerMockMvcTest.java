@@ -57,7 +57,7 @@ class MainControllerMockMvcTest {
     void listSpotsAcceptsSearchFilters() throws Exception {
         FishingSpotService service = mock(FishingSpotService.class);
         when(service.searchSpots("tejo", "RIVER", "Barbo", 1, 10, "name", "desc")).thenReturn(new PagedResponse<>(
-                List.of(new FishingSpotSummaryResponse(1L, "Rio Tejo", 39.0, -8.0, "RIVER", "Barbo")),
+                List.of(new FishingSpotSummaryResponse(1L, "Rio Tejo", 39.0, -8.0, "RIVER", "RIVER", "Barbo")),
                 1,
                 1,
                 10,
@@ -136,7 +136,7 @@ class MainControllerMockMvcTest {
     void listLuresAcceptsSearchFilters() throws Exception {
         LureService service = mock(LureService.class);
         when(service.searchLures("rapala", "JERKBAIT", "DAM", "BASS", "Rapala", 3L, true, "GOOD", 1, 0, 20, "id", "asc")).thenReturn(new PagedResponse<>(
-                List.of(new LureBoxItemSummaryResponse(1L, "Rapala Shadow Rap", "JERKBAIT", "SILVER", "11cm", "Rapala", 3L, "Jerkbait", "BASS", "DAM", true, 1, "GOOD")),
+                List.of(new LureBoxItemSummaryResponse(1L, "Rapala Shadow Rap", "JERKBAIT", null, "SILVER", "11cm", 13.0, "Rapala", 3L, "Jerkbait", "BASS", "DAM", true, 1, "GOOD")),
                 1,
                 0,
                 20,

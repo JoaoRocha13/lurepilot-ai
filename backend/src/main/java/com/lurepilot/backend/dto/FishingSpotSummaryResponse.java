@@ -6,6 +6,7 @@ public record FishingSpotSummaryResponse(
         Double latitude,
         Double longitude,
         String waterType,
+        String spotType,
         String favoriteSpecies
 ) {
 }

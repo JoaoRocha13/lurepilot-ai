@@ -79,26 +79,14 @@ public class DemoDataSeeder implements CommandLineRunner {
         if (bass == null) {
             bass = fishSpeciesRepository.save(new FishSpecies(
                     "Black Bass",
+                    "FRESHWATER",
                     "Predador de agua doce que tende a procurar estruturas, sombras e zonas com cobertura.",
-                    "/demo/images/fish/black-bass.jpg",
+                    "/demo/images/fish/freshwater/black-bass.png",
                     "Gosta de margens com vegetacao, pedras, troncos e zonas onde possa emboscar presas.",
                     "Mais ativo ao nascer e por do sol; pode alimentar-se durante o dia com sombra ou vento leve.",
-                    "Meia agua, fundo junto a estruturas e superficie em periodos de pouca luz.",
-                    "Vegetacao, rocha, pontes, arvores submersas e entradas de pequenas linhas de agua.",
-                    "Soft bait natural, crankbait pequeno, spinnerbait e popper em baixa luz."
-            ));
-        }
-
-        if (findFishSpecies("Achiga") == null) {
-            fishSpeciesRepository.save(new FishSpecies(
-                    "Achiga",
-                    "Especie agressiva e oportunista, muito interessante para pesca com amostras artificiais.",
-                    "/demo/images/fish/achiga.jpg",
-                    "Procura cobertura e mudancas de profundidade para atacar peixe pequeno.",
-                    "Melhor em janelas de luz baixa, dias nublados ou momentos com alguma atividade a superficie.",
-                    "Fundo e meia agua; superficie quando ha peixe a cacar.",
-                    "Margens com vegetacao, zonas de pedra, sombras e agua ligeiramente mexida.",
-                    "Vinil, jig, jerkbait, crankbait e topwater."
+                    "surface, mid-water, bottom, vegetation, structure",
+                    "shallows, vegetation, structures, drop-offs, rocky-areas",
+                    "Senko, Crankbait, Spinnerbait, Frog, Jerkbait"
             ));
         }
 
@@ -106,48 +94,54 @@ public class DemoDataSeeder implements CommandLineRunner {
     }
 
     private DemoLibraryItems seedLureLibrary() {
-        LureLibraryItem softBait = findLureLibraryItem("Soft Bait Natural");
+        LureLibraryItem softBait = findLureLibraryItem("Senko");
         if (softBait == null) {
             softBait = lureLibraryItemRepository.save(new LureLibraryItem(
-                    "Soft Bait Natural",
+                    "Senko",
                     "Soft bait",
-                    "/demo/images/lures/soft-bait-natural.jpg",
+                    "/demo/images/lures/senko.png",
                     "Easy",
                     "High",
                     "Amostra versatil para apresentar de forma discreta quando o peixe esta desconfiado.",
                     "Trabalhar devagar, com pausas, junto ao fundo ou perto de estruturas.",
-                    "Slow drag, hops curtos e pausas controladas.",
-                    "Agua clara, pouca corrente, pressao de pesca alta ou peixe pouco ativo."
+                    "Queda controlada, arrasto lento e pausas",
+                    "Agua clara, pouca corrente, pressao de pesca alta ou peixe pouco ativo.",
+                    "/demo/images/lure-action-icons/bottom-fishing-icon.png",
+                    "/demo/images/lure-actions/bottom-fishing.png"
             ));
         }
 
-        LureLibraryItem crankbait = findLureLibraryItem("Small Crankbait");
+        LureLibraryItem crankbait = findLureLibraryItem("Crankbait");
         if (crankbait == null) {
             crankbait = lureLibraryItemRepository.save(new LureLibraryItem(
-                    "Small Crankbait",
                     "Crankbait",
-                    "/demo/images/lures/small-crankbait.jpg",
+                    "Crankbait",
+                    "/demo/images/lures/crankbait.png",
                     "Medium",
-                    "Medium",
+                    "High",
                     "Boa amostra para cobrir agua e encontrar peixe ativo.",
                     "Lancar em leque, variar velocidade e tocar ocasionalmente em pedra ou estrutura.",
-                    "Retrieve continuo com pequenas pausas.",
-                    "Agua ligeiramente turva, vento leve e peixe ativo em meia agua."
+                    "Retrieve continuo com pausas curtas",
+                    "Agua ligeiramente turva, vento leve e peixe ativo em meia agua.",
+                    "/demo/images/lure-action-icons/crank-retrieve-icon.png",
+                    "/demo/images/lure-actions/crank-retrieve.png"
             ));
         }
 
-        LureLibraryItem popper = findLureLibraryItem("Topwater Popper");
+        LureLibraryItem popper = findLureLibraryItem("Popper");
         if (popper == null) {
             popper = lureLibraryItemRepository.save(new LureLibraryItem(
-                    "Topwater Popper",
+                    "Popper",
                     "Topwater",
-                    "/demo/images/lures/topwater-popper.jpg",
-                    "Medium",
-                    "Medium",
+                    "/demo/images/lures/popper.png",
+                    "Easy",
+                    "High",
                     "Amostra de superficie para momentos visuais quando ha atividade no topo.",
                     "Usar com toques curtos e pausas, especialmente perto de margens e sombras.",
                     "Pops curtos, cadencia lenta e pausas.",
-                    "Nascer do sol, por do sol, agua calma e sinais de atividade a superficie."
+                    "Nascer do sol, por do sol, agua calma e sinais de atividade a superficie.",
+                    "/demo/images/lure-action-icons/top-water-icon.png",
+                    "/demo/images/lure-actions/top-water.png"
             ));
         }
 
@@ -169,8 +163,9 @@ public class DemoDataSeeder implements CommandLineRunner {
                     "Freshwater"
             );
             greenSoftBait.setLibraryItem(libraryItems.softBait());
-            greenSoftBait = lureRepository.save(greenSoftBait);
         }
+        greenSoftBait.setLibraryItem(libraryItems.softBait());
+        greenSoftBait = lureRepository.save(greenSoftBait);
 
         Lure smallCrankbait = findLure("Crankbait pequeno natural");
         if (smallCrankbait == null) {
@@ -186,8 +181,9 @@ public class DemoDataSeeder implements CommandLineRunner {
                     "Freshwater"
             );
             smallCrankbait.setLibraryItem(libraryItems.crankbait());
-            smallCrankbait = lureRepository.save(smallCrankbait);
         }
+        smallCrankbait.setLibraryItem(libraryItems.crankbait());
+        smallCrankbait = lureRepository.save(smallCrankbait);
 
         Lure surfacePopper = findLure("Popper branco");
         if (surfacePopper == null) {
@@ -203,8 +199,9 @@ public class DemoDataSeeder implements CommandLineRunner {
                     "Freshwater"
             );
             surfacePopper.setLibraryItem(libraryItems.popper());
-            surfacePopper = lureRepository.save(surfacePopper);
         }
+        surfacePopper.setLibraryItem(libraryItems.popper());
+        surfacePopper = lureRepository.save(surfacePopper);
 
         return new DemoLures(greenSoftBait, smallCrankbait, surfacePopper);
     }
@@ -215,10 +212,11 @@ public class DemoDataSeeder implements CommandLineRunner {
             reservoirSpot = fishingSpotRepository.save(new FishingSpot(
                     "Albufeira Demo - Margem Norte",
                     "Zona com pedra, vegetacao baixa e varias entradas de sombra ao fim do dia.",
-                    39.6321,
-                    -8.6713,
-                    "Freshwater",
-                    bass.getName()
+                      39.6321,
+                      -8.6713,
+                      "Freshwater",
+                      "RESERVOIR",
+                      bass.getName()
             ));
         }
 
@@ -227,10 +225,11 @@ public class DemoDataSeeder implements CommandLineRunner {
             riverSpot = fishingSpotRepository.save(new FishingSpot(
                     "Rio Demo - Curva com corrente lenta",
                     "Curva com agua mais parada, margem com canas e pequenas zonas de profundidade.",
-                    39.7442,
-                    -8.8078,
-                    "Freshwater",
-                    "Achiga"
+                      39.7442,
+                      -8.8078,
+                      "Freshwater",
+                      "RIVER",
+                      "Achiga"
             ));
         }
 

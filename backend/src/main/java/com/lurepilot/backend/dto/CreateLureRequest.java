@@ -13,6 +13,9 @@ public record CreateLureRequest(
         @Size(max = 100)
         String type,
 
+        @Size(max = 5000000)
+        String imageUrl,
+
         @Size(max = 100)
         String color,
 

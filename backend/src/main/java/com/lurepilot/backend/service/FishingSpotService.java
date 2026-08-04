@@ -40,6 +40,7 @@ public class FishingSpotService {
                 request.latitude(),
                 request.longitude(),
                 request.waterType(),
+                request.spotType(),
                 request.favoriteSpecies()
         );
 
@@ -84,6 +85,7 @@ public class FishingSpotService {
         fishingSpot.setLatitude(request.latitude());
         fishingSpot.setLongitude(request.longitude());
         fishingSpot.setWaterType(request.waterType());
+        fishingSpot.setSpotType(request.spotType());
         fishingSpot.setFavoriteSpecies(request.favoriteSpecies());
 
         return toResponse(fishingSpotRepository.save(fishingSpot));
@@ -105,6 +107,7 @@ public class FishingSpotService {
                 fishingSpot.getLatitude(),
                 fishingSpot.getLongitude(),
                 fishingSpot.getWaterType(),
+                fishingSpot.getSpotType(),
                 fishingSpot.getFavoriteSpecies(),
                 fishingSpot.getCreatedAt()
         );

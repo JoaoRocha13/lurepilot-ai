@@ -9,6 +9,7 @@ public record FishingSpotResponse(
         Double latitude,
         Double longitude,
         String waterType,
+        String spotType,
         String favoriteSpecies,
         Instant createdAt
 ) {

@@ -38,6 +38,9 @@ public class Lure {
     @Column(nullable = false)
     private String type;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl;
+
     private String color;
 
     private String size;
@@ -121,6 +124,14 @@ public class Lure {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getColor() {

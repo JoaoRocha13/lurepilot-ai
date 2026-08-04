@@ -534,7 +534,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Barragem do Alqueva\",\n  \"description\": \"Zona com boas margens para achiga.\",\n  \"latitude\": 38.197,\n  \"longitude\": -7.497,\n  \"waterType\": \"DAM\",\n  \"favoriteSpecies\": \"BASS\"\n}"
+              "raw": "{\n  \"name\": \"Barragem do Alqueva\",\n  \"description\": \"Zona com boas margens para achiga.\",\n  \"latitude\": 38.197,\n  \"longitude\": -7.497,\n  \"waterType\": \"FRESHWATER\",\n  \"spotType\": \"RESERVOIR\",\n  \"favoriteSpecies\": \"Black Bass, Barbel\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/spots",
@@ -568,7 +568,7 @@
         {
           "name": "Search Fishing Spots",
           "request": {
-            "description": "Optional filters: q, waterType, favoriteSpecies. Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
+            "description": "Optional filters: q, waterType, favoriteSpecies. favoriteSpecies may contain comma-separated species names. Spot responses also include spotType (RESERVOIR, RIVER, LAKE, ESTUARY, COAST or HARBOR). Supports pagination with page, size, sortBy and sortDirection. List responses return compact items inside a PagedResponse envelope.",
             "method": "GET",
             "header": [],
             "url": {
@@ -643,7 +643,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Barragem do Alqueva\",\n  \"description\": \"Zona atualizada para testar PUT.\",\n  \"latitude\": 38.197,\n  \"longitude\": -7.497,\n  \"waterType\": \"DAM\",\n  \"favoriteSpecies\": \"BASS\"\n}"
+              "raw": "{\n  \"name\": \"Barragem do Alqueva\",\n  \"description\": \"Zona atualizada para testar PUT.\",\n  \"latitude\": 38.197,\n  \"longitude\": -7.497,\n  \"waterType\": \"FRESHWATER\",\n  \"spotType\": \"RESERVOIR\",\n  \"favoriteSpecies\": \"Black Bass, Barbel\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/spots/{{spotId}}",
@@ -1017,7 +1017,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Boa para agua clara e peixe suspenso.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
+              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/my-shadow-rap.jpg\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Boa para agua clara e peixe suspenso.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/lure-box",
@@ -1150,7 +1150,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Atualizado via PUT.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
+              "raw": "{\n  \"name\": \"Rapala Shadow Rap\",\n  \"type\": \"JERKBAIT\",\n  \"imageUrl\": \"https://example.com/images/my-shadow-rap.jpg\",\n  \"color\": \"SILVER\",\n  \"size\": \"11cm\",\n  \"weight\": 13.0,\n  \"brand\": \"Rapala\",\n  \"notes\": \"Atualizado via PUT.\",\n  \"targetSpecies\": \"BASS\",\n  \"waterType\": \"DAM\",\n  \"libraryItemId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/lure-box/{{lureId}}",

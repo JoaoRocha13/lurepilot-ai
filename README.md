@@ -51,6 +51,10 @@ Initial frontend area:
 - Lure catalogue entries support image selection, difficulty/effectiveness comboboxes with visual score bars, and one-to-one action icon/large action image associations.
 - The gallery supports creating, editing and deleting captures from the React Native Web interface. Species are selected from the fish library, lures from the lure library, and each capture remains linked to its fishing session.
 - Gallery detail prioritizes the catch image and shows only size, optional weight, session, spot and the selected lure; there is no video section.
+- Spots use a zoomable and draggable OpenStreetMap picker, Freshwater/Saltwater and fish-library multi-select comboboxes, and image-based location-type selection (reservoir, river, lake, coast or other).
+- Spot cards present favorite species as individual image chips, and the create/detail views keep the focus on the location, water type, spot type, coordinates and species instead of showing description or created-at metadata.
+- The Spots header follows the visual language of Gallery and Lure Box, with clearer spacing, counters and a primary create action; the Spots screen no longer uses a search bar.
+- The Spots tab refreshes the latest IPMA weather snapshot for the selected spot and allows a manual refresh; the weather context shows the nearest supported IPMA forecast location selected from the coordinates.
 
 ## Stack
 
@@ -150,11 +154,16 @@ Core:
 
 Planning and fishing data:
 
-- `/api/spots`
+- `/api/spots` (including `spotType`: `RESERVOIR`, `RIVER`, `LAKE`, `ESTUARY`, `COAST` or `HARBOR`)
+- `favoriteSpecies` remains a comma-separated backend field for compatibility; the frontend exposes it as a fish-library multi-select and renders each species as an individual chip with its image.
+- The Spots screen uses a draggable OpenStreetMap picker with zoom from `Z4` to `Z18`.
+- The current weather card shows daily minimum/maximum temperature, rain probability, wind direction/class, forecast date, update time, capture time and forecast coordinates. Its visual icon uses the rain asset when precipitation is above 20% and the clear-sky asset otherwise.
+- The Dashboard weather panel can switch between every location returned by `GET /api/weather-locations/ipma` and loads a fresh snapshot with `POST /api/weather-snapshots/ipma/location`.
+- IPMA coordinates are resolved to the nearest supported forecast location; this is a forecast locality, not an exact administrative-district reverse geocoding result.
 - `/api/fish`
 - `/api/lure-library`
 - `/api/lures`
-- `/api/lure-box`
+- `/api/lure-box` (personal inventory with library-linked type, optional color/size and item photo)
 - `/api/plans`
 - `/api/plans/{planId}/lures`
 - `/api/plans/{id}/context`

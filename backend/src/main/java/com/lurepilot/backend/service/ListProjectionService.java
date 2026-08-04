@@ -51,10 +51,11 @@ public class ListProjectionService {
                         FishingSpotSummaryResponse.class,
                         root.get("id"),
                         root.get("name"),
-                        root.get("latitude"),
-                        root.get("longitude"),
-                        root.get("waterType"),
-                        root.get("favoriteSpecies")
+                          root.get("latitude"),
+                          root.get("longitude"),
+                          root.get("waterType"),
+                          root.get("spotType"),
+                          root.get("favoriteSpecies")
                 )
         );
     }
@@ -110,8 +111,10 @@ public class ListProjectionService {
                             root.get("id"),
                             root.get("name"),
                             root.get("type"),
+                            root.get("imageUrl"),
                             root.get("color"),
                             root.get("size"),
+                            root.get("weight"),
                             root.get("brand"),
                             libraryItem.get("id"),
                             libraryItem.get("name"),

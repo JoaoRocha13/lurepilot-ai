@@ -6,6 +6,7 @@ public record LureResponse(
         Long id,
         String name,
         String type,
+        String imageUrl,
         String color,
         String size,
         Double weight,

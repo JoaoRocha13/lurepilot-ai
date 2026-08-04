@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -16,7 +16,17 @@ import {
 import appIcon from '../assets/images/brand/app-icon.png'
 import barbel from '../assets/images/fish/freshwater/barbel.png'
 import blackBass from '../assets/images/fish/freshwater/black-bass.png'
+import brownTrout from '../assets/images/fish/freshwater/brown-trout.png'
+import europeanCatfish from '../assets/images/fish/freshwater/european-catfish.png'
+import europeanPerch from '../assets/images/fish/freshwater/european-perch.png'
 import pike from '../assets/images/fish/freshwater/pike.png'
+import pikePerch from '../assets/images/fish/freshwater/pike-perch.png'
+import rainbowTrout from '../assets/images/fish/freshwater/rainbow-trout.png'
+import anchovy from '../assets/images/fish/saltwater/anchovy.png'
+import atlanticMackerel from '../assets/images/fish/saltwater/atlantic-mackerel.png'
+import chubMackerel from '../assets/images/fish/saltwater/chub-mackerel.png'
+import croaker from '../assets/images/fish/saltwater/croaker.png'
+import seaBass from '../assets/images/fish/saltwater/sea-bass.png'
 import dashboardIcon from '../assets/images/ui/dashboard-icon.png'
 import fishingPlanIcon from '../assets/images/ui/fishingplan-icon.png'
 import galleryIcon from '../assets/images/ui/gallery-icon.png'
@@ -27,15 +37,26 @@ import sessionIcon from '../assets/images/ui/session-icon.png'
 import damSpot from '../assets/images/spots/dam.png'
 import harborSpot from '../assets/images/spots/harbor-platform.png'
 import lakeSpot from '../assets/images/spots/lake.png'
+import riverMouthSpot from '../assets/images/spots/river-mouth.png'
 import riverSpot from '../assets/images/spots/river.png'
+import seaSideSpot from '../assets/images/spots/sea-side.png'
 import spotsIcon from '../assets/images/ui/spots-icon.png'
 import clearSky from '../assets/images/weather/clear-sky.png'
 import cloudySky from '../assets/images/weather/cloudy.png'
+import rainWeather from '../assets/images/weather/rain.png'
 import crankbait from '../assets/images/lures/crankbait.png'
+import frog from '../assets/images/lures/frog.png'
+import grub from '../assets/images/lures/grub.png'
 import jerkbait from '../assets/images/lures/jerkbait.png'
+import jig from '../assets/images/lures/jig.png'
 import popper from '../assets/images/lures/popper.png'
 import senko from '../assets/images/lures/senko.png'
+import shad from '../assets/images/lures/shad.png'
+import spinner from '../assets/images/lures/spinner.png'
 import spinnerbait from '../assets/images/lures/spinnerbait.png'
+import spoon from '../assets/images/lures/spoon.png'
+import swimbait from '../assets/images/lures/swimbait.png'
+import whopperPlooper from '../assets/images/lures/whopper-plooper.png'
 import bottomFishingAction from '../assets/images/lure-actions/bottom-fishing.png'
 import bottomFishingIcon from '../assets/images/lure-action-icons/bottom-fishing-icon.png'
 import crankRetrieveAction from '../assets/images/lure-actions/crank-retrieve.png'
@@ -82,7 +103,7 @@ const sectionThemes = {
   spots: { accent: '#1687a7', surface: '#eef9fb', visual: '#d9eef1', border: '#c2e1e7' },
   plans: { accent: '#c58a2b', surface: '#fff9ea', visual: '#f4e5bd', border: '#ecd59d' },
   session: { accent: '#8862bd', surface: '#f7f2fd', visual: '#e7dcf5', border: '#d9c8eb' },
-  lureBox: { accent: '#dc5f8a', surface: '#fff2f6', visual: '#f5d8e4', border: '#ebc6d5' },
+  lureBox: { accent: '#1f8a82', surface: '#eef7f4', visual: '#d9eee8', border: '#b8d9d0' },
   library: { accent: '#2b8c68', surface: '#effaf4', visual: '#d9eee1', border: '#c2e2cf' },
   profile: { accent: '#2c76c7', surface: '#f0f6ff', visual: '#d9e9fb', border: '#c5dcef' },
 }
@@ -92,7 +113,7 @@ const groupTones = {
   spots: { backgroundColor: '#f4fbfc', borderColor: '#c8e5ea', accent: '#1687a7', imageBackground: '#dceff2' },
   plans: { backgroundColor: '#fffdf4', borderColor: '#eddda9', accent: '#c58a2b', imageBackground: '#f5e9c7' },
   sessions: { backgroundColor: '#faf7ff', borderColor: '#ded1ef', accent: '#8862bd', imageBackground: '#e9def5' },
-  lureBox: { backgroundColor: '#fff7fa', borderColor: '#efd0dc', accent: '#dc5f8a', imageBackground: '#f6dce7' },
+  lureBox: { backgroundColor: '#eef7f4', borderColor: '#bfded4', accent: '#1f8a82', imageBackground: '#dcefe9' },
   fish: { backgroundColor: '#f3fbf6', borderColor: '#c9e5d2', accent: '#2b8c68', imageBackground: '#dcefe3' },
   lureLibrary: { backgroundColor: '#f4f8ff', borderColor: '#cdddf1', accent: '#2c76c7', imageBackground: '#dfeafa' },
 }
@@ -178,7 +199,16 @@ const translations = {
       weather: 'Weather relevante',
       noSnapshot: 'Sem snapshot',
       wind: 'vento',
+      weatherDistrictsLoading: 'A carregar distritos...',
+      weatherSelectionError: 'Nao foi possivel atualizar este distrito.',
       weatherFallback: 'Liga um snapshot IPMA a um plano.',
+      weatherMin: 'Minima',
+      weatherMax: 'Maxima',
+      weatherRain: 'Chuva',
+      weatherWindDirection: 'Direcao',
+      weatherWindClass: 'Classe do vento',
+      weatherForecast: 'Previsao',
+      weatherChecked: 'Atualizado',
       latestResult: 'Último resultado',
       noResults: 'Sem resultados ainda',
       resultFallback: 'Quando terminares uma sessão, aparece aqui.',
@@ -209,7 +239,32 @@ const translations = {
       cancel: 'Cancelar',
       createSpotSuccess: 'Spot criado com sucesso.',
       createSpotError: 'Nao foi possivel criar o spot.',
-      requiredFields: 'Preenche nome, latitude, longitude e tipo de agua.',
+      requiredFields: 'Preenche nome, local no mapa, tipo de agua e tipo de spot.',
+      chooseWaterType: 'Escolher tipo de agua',
+      chooseSpotType: 'Escolher tipo de local',
+      chooseSpeciesFromLibrary: 'Escolher especie da biblioteca',
+      weatherTitle: 'Meteorologia atual',
+      weatherLoading: 'A atualizar meteorologia...',
+      weatherUnavailable: 'Nao foi possivel obter a meteorologia deste spot.',
+      weatherNoCoordinates: 'Seleciona um spot com coordenadas para ver a meteorologia.',
+      weatherDistrict: 'Distrito',
+      refreshWeather: 'Atualizar meteorologia',
+      temperature: 'Temperatura',
+      precipitation: 'Probabilidade de chuva',
+      wind: 'Vento',
+      temperatureMin: 'Temperatura minima',
+      temperatureMax: 'Temperatura maxima',
+      windDirection: 'Direcao do vento',
+      windSpeedClass: 'Classe do vento',
+      weatherForecastDate: 'Previsao para',
+      weatherDataUpdate: 'Atualizacao IPMA',
+      weatherCapturedAt: 'Consultado em',
+      weatherSourceCoordinates: 'Coordenadas da previsao',
+      weatherUpdated: 'Atualizado',
+      waterEnvironmentOptions: {
+        freshwater: 'Freshwater',
+        saltwater: 'Saltwater',
+      },
       createPlan: 'Novo plano',
       savePlan: 'Guardar plano',
       createPlanSuccess: 'Plano criado com sucesso.',
@@ -242,6 +297,58 @@ const translations = {
         planned: 'planeados',
         stored: 'guardadas',
         ready: 'pronto',
+      },
+      spotAtlas: {
+        overline: 'ATLAS DOS SPOTS',
+        subtitle: 'Organiza os teus locais por ambiente e encontra rapidamente a agua certa para cada saida.',
+        visualTitle: 'Mapas de campo',
+        zones: 'zonas',
+        tabsLabel: 'Escolher tipo de spot',
+        tabsHint: 'Seleciona uma zona para veres apenas os locais desse ambiente.',
+        sectionLabel: 'tipo de agua',
+        spotsLabel: 'spots',
+      },
+      spotMap: {
+        mapLabel: 'Mapa do spot',
+        chooseLocation: 'Escolher local no mapa',
+        chooseLocationHint: 'Clica no mapa para colocar o marcador e preencher as coordenadas.',
+        coordinatesReady: 'Coordenadas selecionadas',
+        clickMap: 'Clica para escolher',
+        attribution: 'Mapa: OpenStreetMap contributors',
+        zoomIn: 'Aumentar zoom',
+        zoomOut: 'Diminuir zoom',
+      },
+      spotTypes: {
+        reservoirs: {
+          label: 'Albufeiras e barragens',
+          description: 'Agua parada, estruturas e mudancas de profundidade para explorar.',
+          empty: 'Ainda nao tens spots deste tipo.',
+        },
+        rivers: {
+          label: 'Rios e ribeiras',
+          description: 'Corrente, margens e entradas de agua onde a leitura muda a cada curva.',
+          empty: 'Adiciona um rio para o veres nesta secao.',
+        },
+        lakes: {
+          label: 'Lagos e lagoas',
+          description: 'Agua mais calma, zonas rasas e margens para trabalhar com tempo.',
+          empty: 'Adiciona um lago para o veres nesta secao.',
+        },
+        estuaries: {
+          label: 'Fozes e estuarios',
+          description: 'Mistura de agua doce e salgada, correntes de mare e margens de transicao.',
+          empty: 'Ainda nao tens spots deste tipo.',
+        },
+        coast: {
+          label: 'Costa e mar aberto',
+          description: 'Arribas, praias e zonas de rebentacao para explorar com a mare e o vento.',
+          empty: 'Adiciona um spot costeiro para o veres nesta secao.',
+        },
+        harbors: {
+          label: 'Portos e marinas',
+          description: 'Cais, docas e estruturas de abrigo onde a agua muda junto a barcos e paredoes.',
+          empty: 'Ainda nao tens spots deste tipo.',
+        },
       },
       galleryImages: 'Imagens',
       galleryCountLabel: 'capturas guardadas',
@@ -277,6 +384,22 @@ const translations = {
       actionOptions: 'acoes',
       newFish: 'Nova especie',
       newLure: 'Nova lure',
+      newBoxLure: 'Adicionar lure',
+      editBoxLure: 'Editar lure',
+      lureBoxInventoryTitle: 'Inventario de lures',
+      lureBoxInventorySubtitle: 'Escolhe uma lure da biblioteca, guarda a tua foto e prepara o teu loadout.',
+      lureBoxFilter: 'Filtrar por tipo',
+      allLureTypes: 'Todos os tipos',
+      chooseLibraryLure: 'Escolher lure da biblioteca',
+      lureBoxImageLabel: 'Foto da tua lure',
+      lureBoxImageHint: 'Tira uma foto ou importa uma imagem para este item.',
+      takePhoto: 'Tirar foto',
+      importImage: 'Importar imagem',
+      lureBoxSaved: 'Lure adicionada ao inventario.',
+      lureBoxSaveError: 'Nao foi possivel guardar a lure no inventario.',
+      lureBoxDeleted: 'Lure removida do inventario.',
+      lureBoxDeleteError: 'Nao foi possivel remover a lure do inventario.',
+      noLibraryLureSelected: 'Escolhe uma lure existente na biblioteca.',
       editEntry: 'Editar',
       deleteEntry: 'Apagar',
       saveEntry: 'Guardar ficha',
@@ -363,6 +486,7 @@ const translations = {
         spot: 'Spot',
         species: 'Especie',
         waterType: 'Tipo de agua',
+        spotType: 'Tipo de local',
         favoriteSpecies: 'Especies favoritas',
         coordinates: 'Coordenadas',
         latitude: 'Latitude',
@@ -483,7 +607,16 @@ const translations = {
       weather: 'Relevant weather',
       noSnapshot: 'No snapshot',
       wind: 'wind',
+      weatherDistrictsLoading: 'Loading districts...',
+      weatherSelectionError: 'Could not update this district.',
       weatherFallback: 'Attach an IPMA snapshot to a plan.',
+      weatherMin: 'Minimum',
+      weatherMax: 'Maximum',
+      weatherRain: 'Rain',
+      weatherWindDirection: 'Direction',
+      weatherWindClass: 'Wind class',
+      weatherForecast: 'Forecast',
+      weatherChecked: 'Updated',
       latestResult: 'Latest result',
       noResults: 'No results yet',
       resultFallback: 'When you finish a session, it appears here.',
@@ -514,7 +647,32 @@ const translations = {
       cancel: 'Cancel',
       createSpotSuccess: 'Spot created successfully.',
       createSpotError: 'Could not create the spot.',
-      requiredFields: 'Fill name, latitude, longitude and water type.',
+      requiredFields: 'Fill name, map location, water type and spot type.',
+      chooseWaterType: 'Choose water type',
+      chooseSpotType: 'Choose location type',
+      chooseSpeciesFromLibrary: 'Choose species from library',
+      weatherTitle: 'Current weather',
+      weatherLoading: 'Updating weather...',
+      weatherUnavailable: 'Could not get weather for this spot.',
+      weatherNoCoordinates: 'Select a spot with coordinates to see weather.',
+      weatherDistrict: 'District',
+      refreshWeather: 'Refresh weather',
+      temperature: 'Temperature',
+      precipitation: 'Rain probability',
+      wind: 'Wind',
+      temperatureMin: 'Minimum temperature',
+      temperatureMax: 'Maximum temperature',
+      windDirection: 'Wind direction',
+      windSpeedClass: 'Wind class',
+      weatherForecastDate: 'Forecast for',
+      weatherDataUpdate: 'IPMA update',
+      weatherCapturedAt: 'Checked at',
+      weatherSourceCoordinates: 'Forecast coordinates',
+      weatherUpdated: 'Updated',
+      waterEnvironmentOptions: {
+        freshwater: 'Freshwater',
+        saltwater: 'Saltwater',
+      },
       createPlan: 'New plan',
       savePlan: 'Save plan',
       createPlanSuccess: 'Plan created successfully.',
@@ -547,6 +705,58 @@ const translations = {
         planned: 'planned',
         stored: 'stored',
         ready: 'ready',
+      },
+      spotAtlas: {
+        overline: 'SPOT ATLAS',
+        subtitle: 'Organize your locations by environment and quickly find the right water for each outing.',
+        visualTitle: 'Field maps',
+        zones: 'zones',
+        tabsLabel: 'Choose spot type',
+        tabsHint: 'Select a zone to see only the locations in that environment.',
+        sectionLabel: 'water type',
+        spotsLabel: 'spots',
+      },
+      spotMap: {
+        mapLabel: 'Spot map',
+        chooseLocation: 'Choose location on map',
+        chooseLocationHint: 'Click the map to place the marker and fill the coordinates.',
+        coordinatesReady: 'Coordinates selected',
+        clickMap: 'Click to choose',
+        attribution: 'Map: OpenStreetMap contributors',
+        zoomIn: 'Zoom in',
+        zoomOut: 'Zoom out',
+      },
+      spotTypes: {
+        reservoirs: {
+          label: 'Reservoirs and dams',
+          description: 'Still water, structure and depth changes to explore.',
+          empty: 'You do not have spots of this type yet.',
+        },
+        rivers: {
+          label: 'Rivers and streams',
+          description: 'Current, banks and inlets where every bend changes the read.',
+          empty: 'Add a river to see it in this section.',
+        },
+        lakes: {
+          label: 'Lakes and lagoons',
+          description: 'Calmer water, shallows and banks to work with time.',
+          empty: 'Add a lake to see it in this section.',
+        },
+        estuaries: {
+          label: 'River mouths and estuaries',
+          description: 'Fresh and salt water mixing, tidal currents and transition banks.',
+          empty: 'You do not have spots of this type yet.',
+        },
+        coast: {
+          label: 'Coast and open sea',
+          description: 'Cliffs, beaches and surf zones to read with the tide and wind.',
+          empty: 'Add a coastal spot to see it in this section.',
+        },
+        harbors: {
+          label: 'Harbours and marinas',
+          description: 'Piers, docks and sheltered structures where water changes around boats and walls.',
+          empty: 'You do not have spots of this type yet.',
+        },
       },
       galleryImages: 'Images',
       galleryCountLabel: 'saved catches',
@@ -582,6 +792,22 @@ const translations = {
       actionOptions: 'actions',
       newFish: 'New species',
       newLure: 'New lure',
+      newBoxLure: 'Add lure',
+      editBoxLure: 'Edit lure',
+      lureBoxInventoryTitle: 'Lure inventory',
+      lureBoxInventorySubtitle: 'Choose a lure from the library, save your photo and build your loadout.',
+      lureBoxFilter: 'Filter by type',
+      allLureTypes: 'All lure types',
+      chooseLibraryLure: 'Choose lure from library',
+      lureBoxImageLabel: 'Photo of your lure',
+      lureBoxImageHint: 'Take a photo or import an image for this item.',
+      takePhoto: 'Take photo',
+      importImage: 'Import image',
+      lureBoxSaved: 'Lure added to the inventory.',
+      lureBoxSaveError: 'The lure could not be saved to the inventory.',
+      lureBoxDeleted: 'Lure removed from the inventory.',
+      lureBoxDeleteError: 'The lure could not be removed from the inventory.',
+      noLibraryLureSelected: 'Choose an existing lure from the library.',
       editEntry: 'Edit',
       deleteEntry: 'Delete',
       saveEntry: 'Save entry',
@@ -668,6 +894,7 @@ const translations = {
         spot: 'Spot',
         species: 'Species',
         waterType: 'Water type',
+        spotType: 'Location type',
         favoriteSpecies: 'Favorite species',
         coordinates: 'Coordinates',
         latitude: 'Latitude',
@@ -820,6 +1047,7 @@ function App() {
   })
   const [sectionControls, setSectionControls] = useState({})
   const [detailState, setDetailState] = useState(emptyDetailState)
+  const [libraryLureTarget, setLibraryLureTarget] = useState(null)
   const [sectionRefreshKey, setSectionRefreshKey] = useState(0)
   const copy = translations[language]
   const sectionSearch = sectionControls[activeSection]?.search ?? ''
@@ -828,6 +1056,7 @@ function App() {
 
   function navigateToSection(sectionId) {
     setDetailState(emptyDetailState)
+    setLibraryLureTarget(null)
     setActiveSection(sectionId)
   }
 
@@ -846,6 +1075,16 @@ function App() {
   function refreshActiveSection() {
     setDetailState(emptyDetailState)
     setSectionRefreshKey((current) => current + 1)
+  }
+
+  function openLureLibraryFromFish(lureName) {
+    if (!lureName) {
+      return
+    }
+
+    setDetailState(emptyDetailState)
+    setLibraryLureTarget(lureName)
+    setActiveSection('library')
   }
 
   async function openResourceDetail(item, group) {
@@ -1150,6 +1389,9 @@ function App() {
               onOpenDetail={openResourceDetail}
               onCloseDetail={() => setDetailState(emptyDetailState)}
               onCreated={refreshActiveSection}
+              onOpenLure={openLureLibraryFromFish}
+              libraryLureTarget={libraryLureTarget}
+              onLibraryLureTargetHandled={() => setLibraryLureTarget(null)}
               search={sectionSearch}
               onSearchChange={(value) => updateSectionControls({ search: value, page: 0 })}
               onPageChange={(page) => updateSectionControls({ page })}
@@ -1169,9 +1411,104 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   const dashboardCopy = copy.dashboard
   const nextSession = dashboard.nextPlannedSession
   const bestLure = dashboard.bestRecentLure
-  const weather = dashboard.relevantWeatherSnapshot
   const recentResult = dashboard.recentResults?.[0]
   const recentCatch = dashboard.recentCatches?.[0]
+  const [weatherLocations, setWeatherLocations] = useState([])
+  const [selectedWeatherLocationId, setSelectedWeatherLocationId] = useState('')
+  const [weather, setWeather] = useState(dashboard.relevantWeatherSnapshot)
+  const [weatherLoading, setWeatherLoading] = useState(false)
+  const [weatherError, setWeatherError] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    fetch('/api/weather-locations/ipma')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Weather locations request failed')
+        }
+
+        return response.json()
+      })
+      .then((locations) => {
+        if (cancelled) {
+          return
+        }
+
+        const nextLocations = Array.isArray(locations) ? locations : []
+        setWeatherLocations(nextLocations)
+        setSelectedWeatherLocationId((current) => {
+          if (current || !nextLocations.length) {
+            return current
+          }
+
+          const currentWeatherName = dashboard.relevantWeatherSnapshot?.sourceLocationName
+          const matchingLocation = nextLocations.find((location) => location.name === currentWeatherName)
+          return String(matchingLocation?.globalIdLocal || nextLocations[0].globalIdLocal)
+        })
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWeatherLocations([])
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [dashboard.relevantWeatherSnapshot?.sourceLocationName])
+
+  useEffect(() => {
+    if (!selectedWeatherLocationId) {
+      return undefined
+    }
+
+    let cancelled = false
+    setWeatherLoading(true)
+    setWeatherError(false)
+
+    fetch('/api/weather-snapshots/ipma/location', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ globalIdLocal: Number(selectedWeatherLocationId) }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Weather request failed')
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        if (!cancelled) {
+          setWeather(data)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWeatherError(true)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setWeatherLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedWeatherLocationId])
+
+  const weatherLocationOptions = weatherLocations.map((location) => ({
+    value: String(location.globalIdLocal),
+    label: location.name,
+  }))
+
+  function handleWeatherLocationChange(locationId) {
+    setWeather(null)
+    setSelectedWeatherLocationId(locationId)
+  }
 
   return (
     <View style={styles.commandDashboard}>
@@ -1237,29 +1574,19 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
       </View>
 
       <View style={styles.panelGrid}>
-        <MetricPanel
-          label={dashboardCopy.bestLure}
-          title={bestLure?.lureName || dashboardCopy.noPattern}
-          value={
-            bestLure
-              ? `${bestLure.uses} ${dashboardCopy.uses}, ${bestLure.successRate}% ${dashboardCopy.successChip}`
-              : dashboardCopy.bestLureFallback
-          }
-          image={bestLure ? spinnerbait : popper}
+        <DashboardLurePanel bestLure={bestLure} dashboardCopy={dashboardCopy} compact={compact} />
+        <DashboardWeatherShowcase
+          dashboardCopy={dashboardCopy}
+          copy={copy}
           compact={compact}
-        />
-        <MetricPanel
-          label={dashboardCopy.weather}
-          title={weather?.sourceLocationName || dashboardCopy.noSnapshot}
-          value={
-            weather
-              ? `${weather.temperatureMin ?? '-'}°C / ${weather.temperatureMax ?? '-'}°C, ${dashboardCopy.wind} ${
-                  weather.windDirection || '-'
-                }`
-              : dashboardCopy.weatherFallback
-          }
-          image={weather ? clearSky : cloudySky}
-          compact={compact}
+          weather={weather}
+          weatherLoading={weatherLoading}
+          weatherError={weatherError}
+          weatherLocationOptions={weatherLocationOptions}
+          selectedWeatherLocationId={selectedWeatherLocationId}
+          onWeatherLocationChange={handleWeatherLocationChange}
+          loading={loading}
+          weatherIcon={getWeatherIcon(weather)}
         />
       </View>
 
@@ -1300,6 +1627,153 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
       )}
     </View>
   )
+}
+
+function DashboardLurePanel({ bestLure, dashboardCopy, compact }) {
+  return (
+    <View style={[styles.dashboardLurePanel, compact && styles.panelFull]}>
+      <View style={styles.dashboardLureImageFrame}>
+        <Image source={{ uri: bestLure ? spinnerbait : popper }} style={styles.dashboardLureImage} resizeMode="contain" />
+        <View style={styles.dashboardLureRank}>
+          <Text style={styles.dashboardLureRankText}>{bestLure ? '#1' : '--'}</Text>
+        </View>
+      </View>
+      <View style={styles.dashboardLureBody}>
+        <View style={styles.dashboardLureHeader}>
+          <Text style={styles.dashboardLureLabel}>{dashboardCopy.bestLure}</Text>
+          <View style={styles.dashboardLureMarker} />
+        </View>
+        <Text style={styles.dashboardLureTitle}>{bestLure?.lureName || dashboardCopy.noPattern}</Text>
+        {bestLure ? (
+          <View style={styles.dashboardLureStats}>
+            <View style={styles.dashboardLureStat}>
+              <Text style={styles.dashboardLureStatValue}>{bestLure.uses}</Text>
+              <Text style={styles.dashboardLureStatLabel}>{dashboardCopy.uses}</Text>
+            </View>
+            <View style={styles.dashboardLureStatSuccess}>
+              <Text style={styles.dashboardLureStatValue}>{bestLure.successRate}%</Text>
+              <Text style={styles.dashboardLureStatLabel}>{dashboardCopy.successChip}</Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.dashboardLureFallback}>{dashboardCopy.bestLureFallback}</Text>
+        )}
+      </View>
+    </View>
+  )
+}
+
+function DashboardWeatherShowcase({
+  dashboardCopy,
+  copy,
+  compact,
+  weather,
+  weatherLoading,
+  weatherError,
+  weatherLocationOptions,
+  selectedWeatherLocationId,
+  onWeatherLocationChange,
+  loading,
+  weatherIcon,
+}) {
+  return (
+    <View style={[styles.dashboardWeatherPanel, compact && styles.panelFull]}>
+      <View style={styles.dashboardWeatherHeader}>
+        <View style={styles.dashboardWeatherHeading}>
+          <Text style={styles.dashboardWeatherLabel}>{dashboardCopy.weather}</Text>
+          <Text style={styles.dashboardWeatherTitle}>{weather?.sourceLocationName || dashboardCopy.noSnapshot}</Text>
+        </View>
+        <Image source={{ uri: weatherIcon }} style={styles.dashboardWeatherImage} resizeMode="cover" />
+      </View>
+      <GallerySelect
+        label={copy.resources.weatherDistrict}
+        value={selectedWeatherLocationId}
+        options={weatherLocationOptions}
+        onChange={onWeatherLocationChange}
+        placeholder={loading ? dashboardCopy.weatherDistrictsLoading : copy.resources.weatherDistrict}
+        fitContent
+      />
+      {weatherLoading ? (
+        <Text style={styles.dashboardWeatherMessage}>{copy.resources.weatherLoading}</Text>
+      ) : weatherError ? (
+        <Text style={styles.dashboardWeatherMessage}>{dashboardCopy.weatherSelectionError}</Text>
+      ) : weather ? (
+        <View style={styles.dashboardWeatherContent}>
+          <View style={styles.dashboardWeatherStats}>
+            <DashboardWeatherStat label={dashboardCopy.weatherMin} value={`${weather.temperatureMin ?? '-'} °C`} tone="teal" />
+            <DashboardWeatherStat label={dashboardCopy.weatherMax} value={`${weather.temperatureMax ?? '-'} °C`} tone="blue" />
+            <DashboardWeatherStat label={dashboardCopy.weatherRain} value={`${weather.precipitationProbability ?? '-'}%`} tone="rain" />
+            <DashboardWeatherStat label={dashboardCopy.weatherWindDirection} value={weather.windDirection || '-'} tone="wind" />
+            <DashboardWeatherStat label={dashboardCopy.weatherWindClass} value={weather.windSpeedClass ?? '-'} tone="gold" />
+          </View>
+          <View style={styles.dashboardWeatherFooter}>
+            <Text style={styles.dashboardWeatherFooterText}>{dashboardCopy.weatherForecast}: {weather.forecastDate || '-'}</Text>
+            <Text style={styles.dashboardWeatherFooterText}>{dashboardCopy.weatherChecked}: {formatDateTime(weather.dataUpdate || weather.capturedAt) || '-'}</Text>
+          </View>
+        </View>
+      ) : (
+        <Text style={styles.dashboardWeatherMessage}>{dashboardCopy.weatherFallback}</Text>
+      )}
+    </View>
+  )
+}
+
+function DashboardWeatherStat({ label, value, tone }) {
+  return (
+    <View style={[styles.dashboardWeatherStat, tone === 'blue' && styles.dashboardWeatherStatBlue, tone === 'rain' && styles.dashboardWeatherStatRain, tone === 'wind' && styles.dashboardWeatherStatWind, tone === 'gold' && styles.dashboardWeatherStatGold]}>
+      <View style={styles.dashboardWeatherStatDot} />
+      <Text style={styles.dashboardWeatherStatLabel}>{label}</Text>
+      <Text style={styles.dashboardWeatherStatValue}>{value}</Text>
+    </View>
+  )
+}
+
+function DashboardWeatherPanel({
+  dashboardCopy,
+  copy,
+  compact,
+  weather,
+  weatherLoading,
+  weatherError,
+  weatherLocationOptions,
+  selectedWeatherLocationId,
+  onWeatherLocationChange,
+  loading,
+  weatherIcon,
+}) {
+  const fields = copy.resources
+  const summary = weather
+    ? `${weather.temperatureMin ?? '-'} °C / ${weather.temperatureMax ?? '-'} °C, ${fields.precipitation.toLowerCase()} ${weather.precipitationProbability ?? '-'}%, ${fields.wind.toLowerCase()} ${weather.windDirection || '-'}`
+    : dashboardCopy.weatherFallback
+
+  return (
+    <View style={[styles.commandMetricPanel, compact && styles.panelFull]}>
+      <View style={styles.commandMetricCopy}>
+        <Text style={styles.commandPanelLabel}>{dashboardCopy.weather}</Text>
+        <Text style={styles.commandPanelTitle}>{weather?.sourceLocationName || dashboardCopy.noSnapshot}</Text>
+        <GallerySelect
+          label={fields.weatherDistrict}
+          value={selectedWeatherLocationId}
+          options={weatherLocationOptions}
+          onChange={onWeatherLocationChange}
+          placeholder={loading ? dashboardCopy.weatherDistrictsLoading : fields.weatherDistrict}
+        />
+        <Text style={styles.commandPanelText}>
+          {weatherLoading ? fields.weatherLoading : weatherError ? dashboardCopy.weatherSelectionError : summary}
+        </Text>
+      </View>
+      <Image source={{ uri: weatherIcon }} style={styles.commandMetricImage} resizeMode="cover" />
+    </View>
+  )
+}
+
+function getWeatherIcon(weather) {
+  if (!weather) {
+    return cloudySky
+  }
+
+  const precipitation = Number(weather.precipitationProbability)
+  return Number.isFinite(precipitation) && precipitation > 20 ? rainWeather : clearSky
 }
 
 function MissionAction({ label, detail, image, onPress }) {
@@ -1400,6 +1874,385 @@ function WorkspaceHeader({ section, groups, compact, copy }) {
   }
 
   return <GearWorkspaceHeader section={section} groups={groups} compact={compact} copy={copy} />
+}
+
+const spotTypeCatalog = [
+  { key: 'reservoirs', value: 'RESERVOIR', code: '01', image: damSpot, accent: '#0f7775', soft: '#e1f3ee' },
+  { key: 'rivers', value: 'RIVER', code: '02', image: riverSpot, accent: '#147ea1', soft: '#e0f1f5' },
+  { key: 'lakes', value: 'LAKE', code: '03', image: lakeSpot, accent: '#4c8b65', soft: '#e7f2e7' },
+  { key: 'estuaries', value: 'ESTUARY', code: '04', image: riverMouthSpot, accent: '#1d8f8a', soft: '#e2f3f0' },
+  { key: 'coast', value: 'COAST', code: '05', image: seaSideSpot, accent: '#c37a36', soft: '#fff0d9' },
+  { key: 'harbors', value: 'HARBOR', code: '06', image: harborSpot, accent: '#536a92', soft: '#e8edf7' },
+]
+
+function SpotAtlasShowcase({
+  groups,
+  loading,
+  error,
+  detail,
+  onOpenDetail,
+  onCloseDetail,
+  onCreated,
+  onPageChange,
+  compact,
+  onOpenLure,
+  copy,
+}) {
+  const group = groups.find((candidate) => candidate.key === 'spots') || groups[0]
+  const items = group?.items || []
+  const [showCreateSpot, setShowCreateSpot] = useState(false)
+  const [activeType, setActiveType] = useState('reservoirs')
+  const [weatherSpotId, setWeatherSpotId] = useState(null)
+  const [weather, setWeather] = useState(null)
+  const [weatherLoading, setWeatherLoading] = useState(false)
+  const [weatherError, setWeatherError] = useState(false)
+  const [weatherRefreshKey, setWeatherRefreshKey] = useState(0)
+  const total = group?.totalItems ?? items.length
+  const lureLibraryItems = groups.find((candidate) => candidate.key === 'lureLibrary')?.items || []
+  const selectedType = spotTypeCatalog.find((type) => type.key === activeType) || spotTypeCatalog[0]
+  const selectedTypeCopy = copy.resources.spotTypes[selectedType.key]
+  const selectedTypeItems = items.filter((item) => getSpotCategory(item) === selectedType.key)
+  const weatherSpot = items.find((item) => String(item.id) === String(weatherSpotId)) || items[0]
+
+  useEffect(() => {
+    if (!weatherSpot?.latitude || !weatherSpot?.longitude) {
+      setWeather(null)
+      setWeatherLoading(false)
+      return undefined
+    }
+
+    let cancelled = false
+    setWeatherLoading(true)
+    setWeatherError(false)
+
+    fetch('/api/weather-snapshots/ipma/coordinates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        latitude: Number(weatherSpot.latitude),
+        longitude: Number(weatherSpot.longitude),
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Weather request failed')
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        if (!cancelled) {
+          setWeather(data)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWeather(null)
+          setWeatherError(true)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setWeatherLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [weatherRefreshKey, weatherSpot?.id, weatherSpot?.latitude, weatherSpot?.longitude])
+
+  function handleTypeSelect(typeKey) {
+    setActiveType(typeKey)
+    const firstSpot = items.find((item) => getSpotCategory(item) === typeKey)
+    setWeatherSpotId(firstSpot?.id || null)
+  }
+
+  function handleSpotCreated(createdSpot) {
+    setWeatherSpotId(createdSpot?.id || null)
+    setWeatherRefreshKey((current) => current + 1)
+    onCreated()
+  }
+
+  return (
+    <View style={[styles.spotAtlasScreen, compact && styles.spotAtlasScreenCompact]}>
+      <View style={[styles.spotAtlasHeader, compact && styles.spotAtlasHeaderCompact]}>
+        <View style={styles.spotAtlasHeaderCopy}>
+          <Text style={styles.spotAtlasHeaderKicker}>{copy.resources.spotAtlas.overline}</Text>
+          <Text style={styles.spotAtlasHeaderTitle}>{copy.sections.spots.title}</Text>
+          <Text style={styles.spotAtlasHeaderSubtitle}>{copy.resources.spotAtlas.subtitle}</Text>
+          <View style={styles.spotAtlasHeaderMetaRow}>
+            <View style={styles.spotAtlasHeaderMetaItem}>
+              <Text style={styles.spotAtlasHeaderMetaValue}>{total}</Text>
+              <Text style={styles.spotAtlasHeaderMetaLabel}>{copy.resources.total}</Text>
+            </View>
+            <View style={styles.spotAtlasHeaderMetaDivider} />
+            <View style={styles.spotAtlasHeaderMetaItem}>
+              <Text style={styles.spotAtlasHeaderMetaValue}>{spotTypeCatalog.length}</Text>
+              <Text style={styles.spotAtlasHeaderMetaLabel}>{copy.resources.spotAtlas.zones}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={[styles.spotAtlasHeaderVisual, compact && styles.spotAtlasHeaderVisualCompact]}>
+          <ImageBackground source={{ uri: lakeSpot }} style={styles.spotAtlasHeaderVisualImage} imageStyle={styles.spotAtlasHeaderVisualImageStyle}>
+            <View style={styles.spotAtlasHeaderVisualOverlay} />
+            <View style={styles.spotAtlasHeaderVisualBadge}>
+              <Text style={styles.spotAtlasHeaderVisualCode}>FIELD ATLAS / 01</Text>
+              <Text style={styles.spotAtlasHeaderVisualTitle}>{copy.resources.spotAtlas.visualTitle}</Text>
+            </View>
+          </ImageBackground>
+        </View>
+      </View>
+
+      <SpotWeatherCard
+        weather={weather}
+        spot={weatherSpot}
+        loading={weatherLoading}
+        error={weatherError}
+        onRefresh={() => setWeatherRefreshKey((current) => current + 1)}
+        copy={copy}
+      />
+
+      <View style={styles.spotAtlasActionRow}>
+        <View style={styles.spotAtlasActionCopy}>
+          <Text style={styles.spotAtlasActionLabel}>{copy.resources.spotAtlas.tabsLabel}</Text>
+          <Text style={styles.spotAtlasActionHint}>{copy.resources.spotAtlas.tabsHint}</Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.resources.createSpot}
+          onPress={() => setShowCreateSpot((current) => !current)}
+          style={[styles.primaryButton, styles.spotAtlasCreateButton]}
+        >
+          <Text style={styles.primaryButtonText}>{showCreateSpot ? copy.resources.cancel : copy.resources.createSpot}</Text>
+        </Pressable>
+      </View>
+
+      {showCreateSpot && <CreateSpotForm copy={copy} onCreated={handleSpotCreated} />}
+
+      {loading && (
+        <View style={styles.loadingLine}>
+          <ActivityIndicator color="#0f7775" />
+          <Text style={styles.loadingText}>{copy.loading}</Text>
+        </View>
+      )}
+
+      {error && (
+        <View style={styles.notice}>
+          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
+        </View>
+      )}
+
+      {detail?.item && (
+        <DetailPanel
+          detail={detail}
+          onClose={onCloseDetail}
+          copy={copy}
+          compact={compact}
+          onOpenLure={onOpenLure}
+          lureLibraryItems={lureLibraryItems}
+        />
+      )}
+
+      <View style={styles.spotAtlasIndex}>
+        {spotTypeCatalog.map((type) => {
+          const typeCopy = copy.resources.spotTypes[type.key]
+          const count = items.filter((item) => getSpotCategory(item) === type.key).length
+          const selected = activeType === type.key
+
+          return (
+            <Pressable
+              key={type.key}
+              accessibilityRole="button"
+              accessibilityLabel={typeCopy.label}
+              onPress={() => handleTypeSelect(type.key)}
+              style={[styles.spotAtlasIndexItem, selected && styles.spotAtlasIndexItemSelected, { backgroundColor: selected ? type.accent : type.soft, borderColor: `${type.accent}55` }]}
+            >
+              <View style={[styles.spotAtlasIndexDot, { backgroundColor: type.accent }]} />
+              <Text style={[styles.spotAtlasIndexText, { color: selected ? '#ffffff' : type.accent }]}>{typeCopy.label}</Text>
+              <Text style={[styles.spotAtlasIndexCount, selected && styles.spotAtlasIndexCountSelected]}>{count}</Text>
+            </Pressable>
+          )
+        })}
+      </View>
+
+      <View style={styles.spotAtlasPagination}>
+        <PaginationControls group={group || {}} onPageChange={onPageChange} copy={copy} />
+      </View>
+
+      <View style={[styles.spotTypeSection, { backgroundColor: selectedType.soft, borderColor: `${selectedType.accent}3d` }]}>
+        <View style={styles.spotTypeHeader}>
+          <View style={[styles.spotTypeImageFrame, { backgroundColor: '#ffffff', borderColor: `${selectedType.accent}55` }]}>
+            <Image source={{ uri: selectedType.image }} style={styles.spotTypeImage} resizeMode="cover" />
+          </View>
+          <View style={styles.spotTypeHeaderCopy}>
+            <Text style={[styles.spotTypeKicker, { color: selectedType.accent }]}>{selectedType.code} / {copy.resources.spotAtlas.sectionLabel}</Text>
+            <Text style={styles.spotTypeTitle}>{selectedTypeCopy.label}</Text>
+            <Text style={styles.spotTypeDescription}>{selectedTypeCopy.description}</Text>
+          </View>
+          <View style={[styles.spotTypeCount, { backgroundColor: selectedType.accent }]}>
+            <Text style={styles.spotTypeCountValue}>{selectedTypeItems.length}</Text>
+            <Text style={styles.spotTypeCountLabel}>{copy.resources.spotAtlas.spotsLabel}</Text>
+          </View>
+        </View>
+
+        {selectedTypeItems.length > 0 ? (
+          <View style={styles.spotTypeCards}>
+            {selectedTypeItems.map((item) => (
+              <SpotAtlasCard
+                key={`spot-atlas-${item.id}`}
+                item={item}
+                type={selectedType}
+                typeCopy={selectedTypeCopy}
+                copy={copy}
+                onPress={onOpenDetail}
+                onSelect={(item) => setWeatherSpotId(item.id)}
+              />
+            ))}
+          </View>
+        ) : (
+          <View style={styles.spotTypeEmpty}>
+            <Text style={[styles.spotTypeEmptyCode, { color: selectedType.accent }]}>{selectedType.code}</Text>
+            <Text style={styles.spotTypeEmptyText}>{selectedTypeCopy.empty}</Text>
+          </View>
+        )}
+      </View>
+    </View>
+  )
+}
+
+function SpotWeatherCard({ weather, spot, loading, error, onRefresh, copy }) {
+  const fields = copy.resources
+  const temperatureMin = weather?.temperatureMin != null ? `${weather.temperatureMin} °C` : '--'
+  const temperatureMax = weather?.temperatureMax != null ? `${weather.temperatureMax} °C` : '--'
+  const precipitation = weather?.precipitationProbability != null ? `${weather.precipitationProbability}%` : '--'
+  const windDirection = weather?.windDirection || '--'
+  const windSpeedClass = weather?.windSpeedClass != null ? `${weather.windSpeedClass}` : '--'
+  const forecastDate = weather?.forecastDate || '--'
+  const dataUpdate = weather?.dataUpdate ? formatDateTime(weather.dataUpdate) : '--'
+  const capturedAt = weather?.capturedAt ? formatDateTime(weather.capturedAt) : '--'
+  const sourceCoordinates = formatCoordinates(weather?.sourceLatitude, weather?.sourceLongitude) || '--'
+
+  return (
+    <View style={styles.spotWeatherCard}>
+      <View style={styles.spotWeatherHeader}>
+        <View style={styles.spotWeatherHeading}>
+          <Text style={styles.spotWeatherKicker}>IPMA / {fields.weatherTitle}</Text>
+          <Text style={styles.spotWeatherTitle}>{spot?.name || fields.spotAtlas.overline}</Text>
+          <Text style={styles.spotWeatherLocation}>{weather?.sourceLocationName ? `${fields.weatherDistrict}: ${weather.sourceLocationName}` : (formatCoordinates(spot?.latitude, spot?.longitude) || fields.weatherNoCoordinates)}</Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={fields.refreshWeather}
+          onPress={onRefresh}
+          disabled={loading || !spot}
+          style={[styles.spotWeatherRefresh, (loading || !spot) && styles.spotWeatherRefreshDisabled]}
+        >
+          <Text style={styles.spotWeatherRefreshText}>{loading ? fields.weatherLoading : fields.refreshWeather}</Text>
+        </Pressable>
+      </View>
+
+      {error ? (
+        <Text style={styles.spotWeatherMessage}>{fields.weatherUnavailable}</Text>
+      ) : !spot ? (
+        <Text style={styles.spotWeatherMessage}>{fields.weatherNoCoordinates}</Text>
+      ) : (
+        <View style={styles.spotWeatherDetails}>
+          <View style={styles.spotWeatherMetrics}>
+          <View style={[styles.spotWeatherMetric, styles.spotWeatherMetricMain]}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.temperatureMin}</Text>
+            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : temperatureMin}</Text>
+          </View>
+          <View style={[styles.spotWeatherMetric, styles.spotWeatherMetricMain]}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.temperatureMax}</Text>
+            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : temperatureMax}</Text>
+          </View>
+          <View style={styles.spotWeatherMetric}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.precipitation}</Text>
+            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : precipitation}</Text>
+          </View>
+          <View style={styles.spotWeatherMetric}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.windDirection}</Text>
+            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : windDirection}</Text>
+          </View>
+          <View style={styles.spotWeatherMetric}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.windSpeedClass}</Text>
+            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : windSpeedClass}</Text>
+          </View>
+          </View>
+          <View style={styles.spotWeatherMeta}>
+          <View style={styles.spotWeatherMetaItem}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherForecastDate}</Text>
+            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : forecastDate}</Text>
+          </View>
+          <View style={styles.spotWeatherMetaItem}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherDataUpdate}</Text>
+            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : dataUpdate}</Text>
+          </View>
+          <View style={styles.spotWeatherMetaItem}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherCapturedAt}</Text>
+            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : capturedAt}</Text>
+          </View>
+          <View style={styles.spotWeatherMetaItem}>
+            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherSourceCoordinates}</Text>
+            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : sourceCoordinates}</Text>
+          </View>
+          </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function SpotAtlasCard({ item, type, typeCopy, copy, onPress, onSelect }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${copy.resources.viewDetails}: ${item.name || copy.menu.spots}`}
+      onPress={() => {
+        onSelect?.(item)
+        onPress(item, { key: 'spots' })
+      }}
+      style={[styles.spotAtlasCard, { backgroundColor: '#ffffff', borderColor: `${type.accent}45` }]}
+    >
+      <View style={[styles.spotAtlasCardImageFrame, { backgroundColor: type.soft }]}>
+        <Image source={{ uri: getSpotImage(item) }} style={styles.spotAtlasCardImage} resizeMode="cover" />
+        <View style={[styles.spotAtlasCardCode, { backgroundColor: type.accent }]}>
+          <Text style={styles.spotAtlasCardCodeText}>{type.code}</Text>
+        </View>
+      </View>
+      <View style={styles.spotAtlasCardBody}>
+        <Text style={styles.spotAtlasCardTitle}>{item.name || copy.menu.spots}</Text>
+        <Text style={[styles.spotAtlasCardType, { color: type.accent }]}>{typeCopy.label}</Text>
+        <View style={styles.spotAtlasCardRule} />
+        <Text style={styles.spotAtlasCardMeta}>{formatCoordinates(item.latitude, item.longitude) || '-'}</Text>
+        <SpotSpeciesChips value={item.favoriteSpecies} copy={copy} />
+        <View style={styles.spotAtlasCardFooter}>
+          <Text style={[styles.spotAtlasCardAction, { color: type.accent }]}>{copy.resources.viewDetails}</Text>
+          <Text style={styles.spotAtlasCardArrow}>-&gt;</Text>
+        </View>
+      </View>
+    </Pressable>
+  )
+}
+
+function SpotSpeciesChips({ value, copy, large = false }) {
+  const species = parseListValue(value)
+
+  if (species.length === 0) {
+    return <Text style={styles.spotSpeciesEmpty}>{copy.dashboard.speciesFallback}</Text>
+  }
+
+  return (
+    <View style={[styles.spotSpeciesChips, large && styles.spotSpeciesChipsLarge]}>
+      {species.map((speciesName) => (
+        <View key={speciesName} style={[styles.spotSpeciesChip, large && styles.spotSpeciesChipLarge]}>
+          <Image source={{ uri: getFishImage(speciesName) }} style={[styles.spotSpeciesChipImage, large && styles.spotSpeciesChipImageLarge]} resizeMode="contain" />
+          <Text style={[styles.spotSpeciesChipText, large && styles.spotSpeciesChipTextLarge]}>{speciesName}</Text>
+        </View>
+      ))}
+    </View>
+  )
 }
 
 function AtlasWorkspaceHeader({ section, groups, compact, copy }) {
@@ -1898,8 +2751,8 @@ function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
           placeholder={loadingOptions ? copy.loading : copy.resources.noLureSelected}
           allowEmpty
         />
-        <FormField label={fields.size} value={String(form.sizeCm)} onChangeText={(value) => updateField('sizeCm', value)} keyboardType="numeric" />
-        <FormField label={fields.weight} value={String(form.weightKg)} onChangeText={(value) => updateField('weightKg', value)} keyboardType="numeric" />
+        <FormField label={`${fields.size} (cm)`} value={String(form.sizeCm)} onChangeText={(value) => updateField('sizeCm', value)} placeholder="0" keyboardType="decimal-pad" />
+        <FormField label={`${fields.weight} (kg)`} value={String(form.weightKg)} onChangeText={(value) => updateField('weightKg', value)} placeholder="0" keyboardType="decimal-pad" />
         <FormField label={fields.notes} value={form.photoCaption} onChangeText={(value) => updateField('photoCaption', value)} multiline />
       </View>
 
@@ -1926,12 +2779,12 @@ function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
   )
 }
 
-function GallerySelect({ label, value, options, onChange, placeholder, allowEmpty = false }) {
+function GallerySelect({ label, value, options, onChange, placeholder, allowEmpty = false, fitContent = false }) {
   const [open, setOpen] = useState(false)
   const selected = options.find((option) => String(option.value) === String(value))
 
   return (
-    <View style={styles.gallerySelect}>
+    <View style={[styles.gallerySelect, fitContent && styles.gallerySelectFit]}>
       <Text style={styles.formLabel}>{label}</Text>
       <Pressable
         accessibilityRole="combobox"
@@ -2043,6 +2896,9 @@ function LibraryShowcase({
   onCloseDetail,
   onPageChange,
   compact,
+  onOpenLure,
+  libraryLureTarget,
+  onLibraryLureTargetHandled,
   waterEnvironment,
   onWaterEnvironmentChange,
   onCreated,
@@ -2076,6 +2932,26 @@ function LibraryShowcase({
     setLibraryFeedback(null)
     onCloseDetail()
   }
+
+  useEffect(() => {
+    if (!libraryLureTarget || !groups.length) {
+      return
+    }
+
+    const lureGroup = groups.find((group) => group.key === 'lureLibrary')
+
+    if (!lureGroup?.items?.length) {
+      return
+    }
+
+    const lureItem = findMatchingLureItem(lureGroup.items, libraryLureTarget)
+    setLibraryType('lures')
+    onLibraryLureTargetHandled()
+
+    if (lureItem) {
+      onOpenDetail(lureItem, lureGroup)
+    }
+  }, [groups, libraryLureTarget, onLibraryLureTargetHandled, onOpenDetail])
 
   async function deleteItem(item, group) {
     if (typeof window !== 'undefined' && !window.confirm(copy.resources.deleteConfirm)) {
@@ -2223,6 +3099,8 @@ function LibraryShowcase({
           onDeleteItem={() => deleteItem(detail.data || detail.item, detail.group)}
           copy={copy}
           compact={compact}
+          onOpenLure={onOpenLure}
+          lureLibraryItems={groups.find((group) => group.key === 'lureLibrary')?.items || []}
         />
       )}
 
@@ -2792,7 +3670,7 @@ function MultiSelectCombo({ label, values, options, onChange, hint, emptyText, c
   )
 }
 
-function readImageFromDevice() {
+function readImageFromDevice(capture = false) {
   if (typeof document === 'undefined') {
     return Promise.resolve(null)
   }
@@ -2801,6 +3679,9 @@ function readImageFromDevice() {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
+    if (capture) {
+      input.capture = 'environment'
+    }
     input.onchange = () => {
       const file = input.files?.[0]
 
@@ -2833,6 +3714,9 @@ function ResourceScreen({
   compact,
   waterEnvironment,
   onWaterEnvironmentChange,
+  onOpenLure,
+  libraryLureTarget,
+  onLibraryLureTargetHandled,
   copy,
 }) {
   const [showCreateSpot, setShowCreateSpot] = useState(false)
@@ -2870,9 +3754,48 @@ function ResourceScreen({
         onCloseDetail={onCloseDetail}
         onPageChange={onPageChange}
         compact={compact}
+        onOpenLure={onOpenLure}
+        libraryLureTarget={libraryLureTarget}
+        onLibraryLureTargetHandled={onLibraryLureTargetHandled}
         waterEnvironment={waterEnvironment}
         onWaterEnvironmentChange={onWaterEnvironmentChange}
         onCreated={onCreated}
+        copy={copy}
+      />
+    )
+  }
+
+  if (section.id === 'spots') {
+    return (
+      <SpotAtlasShowcase
+        groups={groups}
+        loading={loading}
+        error={error}
+        detail={detail}
+        onOpenDetail={onOpenDetail}
+        onCloseDetail={onCloseDetail}
+        onCreated={onCreated}
+        onPageChange={onPageChange}
+        compact={compact}
+        onOpenLure={onOpenLure}
+        copy={copy}
+      />
+    )
+  }
+
+  if (section.id === 'lureBox') {
+    return (
+      <LureBoxShowcase
+        groups={groups}
+        loading={loading}
+        error={error}
+        detail={detail}
+        onOpenDetail={onOpenDetail}
+        onCloseDetail={onCloseDetail}
+        onPageChange={onPageChange}
+        compact={compact}
+        onCreated={onCreated}
+        onOpenLure={onOpenLure}
         copy={copy}
       />
     )
@@ -2979,7 +3902,16 @@ function ResourceScreen({
         </View>
       )}
 
-      {detail?.item && <DetailPanel detail={detail} onClose={onCloseDetail} copy={copy} compact={compact} />}
+      {detail?.item && (
+        <DetailPanel
+          detail={detail}
+          onClose={onCloseDetail}
+          copy={copy}
+          compact={compact}
+          onOpenLure={onOpenLure}
+          lureLibraryItems={groups.find((group) => group.key === 'lureLibrary')?.items || []}
+        />
+      )}
 
       {groups.map((group) => (
         <View
@@ -3037,18 +3969,785 @@ function ResourceScreen({
   )
 }
 
+function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onCloseDetail, onPageChange, compact, onCreated, onOpenLure, copy }) {
+  const group = groups.find((candidate) => candidate.key === 'lureBox') || groups[0]
+  const [inventoryItems, setInventoryItems] = useState(group?.items || [])
+  const [libraryItems, setLibraryItems] = useState([])
+  const [libraryLoading, setLibraryLoading] = useState(true)
+  const [typeFilter, setTypeFilter] = useState('ALL')
+  const [editorState, setEditorState] = useState(null)
+  const [feedback, setFeedback] = useState(null)
+
+  useEffect(() => {
+    setInventoryItems(group?.items || [])
+  }, [group?.items])
+
+  useEffect(() => {
+    let ignore = false
+
+    fetch('/api/lure-library?page=0&size=100&sortBy=name&sortDirection=asc')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Lure library unavailable')
+        }
+
+        return response.json()
+      })
+      .then((payload) => {
+        if (!ignore) {
+          setLibraryItems(Array.isArray(payload) ? payload : payload.items || [])
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setLibraryItems([])
+        }
+      })
+      .finally(() => {
+        if (!ignore) {
+          setLibraryLoading(false)
+        }
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  const typeOptions = Array.from(
+    new Set(
+      [...libraryItems.map((item) => item.type), ...inventoryItems.map((item) => item.type)]
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+    ),
+  ).sort((left, right) => left.localeCompare(right))
+  const filteredItems = typeFilter === 'ALL' ? inventoryItems : inventoryItems.filter((item) => item.type === typeFilter)
+
+  function openCreateForm() {
+    setFeedback(null)
+    setEditorState({ item: null })
+    onCloseDetail()
+  }
+
+  function openEditForm(item) {
+    setFeedback(null)
+    setEditorState({ item })
+    onCloseDetail()
+  }
+
+  async function deleteItem(item) {
+    if (!item?.id) {
+      return
+    }
+
+    if (typeof window !== 'undefined' && !window.confirm(copy.resources.deleteConfirm)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/lure-box/${item.id}`, { method: 'DELETE' })
+
+      if (!response.ok) {
+        throw new Error('Delete lure box item failed')
+      }
+
+      setFeedback({ type: 'success', text: copy.resources.lureBoxDeleted })
+      onCloseDetail()
+      onCreated()
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.lureBoxDeleteError })
+    }
+  }
+
+  return (
+    <View style={[styles.lureBoxScreen, compact && styles.lureBoxScreenCompact]}>
+      <View style={styles.lureBoxInventoryHeader}>
+        <View style={styles.lureBoxInventoryHeaderCopy}>
+          <Text style={styles.lureBoxInventoryOverline}>LOADOUT / 01</Text>
+          <Text style={styles.lureBoxInventoryTitle}>{copy.resources.lureBoxInventoryTitle}</Text>
+          <Text style={styles.lureBoxInventorySubtitle}>{copy.resources.lureBoxInventorySubtitle}</Text>
+        </View>
+        <View style={styles.lureBoxInventoryCounter}>
+          <Text style={styles.lureBoxInventoryCounterValue}>{inventoryItems.length}</Text>
+          <Text style={styles.lureBoxInventoryCounterLabel}>{copy.resources.groups.lureBox}</Text>
+        </View>
+      </View>
+
+      <View style={styles.lureBoxFilterBar}>
+        <View style={styles.lureBoxFilterCopy}>
+          <Text style={styles.lureBoxFilterLabel}>{copy.resources.lureBoxFilter}</Text>
+          <Text style={styles.lureBoxFilterHint}>{copy.resources.groups.lureLibrary}</Text>
+        </View>
+        <View style={styles.lureBoxFilterOptions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={copy.resources.allLureTypes}
+            accessibilityState={{ selected: typeFilter === 'ALL' }}
+            onPress={() => setTypeFilter('ALL')}
+            style={[styles.lureBoxFilterChip, typeFilter === 'ALL' && styles.lureBoxFilterChipSelected]}
+          >
+            <Text style={[styles.lureBoxFilterChipText, typeFilter === 'ALL' && styles.lureBoxFilterChipTextSelected]}>
+              {copy.resources.allLureTypes}
+            </Text>
+          </Pressable>
+          {typeOptions.map((type) => (
+            <Pressable
+              key={type}
+              accessibilityRole="button"
+              accessibilityLabel={type}
+              accessibilityState={{ selected: typeFilter === type }}
+              onPress={() => setTypeFilter(type)}
+              style={[styles.lureBoxFilterChip, typeFilter === type && styles.lureBoxFilterChipSelected]}
+            >
+              <View style={[styles.lureBoxFilterDot, { backgroundColor: getInventoryTypeColor(type) }]} />
+              <Text style={[styles.lureBoxFilterChipText, typeFilter === type && styles.lureBoxFilterChipTextSelected]}>{type}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newBoxLure} onPress={openCreateForm} style={styles.lureBoxAddButton}>
+          <Text style={styles.lureBoxAddButtonMark}>+</Text>
+          <Text style={styles.lureBoxAddButtonText}>{copy.resources.newBoxLure}</Text>
+        </Pressable>
+      </View>
+
+      {group && <PaginationControls group={group} onPageChange={onPageChange} copy={copy} />}
+
+      {(loading || libraryLoading) && (
+        <View style={styles.loadingLine}>
+          <ActivityIndicator color="#e06a9e" />
+          <Text style={styles.loadingText}>{copy.loading}</Text>
+        </View>
+      )}
+
+      {error && (
+        <View style={styles.notice}>
+          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
+        </View>
+      )}
+
+      {feedback && (
+        <View style={[styles.formFeedback, feedback.type === 'success' && styles.formFeedbackSuccess]}>
+          <Text style={[styles.formFeedbackText, feedback.type === 'success' && styles.formFeedbackTextSuccess]}>{feedback.text}</Text>
+        </View>
+      )}
+
+      {editorState && (
+        <LureBoxEditorForm
+          key={editorState.item?.id || 'new-lure-box-item'}
+          item={editorState.item}
+          libraryItems={libraryItems}
+          compact={compact}
+          copy={copy}
+          onSaved={() => {
+            setEditorState(null)
+            setFeedback({ type: 'success', text: copy.resources.lureBoxSaved })
+            onCreated()
+          }}
+          onCancel={() => setEditorState(null)}
+        />
+      )}
+
+      {detail?.item && (
+        <DetailPanel
+          detail={detail}
+          onClose={onCloseDetail}
+          onEditItem={() => openEditForm(detail.data || detail.item)}
+          onDeleteItem={() => deleteItem(detail.data || detail.item)}
+          onOpenLure={onOpenLure}
+          copy={copy}
+          compact={compact}
+        />
+      )}
+
+      {filteredItems.length > 0 ? (
+        <View style={styles.lureBoxCardGrid}>
+          {filteredItems.map((item, index) => (
+            <LureBoxInventoryCard
+              key={`lure-box-${getItemId(item, 'lureBox')}`}
+              item={item}
+              libraryItems={libraryItems}
+              index={index}
+              copy={copy}
+              onOpenLure={onOpenLure}
+              onPress={() => onOpenDetail(item, group)}
+            />
+          ))}
+        </View>
+      ) : (
+        <View style={styles.lureBoxEmpty}>
+          <Image source={{ uri: lureBoxIcon }} style={styles.lureBoxEmptyIcon} resizeMode="contain" />
+          <Text style={styles.lureBoxEmptyTitle}>{copy.resources.empty}</Text>
+          <Text style={styles.lureBoxEmptyText}>{copy.resources.newBoxLure}</Text>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function LureBoxInventoryCard({ item, libraryItems, index, copy, onOpenLure, onPress }) {
+  const libraryItem = item.libraryItemId
+    ? libraryItems.find((candidate) => String(candidate.id) === String(item.libraryItemId))
+    : findMatchingLureItem(libraryItems, item.libraryItemName || item.name)
+  const image = getImageSource(item.imageUrl, getImageSource(libraryItem?.imageUrl, getLureImage(item.name)))
+  const palette = index % 2 === 0 ? styles.lureBoxCardOcean : styles.lureBoxCardMist
+  const type = libraryItem?.type || item.type || copy.resources.groups.lureLibrary
+
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${copy.resources.viewDetails}: ${item.name}`} onPress={onPress} style={[styles.lureBoxInventoryCard, palette]}>
+      <View style={styles.lureBoxCardTopline}>
+        <Text style={styles.lureBoxCardSlot}>{String(index + 1).padStart(2, '0')}</Text>
+        {libraryItem && onOpenLure ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${copy.resources.viewDetails}: ${libraryItem.name}`}
+            onPress={(event) => {
+              event?.stopPropagation?.()
+              onOpenLure(libraryItem.name)
+            }}
+            style={styles.lureBoxCardTypeBadge}
+          >
+            <View style={[styles.lureBoxCardTypeDot, { backgroundColor: getInventoryTypeColor(type) }]} />
+            <Text style={styles.lureBoxCardTypeText}>{type}</Text>
+          </Pressable>
+        ) : (
+          <View style={styles.lureBoxCardTypeBadge}>
+            <View style={[styles.lureBoxCardTypeDot, { backgroundColor: getInventoryTypeColor(type) }]} />
+            <Text style={styles.lureBoxCardTypeText}>{type}</Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.lureBoxCardImageFrame}>
+        <Image source={{ uri: image }} style={styles.lureBoxCardImage} resizeMode="contain" />
+        <View style={styles.lureBoxCardImageShine} />
+      </View>
+      <View style={styles.lureBoxCardInfo}>
+        <Text style={styles.lureBoxCardName}>{item.name || libraryItem?.name || copy.menu.lureBox}</Text>
+        <View style={styles.lureBoxCardFacts}>
+          <InventoryFact label={copy.resources.fields.color} value={item.color} color={getInventoryColor(item.color)} />
+          <InventoryFact label={copy.resources.fields.size} value={formatInventorySize(item.size)} />
+          <InventoryFact label={copy.resources.fields.weight} value={formatInventoryWeight(item.weight)} />
+        </View>
+        <View style={styles.lureBoxCardFooter}>
+          <Text style={styles.lureBoxCardAction}>{copy.resources.viewDetails}</Text>
+          <Text style={styles.lureBoxCardArrow}>&gt;</Text>
+        </View>
+      </View>
+    </Pressable>
+  )
+}
+
+function InventoryFact({ label, value, color }) {
+  if (!hasDetailValue(value)) {
+    return null
+  }
+
+  return (
+    <View style={styles.lureBoxInventoryFact}>
+      {color && <View style={[styles.lureBoxColorSwatch, { backgroundColor: color }]} />}
+      <View>
+        <Text style={styles.lureBoxInventoryFactLabel}>{label}</Text>
+        <Text style={styles.lureBoxInventoryFactValue}>{String(value)}</Text>
+      </View>
+    </View>
+  )
+}
+
+function LureBoxEditorForm({ item, libraryItems, compact, copy, onSaved, onCancel }) {
+  const matchedLibraryItem = findMatchingLureItem(libraryItems, item?.libraryItemName || item?.name)
+  const [form, setForm] = useState(() => ({
+    libraryItemId: item?.libraryItemId ? String(item.libraryItemId) : matchedLibraryItem?.id ? String(matchedLibraryItem.id) : '',
+    color: item?.color || '',
+    size: stripInventoryUnit(item?.size, 'cm'),
+    weight: item?.weight ?? '',
+    imageUrl: item?.imageUrl || '',
+  }))
+  const [saving, setSaving] = useState(false)
+  const [feedback, setFeedback] = useState(null)
+  const selectedLibraryItem = libraryItems.find((candidate) => String(candidate.id) === String(form.libraryItemId))
+  const libraryOptions = libraryItems.map((libraryItem) => ({
+    value: String(libraryItem.id),
+    label: libraryItem.name,
+    image: getImageSource(libraryItem.imageUrl, getLureImage(libraryItem.name)),
+  }))
+  const imagePreview = form.imageUrl || getImageSource(selectedLibraryItem?.imageUrl, getLureImage(selectedLibraryItem?.name || item?.name))
+
+  function updateField(field, value) {
+    setFeedback(null)
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  async function selectImage(capture) {
+    const imageData = await readImageFromDevice(capture)
+
+    if (imageData) {
+      updateField('imageUrl', imageData)
+    }
+  }
+
+  async function submit() {
+    const existingName = item?.name?.trim()
+    const name = selectedLibraryItem?.name || existingName
+    const type = selectedLibraryItem?.type || item?.type
+
+    if (!name || !type || (!selectedLibraryItem && !item?.id)) {
+      setFeedback({ type: 'error', text: copy.resources.noLibraryLureSelected })
+      return
+    }
+
+    setSaving(true)
+    setFeedback(null)
+
+    const payload = {
+      name,
+      type,
+      imageUrl: toNullableText(form.imageUrl),
+      color: toNullableText(form.color),
+      size: formatInventorySize(form.size),
+      weight: toNullableNumber(form.weight),
+      waterType: item?.waterType || 'ANY',
+      libraryItemId: selectedLibraryItem?.id || item?.libraryItemId || null,
+      active: item?.active ?? true,
+      quantity: item?.quantity ?? 1,
+    }
+
+    try {
+      const response = await fetch(`/api/lure-box${item?.id ? `/${item.id}` : ''}`, {
+        method: item?.id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error('Save lure box item failed')
+      }
+
+      onSaved()
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.lureBoxSaveError })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <View style={[styles.lureBoxEditor, compact && styles.lureBoxEditorCompact]}>
+      <View style={styles.lureBoxEditorHeader}>
+        <View>
+          <Text style={styles.lureBoxEditorOverline}>{copy.resources.groups.lureBox}</Text>
+          <Text style={styles.lureBoxEditorTitle}>{item?.id ? copy.resources.editBoxLure : copy.resources.newBoxLure}</Text>
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={styles.lureBoxEditorCancel}>
+          <Text style={styles.lureBoxEditorCancelText}>{copy.resources.cancel}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.lureBoxEditorLayout}>
+        <View style={styles.lureBoxEditorPreviewFrame}>
+          <Image source={{ uri: imagePreview }} style={styles.lureBoxEditorPreview} resizeMode="contain" />
+          <View style={styles.lureBoxEditorPreviewLabel}>
+            <Text style={styles.lureBoxEditorPreviewLabelText}>{selectedLibraryItem?.type || item?.type || 'LURE'}</Text>
+          </View>
+        </View>
+        <View style={styles.lureBoxEditorFields}>
+          <GallerySelect
+            label={copy.resources.chooseLibraryLure}
+            value={form.libraryItemId}
+            options={libraryOptions}
+            onChange={(value) => updateField('libraryItemId', value)}
+            placeholder={libraryLoadingPlaceholder(libraryItems.length, copy)}
+          />
+          <View style={styles.lureBoxEditorFieldGrid}>
+            <FormField label={copy.resources.fields.color} value={form.color} onChangeText={(value) => updateField('color', value)} placeholder={copy.resources.fields.color} />
+            <FormField label={`${copy.resources.fields.size} (cm)`} value={form.size} onChangeText={(value) => updateField('size', value)} placeholder="0" keyboardType="decimal-pad" />
+            <FormField label={`${copy.resources.fields.weight} (g)`} value={String(form.weight)} onChangeText={(value) => updateField('weight', value)} placeholder="0" keyboardType="decimal-pad" />
+          </View>
+          <View style={styles.lureBoxImagePicker}>
+            <View style={styles.lureBoxImagePickerPreview}>
+              <Image source={{ uri: imagePreview }} style={styles.lureBoxImagePickerImage} resizeMode="contain" />
+            </View>
+            <View style={styles.lureBoxImagePickerCopy}>
+              <Text style={styles.lureBoxImagePickerLabel}>{copy.resources.lureBoxImageLabel}</Text>
+              <Text style={styles.lureBoxImagePickerHint}>{form.imageUrl ? copy.resources.imageSelected : copy.resources.lureBoxImageHint}</Text>
+              <View style={styles.lureBoxImagePickerActions}>
+                <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.takePhoto} onPress={() => selectImage(true)} style={styles.lureBoxImagePickerButton}>
+                  <Text style={styles.lureBoxImagePickerButtonText}>{copy.resources.takePhoto}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.importImage} onPress={() => selectImage(false)} style={styles.lureBoxImagePickerButtonSecondary}>
+                  <Text style={styles.lureBoxImagePickerButtonSecondaryText}>{copy.resources.importImage}</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {feedback && (
+        <View style={styles.formFeedback}>
+          <Text style={styles.formFeedbackText}>{feedback.text}</Text>
+        </View>
+      )}
+
+      <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.saveEntry} disabled={saving} onPress={submit} style={[styles.lureBoxSaveButton, saving && styles.submitButtonDisabled]}>
+        <Text style={styles.lureBoxSaveButtonText}>{saving ? copy.resources.saving : copy.resources.saveEntry}</Text>
+      </Pressable>
+    </View>
+  )
+}
+
+function libraryLoadingPlaceholder(count, copy) {
+  return count > 0 ? copy.resources.chooseLibraryLure : copy.resources.noLuresAvailable
+}
+
+function getInventoryTypeColor(type) {
+  const normalized = String(type || '').toLowerCase()
+
+  if (normalized.includes('soft') || normalized.includes('vinil')) {
+    return '#d85f9b'
+  }
+
+  if (normalized.includes('crank')) {
+    return '#d58b25'
+  }
+
+  if (normalized.includes('jerk')) {
+    return '#2c82b8'
+  }
+
+  if (normalized.includes('top') || normalized.includes('pop')) {
+    return '#2b9d82'
+  }
+
+  return '#765cc7'
+}
+
+function getInventoryColor(value) {
+  const normalized = String(value || '').trim().toLowerCase()
+
+  if (/^#[0-9a-f]{3,8}$/i.test(normalized)) {
+    return normalized
+  }
+
+  const colors = {
+    branco: '#f5f5f0',
+    white: '#f5f5f0',
+    preto: '#1d2930',
+    black: '#1d2930',
+    verde: '#3aab75',
+    green: '#3aab75',
+    azul: '#4289d1',
+    blue: '#4289d1',
+    vermelho: '#dc5d68',
+    red: '#dc5d68',
+    amarelo: '#e2b638',
+    yellow: '#e2b638',
+    natural: '#b4a078',
+    prata: '#aebbc4',
+    silver: '#aebbc4',
+  }
+
+  return colors[normalized] || '#d85f9b'
+}
+
+const spotMapConfig = {
+  zoom: 6,
+  minZoom: 4,
+  maxZoom: 18,
+  tileSize: 256,
+  center: { latitude: 39.6, longitude: -8.2 },
+  centerInTileGrid: { x: 395, y: 338 },
+  columns: [29, 30, 31, 32],
+  rows: [23, 24, 25],
+}
+
+function coordinatesToWorld(latitude, longitude, zoom = spotMapConfig.zoom) {
+  const scale = 2 ** zoom
+  const x = ((Number(longitude) + 180) / 360) * scale * spotMapConfig.tileSize
+  const latitudeRadians = (Number(latitude) * Math.PI) / 180
+  const y = ((1 - Math.asinh(Math.tan(latitudeRadians)) / Math.PI) / 2) * scale * spotMapConfig.tileSize
+
+  return { x, y }
+}
+
+function worldToCoordinates(x, y, zoom = spotMapConfig.zoom) {
+  const scale = 2 ** zoom
+  const worldWidth = scale * spotMapConfig.tileSize
+  const longitude = (x / worldWidth) * 360 - 180
+  const latitudeRadians = Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / worldWidth)))
+  const latitude = (latitudeRadians * 180) / Math.PI
+
+  return { latitude, longitude }
+}
+
+function getMapEventPoint(event) {
+  const nativeEvent = event?.nativeEvent || event
+  const target = event?.currentTarget || event?.target
+  const rect = target?.getBoundingClientRect?.()
+  const touch = nativeEvent?.touches?.[0] || nativeEvent?.changedTouches?.[0]
+  const clientX = Number(event?.clientX ?? nativeEvent?.clientX ?? touch?.clientX ?? touch?.pageX)
+  const clientY = Number(event?.clientY ?? nativeEvent?.clientY ?? touch?.clientY ?? touch?.pageY)
+
+  if (rect && Number.isFinite(clientX) && Number.isFinite(clientY)) {
+    return { x: clientX - rect.left, y: clientY - rect.top }
+  }
+
+  const locationX = Number(nativeEvent?.locationX)
+  const locationY = Number(nativeEvent?.locationY)
+
+  if (Number.isFinite(locationX) && Number.isFinite(locationY)) {
+    return { x: locationX, y: locationY }
+  }
+
+  return null
+}
+
+function SpotMapPicker({ latitude, longitude, onChange, copy, readOnly = false }) {
+  const [mapSize, setMapSize] = useState({ width: 800, height: 330 })
+  const [mapZoom, setMapZoom] = useState(spotMapConfig.zoom)
+  const [mapCenter, setMapCenter] = useState(spotMapConfig.center)
+  const dragRef = useRef(null)
+  const suppressClickRef = useRef(false)
+  const centerWorld = coordinatesToWorld(mapCenter.latitude, mapCenter.longitude, mapZoom)
+  const parsedLatitude = toNullableNumber(String(latitude ?? ''))
+  const parsedLongitude = toNullableNumber(String(longitude ?? ''))
+  const hasCoordinates = Number.isFinite(parsedLatitude) && Number.isFinite(parsedLongitude)
+  const markerWorld = hasCoordinates ? coordinatesToWorld(parsedLatitude, parsedLongitude, mapZoom) : null
+  const markerPosition = markerWorld
+    ? {
+        left: mapSize.width / 2 + (markerWorld.x - centerWorld.x) - 11,
+        top: mapSize.height / 2 + (markerWorld.y - centerWorld.y) - 30,
+      }
+    : null
+
+  function handleMapPress(event) {
+    if (readOnly || !onChange) {
+      return
+    }
+
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false
+      return
+    }
+
+    const point = getMapEventPoint(event)
+
+    if (!point) {
+      return
+    }
+
+    const selectedWorld = {
+      x: centerWorld.x + point.x - mapSize.width / 2,
+      y: centerWorld.y + point.y - mapSize.height / 2,
+    }
+    const selected = worldToCoordinates(selectedWorld.x, selectedWorld.y, mapZoom)
+
+    setMapCenter(selected)
+    onChange(Number(selected.latitude.toFixed(6)), Number(selected.longitude.toFixed(6)))
+  }
+
+  function handlePointerDown(event) {
+    const point = getMapEventPoint(event)
+
+    if (point) {
+      dragRef.current = { ...point, startX: point.x, startY: point.y, moved: false }
+    }
+  }
+
+  function handlePointerMove(event) {
+    if (!dragRef.current) {
+      return
+    }
+
+    const point = getMapEventPoint(event)
+
+    if (!point) {
+      return
+    }
+
+    const deltaX = point.x - dragRef.current.x
+    const deltaY = point.y - dragRef.current.y
+    const moved = dragRef.current.moved || Math.abs(point.x - dragRef.current.startX) > 4 || Math.abs(point.y - dragRef.current.startY) > 4
+
+    dragRef.current = { ...point, startX: dragRef.current.startX ?? dragRef.current.x, startY: dragRef.current.startY ?? dragRef.current.y, moved }
+
+    if (!moved || (!deltaX && !deltaY)) {
+      return
+    }
+
+    setMapCenter((current) => {
+      const currentWorld = coordinatesToWorld(current.latitude, current.longitude, mapZoom)
+      return worldToCoordinates(currentWorld.x - deltaX, currentWorld.y - deltaY, mapZoom)
+    })
+  }
+
+  function handlePointerUp() {
+    if (dragRef.current?.moved) {
+      suppressClickRef.current = true
+      setTimeout(() => {
+        suppressClickRef.current = false
+      }, 150)
+    }
+
+    dragRef.current = null
+  }
+
+  const mapInteractionProps = {
+    onMouseDown: handlePointerDown,
+    onMouseMove: handlePointerMove,
+    onMouseUp: handlePointerUp,
+    onMouseLeave: handlePointerUp,
+    onTouchStart: handlePointerDown,
+    onTouchMove: handlePointerMove,
+    onTouchEnd: handlePointerUp,
+  }
+
+  return (
+    <View
+      accessibilityLabel={copy.resources.spotMap.mapLabel}
+      onLayout={(event) => {
+        const nextWidth = event.nativeEvent.layout.width
+        const nextHeight = event.nativeEvent.layout.height
+
+        if (nextWidth && nextHeight && (nextWidth !== mapSize.width || nextHeight !== mapSize.height)) {
+          setMapSize({ width: nextWidth, height: nextHeight })
+        }
+      }}
+      style={styles.spotMapPicker}
+    >
+      <View pointerEvents="none" style={styles.spotMapTileGrid}>
+        {[-2, -1, 0, 1, 2].flatMap((columnOffset) =>
+          [-2, -1, 0, 1].map((rowOffset) => {
+            const column = Math.floor(centerWorld.x / spotMapConfig.tileSize) + columnOffset
+            const row = Math.floor(centerWorld.y / spotMapConfig.tileSize) + rowOffset
+
+            return (
+            <Image
+              key={`${mapZoom}-${column}-${row}`}
+              source={{ uri: `https://tile.openstreetmap.org/${mapZoom}/${column}/${row}.png` }}
+              style={[styles.spotMapTile, { left: column * spotMapConfig.tileSize - centerWorld.x + mapSize.width / 2, top: row * spotMapConfig.tileSize - centerWorld.y + mapSize.height / 2 }]}
+              resizeMode="cover"
+            />
+            )
+          }),
+        )}
+      </View>
+
+      {typeof document !== 'undefined' ? (
+        <View
+          accessibilityRole={readOnly ? 'none' : 'button'}
+          accessibilityLabel={copy.resources.spotMap.chooseLocation}
+          onClick={readOnly ? undefined : handleMapPress}
+          {...mapInteractionProps}
+          style={[StyleSheet.absoluteFillObject, styles.spotMapInteraction]}
+        />
+      ) : (
+        <Pressable
+          accessibilityRole={readOnly ? 'none' : 'button'}
+          accessibilityLabel={copy.resources.spotMap.chooseLocation}
+          onPress={readOnly ? undefined : handleMapPress}
+          {...mapInteractionProps}
+          style={[StyleSheet.absoluteFillObject, styles.spotMapInteraction]}
+        />
+      )}
+
+      {markerPosition && (
+        <View pointerEvents="none" style={[styles.spotMapMarker, markerPosition]}>
+          <View style={styles.spotMapMarkerPin} />
+          <View style={styles.spotMapMarkerPulse} />
+        </View>
+      )}
+
+      <View style={styles.spotMapZoomControls}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.resources.spotMap.zoomIn}
+          accessibilityState={{ disabled: mapZoom >= spotMapConfig.maxZoom }}
+          disabled={mapZoom >= spotMapConfig.maxZoom}
+          onPress={() => setMapZoom((current) => Math.min(spotMapConfig.maxZoom, current + 1))}
+          style={[styles.spotMapZoomButton, mapZoom >= spotMapConfig.maxZoom && styles.spotMapZoomButtonDisabled]}
+        >
+          <Text style={styles.spotMapZoomButtonText}>+</Text>
+        </Pressable>
+        <Text style={styles.spotMapZoomValue}>Z{mapZoom}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.resources.spotMap.zoomOut}
+          accessibilityState={{ disabled: mapZoom <= spotMapConfig.minZoom }}
+          disabled={mapZoom <= spotMapConfig.minZoom}
+          onPress={() => setMapZoom((current) => Math.max(spotMapConfig.minZoom, current - 1))}
+          style={[styles.spotMapZoomButton, mapZoom <= spotMapConfig.minZoom && styles.spotMapZoomButtonDisabled]}
+        >
+          <Text style={styles.spotMapZoomButtonText}>-</Text>
+        </Pressable>
+      </View>
+
+      <View pointerEvents="none" style={styles.spotMapTopLabel}>
+        <Text style={styles.spotMapTopLabelText}>{copy.resources.spotMap.mapLabel}</Text>
+      </View>
+      <View pointerEvents="none" style={styles.spotMapBottomBar}>
+        <Text style={styles.spotMapBottomText}>{hasCoordinates ? formatCoordinates(parsedLatitude, parsedLongitude) : copy.resources.spotMap.clickMap}</Text>
+        <Text style={styles.spotMapAttribution}>{copy.resources.spotMap.attribution}</Text>
+      </View>
+    </View>
+  )
+}
+
 function CreateSpotForm({ copy, onCreated }) {
   const [form, setForm] = useState({
     name: '',
-    description: '',
     latitude: '',
     longitude: '',
     waterType: '',
-    favoriteSpecies: '',
+    spotType: '',
+    favoriteSpecies: [],
   })
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [fishOptions, setFishOptions] = useState([])
+  const [loadingOptions, setLoadingOptions] = useState(true)
   const fields = copy.resources.fields
+
+  useEffect(() => {
+    let cancelled = false
+
+    fetch('/api/fish?page=0&size=100&sortBy=name&sortDirection=asc')
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Fish request failed')))
+      .then((payload) => {
+        if (!cancelled) {
+          const items = Array.isArray(payload) ? payload : payload.items || []
+          setFishOptions(items.map((item) => ({
+            value: item.name,
+            label: item.name,
+            image: getImageSource(item.imageUrl, getFishImage(item.name)),
+          })))
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFishOptions([])
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingOptions(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const waterTypeOptions = [
+    { value: 'FRESHWATER', label: copy.resources.waterEnvironmentOptions.freshwater },
+    { value: 'SALTWATER', label: copy.resources.waterEnvironmentOptions.saltwater },
+  ]
+  const spotTypeOptions = spotTypeCatalog.map((type) => ({
+    value: type.value,
+    label: copy.resources.spotTypes[type.key].label,
+    image: type.image,
+    key: type.key,
+  }))
 
   function updateField(field, value) {
     setFeedback(null)
@@ -3062,7 +4761,7 @@ function CreateSpotForm({ copy, onCreated }) {
     const latitude = Number(form.latitude)
     const longitude = Number(form.longitude)
 
-    if (!form.name.trim() || !Number.isFinite(latitude) || !Number.isFinite(longitude) || !form.waterType.trim()) {
+    if (!form.name.trim() || !Number.isFinite(latitude) || !Number.isFinite(longitude) || !form.waterType.trim() || !form.spotType.trim()) {
       setFeedback({ type: 'error', text: copy.resources.requiredFields })
       return
     }
@@ -3078,11 +4777,11 @@ function CreateSpotForm({ copy, onCreated }) {
         },
         body: JSON.stringify({
           name: form.name.trim(),
-          description: toNullableText(form.description),
           latitude,
           longitude,
           waterType: form.waterType.trim(),
-          favoriteSpecies: toNullableText(form.favoriteSpecies),
+          spotType: form.spotType.trim(),
+          favoriteSpecies: toNullableText(parseListValue(form.favoriteSpecies).join(', ')),
         }),
       })
 
@@ -3090,16 +4789,18 @@ function CreateSpotForm({ copy, onCreated }) {
         throw new Error('Create spot failed')
       }
 
+      const createdSpot = await response.json()
+
       setForm({
         name: '',
-        description: '',
         latitude: '',
         longitude: '',
         waterType: '',
-        favoriteSpecies: '',
+        spotType: '',
+        favoriteSpecies: [],
       })
       setFeedback({ type: 'success', text: copy.resources.createSpotSuccess })
-      onCreated()
+      onCreated(createdSpot)
     } catch {
       setFeedback({ type: 'error', text: copy.resources.createSpotError })
     } finally {
@@ -3114,16 +4815,40 @@ function CreateSpotForm({ copy, onCreated }) {
         <Text style={styles.formTitle}>{copy.sections.spots.title}</Text>
       </View>
 
+      <View style={styles.spotFormMapBlock}>
+        <View style={styles.spotFormMapHeading}>
+          <View style={styles.spotFormMapHeadingCopy}>
+            <Text style={styles.formLabel}>{copy.resources.spotMap.chooseLocation}</Text>
+            <Text style={styles.spotFormMapHint}>{copy.resources.spotMap.chooseLocationHint}</Text>
+          </View>
+          <View style={styles.spotCoordinateSummary}>
+            <Text style={styles.spotCoordinateSummaryLabel}>{copy.resources.spotMap.coordinatesReady}</Text>
+            <Text style={styles.spotCoordinateSummaryValue}>{formatCoordinates(form.latitude, form.longitude) || '-'}</Text>
+          </View>
+        </View>
+        <SpotMapPicker
+          latitude={form.latitude}
+          longitude={form.longitude}
+          copy={copy}
+          onChange={(latitude, longitude) => {
+            updateField('latitude', String(latitude))
+            updateField('longitude', String(longitude))
+          }}
+        />
+      </View>
+
       <View style={styles.formGrid}>
         <FormField
           label={fields.name}
           value={form.name}
           onChangeText={(value) => updateField('name', value)}
         />
-        <FormField
-          label={fields.waterType}
+        <GallerySelect
+          label={copy.resources.chooseWaterType}
           value={form.waterType}
-          onChangeText={(value) => updateField('waterType', value)}
+          options={waterTypeOptions}
+          onChange={(value) => updateField('waterType', value)}
+          placeholder={copy.resources.chooseWaterType}
         />
         <FormField
           label={fields.latitude}
@@ -3137,17 +4862,48 @@ function CreateSpotForm({ copy, onCreated }) {
           onChangeText={(value) => updateField('longitude', value)}
           keyboardType="decimal-pad"
         />
-        <FormField
-          label={fields.favoriteSpecies}
-          value={form.favoriteSpecies}
-          onChangeText={(value) => updateField('favoriteSpecies', value)}
+        <MultiSelectCombo
+          label={copy.resources.chooseSpeciesFromLibrary}
+          values={form.favoriteSpecies}
+          options={fishOptions}
+          onChange={(value) => updateField('favoriteSpecies', value)}
+          hint={loadingOptions ? copy.loading : copy.resources.selectMultiple}
+          emptyText={copy.resources.noOptionsAvailable}
+          copy={copy}
         />
-        <FormField
-          label={fields.description}
-          value={form.description}
-          onChangeText={(value) => updateField('description', value)}
-          multiline
-        />
+      </View>
+
+      <View style={styles.spotTypePickerBlock}>
+        <View style={styles.spotTypePickerHeading}>
+          <View>
+            <Text style={styles.formLabel}>{copy.resources.chooseSpotType}</Text>
+            <Text style={styles.spotTypePickerHint}>{copy.resources.spotAtlas.tabsHint}</Text>
+          </View>
+          <Text style={styles.spotTypePickerSelected}>{spotTypeOptions.find((option) => option.value === form.spotType)?.label || '-'}</Text>
+        </View>
+        <View style={styles.spotTypePickerList}>
+          {spotTypeOptions.map((option) => {
+            const selected = option.value === form.spotType
+
+            return (
+              <Pressable
+                key={option.value}
+                accessibilityRole="radio"
+                accessibilityLabel={option.label}
+                accessibilityState={{ selected }}
+                onPress={() => updateField('spotType', option.value)}
+                style={[styles.spotTypePickerOption, selected && styles.spotTypePickerOptionSelected, { borderColor: selected ? spotTypeCatalog.find((type) => type.key === option.key)?.accent : '#d8e6e1' }]}
+              >
+                <Image source={{ uri: option.image }} style={styles.spotTypePickerImage} resizeMode="cover" />
+                <View style={styles.spotTypePickerOptionCopy}>
+                  <Text style={styles.spotTypePickerOptionCode}>{spotTypeCatalog.find((type) => type.key === option.key)?.code}</Text>
+                  <Text style={styles.spotTypePickerOptionLabel}>{option.label}</Text>
+                </View>
+                {selected && <Text style={styles.spotTypePickerCheck}>OK</Text>}
+              </Pressable>
+            )
+          })}
+        </View>
       </View>
 
       {feedback && (
@@ -3444,7 +5200,7 @@ function FormField({ label, value, onChangeText, keyboardType, placeholder, mult
   )
 }
 
-function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact }) {
+function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact, onOpenLure, lureLibraryItems = [] }) {
   const display = getItemDisplay(detail.item, detail.group.key, copy)
   const image = getDetailImage(detail.group, detail.item, detail.data, display)
   const tone = groupTones[detail.group.key] || groupTones.spots
@@ -3509,10 +5265,10 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact 
           onDelete={onDeleteItem}
         />
       )}
-      {detail.group.key === 'spots' && <SpotDetail detail={detail} image={image} copy={copy} tone={tone} />}
+      {detail.group.key === 'spots' && <SpotDetail detail={detail} copy={copy} tone={tone} />}
       {detail.group.key === 'plans' && <PlanDetail detail={detail} copy={copy} tone={tone} />}
       {detail.group.key === 'sessions' && <SessionDetail detail={detail} copy={copy} tone={tone} />}
-      {detail.group.key === 'lureBox' && <LureBoxDetail detail={detail} image={image} copy={copy} tone={tone} />}
+      {detail.group.key === 'lureBox' && <LureBoxDetail detail={detail} image={image} copy={copy} tone={tone} onOpenLure={onOpenLure} />}
       {detail.group.key === 'fish' && (
         <FishDetail
           detail={detail}
@@ -3523,6 +5279,8 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact 
           onClose={onClose}
           onEdit={onEditItem}
           onDelete={onDeleteItem}
+          onOpenLure={onOpenLure}
+          lureLibraryItems={lureLibraryItems}
         />
       )}
       {detail.group.key === 'lureLibrary' && (
@@ -3639,27 +5397,27 @@ function CatchContextItem({ label, value, wide }) {
   )
 }
 
-function SpotDetail({ detail, image, copy, tone }) {
+function SpotDetail({ detail, copy, tone }) {
   const source = detail.data || detail.item
   const fields = copy.resources.fields
 
   return (
     <View style={styles.detailContent}>
-      <View style={[styles.spotMapPanel, { backgroundColor: tone.imageBackground }]}>
-        <Image source={{ uri: image }} style={styles.spotDetailImage} resizeMode="cover" />
-        <View style={styles.spotCoordinatesBadge}>
-          <Text style={styles.spotCoordinatesLabel}>{fields.coordinates}</Text>
-          <Text style={styles.spotCoordinatesValue}>{formatCoordinates(source.latitude, source.longitude) || '-'}</Text>
-        </View>
-      </View>
+      <SpotMapPicker
+        latitude={source.latitude}
+        longitude={source.longitude}
+        copy={copy}
+        readOnly
+      />
       <View style={styles.detailStatGrid}>
         <DetailStat label={fields.waterType} value={source.waterType || '-'} tone={tone.accent} />
-        <DetailStat label={fields.favoriteSpecies} value={source.favoriteSpecies || '-'} tone={tone.accent} />
-        <DetailStat label={fields.createdAt} value={formatDateTime(source.createdAt) || '-'} tone={tone.accent} />
+        <DetailStat label={fields.spotType} value={getSpotCategoryLabel(source, copy)} tone={tone.accent} />
+        <DetailStat label={fields.coordinates} value={formatCoordinates(source.latitude, source.longitude) || '-'} tone={tone.accent} />
       </View>
-      <DetailSection title={fields.description} tone={tone.accent}>
-        <Text style={styles.detailLongText}>{source.description || copy.resources.empty}</Text>
-      </DetailSection>
+      <View style={[styles.spotDetailSpeciesPanel, { borderColor: `${tone.accent}55` }]}>
+        <Text style={[styles.spotDetailSpeciesLabel, { color: tone.accent }]}>{fields.favoriteSpecies}</Text>
+        <SpotSpeciesChips value={source.favoriteSpecies} copy={copy} large />
+      </View>
     </View>
   )
 }
@@ -3725,7 +5483,7 @@ function SessionDetail({ detail, copy, tone }) {
   )
 }
 
-function LureBoxDetail({ detail, image, copy, tone }) {
+function LureBoxDetail({ detail, image, copy, tone, onOpenLure }) {
   const source = detail.data || detail.item
   const fields = copy.resources.fields
 
@@ -3733,37 +5491,42 @@ function LureBoxDetail({ detail, image, copy, tone }) {
     <View style={styles.detailContent}>
       <View style={styles.lureInventoryHero}>
         <View style={[styles.lureInventoryImageFrame, { backgroundColor: tone.imageBackground }]}>
-          <Image source={{ uri: image }} style={styles.lureInventoryImage} resizeMode="cover" />
+          <Image source={{ uri: image }} style={styles.lureInventoryImage} resizeMode="contain" />
         </View>
         <View style={styles.lureInventoryCopy}>
           <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.menu.lureBox}</Text>
           <Text style={styles.detailFeatureTitle}>{source.name || copy.menu.lureBox}</Text>
-          <Text style={styles.detailLongText}>{compactLine(source.type, source.color, source.size)}</Text>
-        </View>
-        <View style={[styles.quantityBlock, { backgroundColor: tone.accent }]}>
-          <Text style={styles.quantityValue}>{source.quantity ?? 0}</Text>
-          <Text style={styles.quantityLabel}>{fields.quantity}</Text>
+          <Text style={styles.lureInventoryLibraryLabel}>{copy.resources.groups.lureLibrary}</Text>
+          {source.type && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${copy.resources.viewDetails}: ${source.libraryItemName || source.name}`}
+              onPress={() => onOpenLure?.(source.libraryItemName || source.name)}
+              style={[styles.lureInventoryTypeButton, { backgroundColor: getInventoryTypeColor(source.type) }]}
+            >
+              <View style={styles.lureInventoryTypeDot} />
+              <Text style={styles.lureInventoryTypeText}>{source.type}</Text>
+              <Text style={styles.lureInventoryTypeArrow}>&gt;</Text>
+            </Pressable>
+          )}
         </View>
       </View>
       <View style={styles.detailStatGrid}>
-        <DetailStat label={fields.condition} value={source.condition || '-'} tone={tone.accent} />
-        <DetailStat label={fields.active} value={formatBoolean(source.active, copy) || '-'} tone={tone.accent} />
-        <DetailStat label={fields.targetSpecies} value={source.targetSpecies || '-'} tone={tone.accent} />
-        <DetailStat label={fields.waterType} value={source.waterType || '-'} tone={tone.accent} />
+        <DetailStat label={fields.type} value={source.type || '-'} tone={tone.accent} />
+        <DetailStat label={fields.color} value={source.color || '-'} tone={tone.accent} />
+        <DetailStat label={fields.size} value={formatInventorySize(source.size) || '-'} tone={tone.accent} />
+        <DetailStat label={fields.weight} value={formatInventoryWeight(source.weight) || '-'} tone={tone.accent} />
       </View>
-      <DetailSection title={fields.personalNotes} tone={tone.accent}>
-        <Text style={styles.detailLongText}>{source.personalNotes || source.notes || copy.resources.empty}</Text>
-      </DetailSection>
     </View>
   )
 }
 
-function FishDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDelete }) {
+function FishDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDelete, onOpenLure, lureLibraryItems }) {
   const source = detail.data || detail.item
   const fields = copy.resources.fields
   const strikeZone = formatOptionList(source.strikeZone, getFishStrikeZoneOptions(copy))
   const commonZones = formatOptionList(source.commonZones, getFishCommonZoneOptions(copy))
-  const favoriteLures = formatListText(source.favoriteLures)
+  const favoriteLures = parseListValue(source.favoriteLures)
   const environment = normalizeWaterEnvironment(source.waterEnvironment)
 
   return (
@@ -3821,7 +5584,57 @@ function FishDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDel
         </View>
         <FishInsightRow label={fields.habitat} value={source.habitatNotes} tone={tone.accent} />
         <FishInsightRow label={fields.zones} value={commonZones} tone={tone.accent} />
-        <FishInsightRow label={fields.favoriteLures} value={favoriteLures} tone={tone.accent} />
+        <FavoriteLuresPanel
+          lures={favoriteLures}
+          copy={copy}
+          tone={tone}
+          lureLibraryItems={lureLibraryItems}
+          onOpenLure={onOpenLure}
+        />
+      </View>
+    </View>
+  )
+}
+
+function FavoriteLuresPanel({ lures, copy, tone, lureLibraryItems = [], onOpenLure }) {
+  if (!lures.length) {
+    return null
+  }
+
+  return (
+    <View style={styles.favoriteLuresPanel}>
+      <View style={styles.favoriteLuresHeader}>
+        <View style={[styles.favoriteLuresBar, { backgroundColor: tone.accent }]} />
+        <View>
+          <Text style={styles.favoriteLuresEyebrow}>{copy.resources.fields.favoriteLures}</Text>
+          <Text style={styles.favoriteLuresTitle}>{copy.resources.libraryLureHint}</Text>
+        </View>
+      </View>
+      <View style={styles.favoriteLuresGrid}>
+        {lures.map((lureName) => {
+          const lureItem = findMatchingLureItem(lureLibraryItems, lureName)
+          const label = lureItem?.name || lureName
+          const image = getImageSource(lureItem?.imageUrl, getLureImage(label))
+
+          return (
+            <Pressable
+              key={lureName}
+              accessibilityRole="button"
+              accessibilityLabel={`${copy.resources.viewDetails}: ${label}`}
+              onPress={() => onOpenLure?.(label)}
+              style={[styles.favoriteLureCard, { borderColor: tone.borderColor }]}
+            >
+              <View style={styles.favoriteLureImageFrame}>
+                <Image source={{ uri: image }} style={styles.favoriteLureImage} resizeMode="contain" />
+              </View>
+              <View style={styles.favoriteLureCopy}>
+                <Text style={styles.favoriteLureName}>{label}</Text>
+                <Text style={[styles.favoriteLureAction, { color: tone.accent }]}>{copy.resources.viewDetails}</Text>
+              </View>
+              <Text style={[styles.favoriteLureArrow, { color: tone.accent }]}>&gt;</Text>
+            </Pressable>
+          )
+        })}
       </View>
     </View>
   )
@@ -3883,8 +5696,8 @@ function LureLibraryDetail({ detail, image, copy, tone, compact }) {
         ...rankedActions[0],
         id: 'stored-action',
         label: source.actionType || rankedActions[0]?.label,
-        icon: source.actionIconUrl || rankedActions[0]?.icon,
-        image: source.actionImageUrl || rankedActions[0]?.image,
+        icon: getImageSource(source.actionIconUrl, rankedActions[0]?.icon),
+        image: getImageSource(source.actionImageUrl, rankedActions[0]?.image),
       }
     : null
   const actions = storedAction ? [storedAction] : rankedActions
@@ -4290,8 +6103,6 @@ function getDetailRows(groupKey, item, data, copy) {
       detailRow(fields.waterType, source.waterType),
       detailRow(fields.favoriteSpecies, source.favoriteSpecies),
       detailRow(fields.coordinates, formatCoordinates(source.latitude, source.longitude)),
-      detailRow(fields.description, source.description),
-      detailRow(fields.createdAt, formatDateTime(source.createdAt)),
     ],
     plans: [
       detailRow(fields.spot, source.spotName),
@@ -4486,6 +6297,45 @@ function getFavoriteLureOptions(items, currentValues) {
   return Array.from(options.values())
 }
 
+function findMatchingLureItem(items, favoriteLure) {
+  const target = normalizeLookupText(favoriteLure)
+
+  if (!target) {
+    return null
+  }
+
+  const exactMatch = items.find((item) => normalizeLookupText(item?.name) === target)
+
+  if (exactMatch) {
+    return exactMatch
+  }
+
+  const targetTokens = target.split(' ').filter((token) => token.length > 2)
+  let bestMatch = null
+  let bestScore = 0
+
+  items.forEach((item) => {
+    const candidate = normalizeLookupText(item?.name)
+    const score = targetTokens.reduce((total, token) => total + (candidate.includes(token) ? 1 : 0), 0)
+
+    if (score > bestScore) {
+      bestMatch = item
+      bestScore = score
+    }
+  })
+
+  return bestMatch
+}
+
+function normalizeLookupText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
 function formatOptionList(value, options) {
   const normalizedOptions = options || []
 
@@ -4620,10 +6470,9 @@ function getItemDisplay(item, groupKey, copy) {
     case 'lureBox':
       return {
         title: item.name || copy.menu.lureBox,
-        meta: compactLine(item.type, item.brand, item.color),
-        detail: compactLine(`${item.quantity ?? 0}x`, item.condition, item.targetSpecies),
-        badge: item.active ? copy.resources.active : copy.resources.inactive,
-        image: getLureImage(item.name),
+        meta: compactLine(item.type, item.color),
+        detail: item.size || copy.resources.groups.lureLibrary,
+        image: getImageSource(item.imageUrl, getLureImage(item.name)),
       }
     case 'fish':
       return {
@@ -4651,18 +6500,67 @@ function getItemDisplay(item, groupKey, copy) {
 function getFishImage(name) {
   const normalized = String(name || '').toLowerCase()
 
-  if (normalized.includes('black') || normalized.includes('bass') || normalized.includes('achig')) {
+  if (normalized.includes('barbel') || normalized.includes('barbo')) {
+    return barbel
+  }
+
+  if (normalized.includes('black bass') || normalized.includes('largemouth')) {
     return blackBass
   }
 
-  if (normalized.includes('pike') || normalized.includes('lucio')) {
+  if (normalized.includes('rainbow') || normalized.includes('arco-íris') || normalized.includes('arco iris')) {
+    return rainbowTrout
+  }
+
+  if (normalized.includes('brown trout') || normalized.includes('truta-comum') || normalized.includes('truta comum')) {
+    return brownTrout
+  }
+
+  if (normalized.includes('catfish') || normalized.includes('siluro')) {
+    return europeanCatfish
+  }
+
+  if (normalized.includes('perch') || normalized.includes('perca')) {
+    return normalized.includes('pike-perch') || normalized.includes('lúcio-perca') || normalized.includes('lucio-perca')
+      ? pikePerch
+      : europeanPerch
+  }
+
+  if (normalized.includes('pike') || normalized.includes('lúcio') || normalized.includes('lucio')) {
     return pike
+  }
+
+  if (normalized.includes('anchovy') || normalized.includes('biqueirao') || normalized.includes('biqueirão')) {
+    return anchovy
+  }
+
+  if (normalized.includes('chub mackerel')) {
+    return chubMackerel
+  }
+
+  if (normalized.includes('mackerel') || normalized.includes('cavala')) {
+    return atlanticMackerel
+  }
+
+  if (normalized.includes('meagre') || normalized.includes('croaker') || normalized.includes('corvina')) {
+    return croaker
+  }
+
+  if (normalized.includes('sea bass') || normalized.includes('robalo')) {
+    return seaBass
   }
 
   return barbel
 }
 
 function getSpotImage(item) {
+  const category = getSpotCategory(item)
+  const catalogType = spotTypeCatalog.find((type) => type.key === category)
+
+  if (catalogType) {
+    return catalogType.image
+  }
+
   const normalized = `${item?.name || ''} ${item?.waterType || ''}`.toLowerCase()
 
   if (normalized.includes('river') || normalized.includes('rio')) {
@@ -4680,6 +6578,75 @@ function getSpotImage(item) {
   return lakeSpot
 }
 
+function getSpotCategory(item) {
+  const storedType = String(item?.spotType || '').toLowerCase()
+
+  if (storedType.includes('reservoir') || storedType.includes('dam')) {
+    return 'reservoirs'
+  }
+
+  if (storedType.includes('estuary') || storedType.includes('river mouth') || storedType.includes('river-mouth') || storedType.includes('foz')) {
+    return 'estuaries'
+  }
+
+  if (storedType.includes('river') || storedType.includes('stream')) {
+    return 'rivers'
+  }
+
+  if (storedType.includes('lake') || storedType.includes('lagoon')) {
+    return 'lakes'
+  }
+
+  if (storedType.includes('harbor') || storedType.includes('harbour') || storedType.includes('marina') || storedType.includes('porto')) {
+    return 'harbors'
+  }
+
+  if (storedType.includes('coast') || storedType.includes('sea')) {
+    return 'coast'
+  }
+
+  const normalized = `${item?.name || ''} ${item?.waterType || ''}`.toLowerCase()
+
+  if (normalized.includes('dam') || normalized.includes('barragem') || normalized.includes('albufeira') || normalized.includes('reservoir')) {
+    return 'reservoirs'
+  }
+
+  if (normalized.includes('estuary') || normalized.includes('estuari') || normalized.includes('foz')) {
+    return 'estuaries'
+  }
+
+  if (normalized.includes('river mouth') || normalized.includes('river-mouth')) {
+    return 'estuaries'
+  }
+
+  if (normalized.includes('river') || normalized.includes('rio') || normalized.includes('ribeira') || normalized.includes('stream')) {
+    return 'rivers'
+  }
+
+  if (normalized.includes('harbor') || normalized.includes('harbour') || normalized.includes('marina') || normalized.includes('porto') || normalized.includes('cais') || normalized.includes('doca')) {
+    return 'harbors'
+  }
+
+  if (normalized.includes('sea') || normalized.includes('mar') || normalized.includes('coast') || normalized.includes('costa') || normalized.includes('beach') || normalized.includes('praia')) {
+    return 'coast'
+  }
+
+  if (normalized.includes('lake') || normalized.includes('lago') || normalized.includes('lagoon') || normalized.includes('lagoa')) {
+    return 'lakes'
+  }
+
+  if (String(item?.waterType || '').toLowerCase().includes('fresh')) {
+    return 'lakes'
+  }
+
+  return 'coast'
+}
+
+function getSpotCategoryLabel(item, copy) {
+  const category = getSpotCategory(item)
+  return copy.resources.spotTypes[category]?.label || category
+}
+
 function getLureImage(name) {
   const normalized = String(name || '').toLowerCase()
 
@@ -4687,16 +6654,52 @@ function getLureImage(name) {
     return crankbait
   }
 
+  if (normalized.includes('frog')) {
+    return frog
+  }
+
+  if (normalized.includes('grub')) {
+    return grub
+  }
+
   if (normalized.includes('jerk')) {
     return jerkbait
+  }
+
+  if (normalized.includes('jig')) {
+    return jig
   }
 
   if (normalized.includes('popper') || normalized.includes('topwater')) {
     return popper
   }
 
-  if (normalized.includes('soft') || normalized.includes('vinil')) {
+  if (normalized.includes('senko') || normalized.includes('soft') || normalized.includes('vinil')) {
     return senko
+  }
+
+  if (normalized.includes('shad')) {
+    return shad
+  }
+
+  if (normalized.includes('spinnerbait')) {
+    return spinnerbait
+  }
+
+  if (normalized.includes('spinner')) {
+    return spinner
+  }
+
+  if (normalized.includes('spoon')) {
+    return spoon
+  }
+
+  if (normalized.includes('swimbait')) {
+    return swimbait
+  }
+
+  if (normalized.includes('whopper') || normalized.includes('plooper')) {
+    return whopperPlooper
   }
 
   return spinnerbait
@@ -4715,11 +6718,14 @@ function compactLine(...parts) {
 }
 
 function formatCoordinates(latitude, longitude) {
-  if (latitude == null || longitude == null) {
+  const normalizedLatitude = toNullableNumber(String(latitude ?? ''))
+  const normalizedLongitude = toNullableNumber(String(longitude ?? ''))
+
+  if (normalizedLatitude == null || normalizedLongitude == null) {
     return null
   }
 
-  return `${Number(latitude).toFixed(3)}, ${Number(longitude).toFixed(3)}`
+  return `${normalizedLatitude.toFixed(3)}, ${normalizedLongitude.toFixed(3)}`
 }
 
 function formatSizeWeight(item) {
@@ -4737,6 +6743,36 @@ function formatCatchSize(item) {
 
 function formatCatchWeight(item) {
   return item?.weightKg != null ? `${item.weightKg} kg` : null
+}
+
+function formatInventoryWeight(value) {
+  if (value === null || value === undefined || value === '') {
+    return null
+  }
+
+  const normalized = String(value).replace(/g/gi, '').trim().replace(',', '.')
+  const number = Number(normalized)
+
+  return Number.isFinite(number) ? `${number} g` : null
+}
+
+function formatInventorySize(value) {
+  if (value === null || value === undefined || value === '') {
+    return null
+  }
+
+  const normalized = String(value).replace(/cm/gi, '').trim().replace(',', '.')
+  const number = Number(normalized)
+
+  return Number.isFinite(number) ? `${number} cm` : null
+}
+
+function stripInventoryUnit(value, unit) {
+  if (value === null || value === undefined) {
+    return ''
+  }
+
+  return String(value).replace(new RegExp(unit, 'gi'), '').trim()
 }
 
 function InfoChip({ label }) {
@@ -5174,6 +7210,240 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#d3dfd8',
   },
+  dashboardLurePanel: {
+    flexGrow: 1,
+    flexBasis: 320,
+    minHeight: 218,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 14,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: '#f5fbf7',
+    borderWidth: 1,
+    borderColor: '#bcdccc',
+  },
+  dashboardLureImageFrame: {
+    width: 140,
+    minHeight: 178,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    borderRadius: 14,
+    backgroundColor: '#dfefe7',
+  },
+  dashboardLureImage: {
+    width: 128,
+    height: 128,
+  },
+  dashboardLureRank: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    minWidth: 34,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    backgroundColor: '#0f7775',
+  },
+  dashboardLureRankText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  dashboardLureBody: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  dashboardLureHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  dashboardLureLabel: {
+    color: '#147a70',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  dashboardLureMarker: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    backgroundColor: '#e0a942',
+  },
+  dashboardLureTitle: {
+    marginTop: 12,
+    color: '#102421',
+    fontSize: 25,
+    lineHeight: 30,
+    fontWeight: '900',
+  },
+  dashboardLureStats: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 18,
+  },
+  dashboardLureStat: {
+    flexGrow: 1,
+    minHeight: 60,
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#e5f4ed',
+    borderWidth: 1,
+    borderColor: '#c2e1d0',
+  },
+  dashboardLureStatSuccess: {
+    flexGrow: 1,
+    minHeight: 60,
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#fff3d5',
+    borderWidth: 1,
+    borderColor: '#ead69e',
+  },
+  dashboardLureStatValue: {
+    color: '#102421',
+    fontSize: 20,
+    lineHeight: 23,
+    fontWeight: '900',
+  },
+  dashboardLureStatLabel: {
+    marginTop: 2,
+    color: '#547168',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  dashboardLureFallback: {
+    marginTop: 16,
+    color: '#5a6b63',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '700',
+  },
+  dashboardWeatherPanel: {
+    flexGrow: 1,
+    flexBasis: 320,
+    minHeight: 218,
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: '#f1f8fb',
+    borderWidth: 1,
+    borderColor: '#b8d5df',
+  },
+  dashboardWeatherHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  dashboardWeatherHeading: {
+    flex: 1,
+    minWidth: 0,
+  },
+  dashboardWeatherLabel: {
+    color: '#2c7183',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  dashboardWeatherTitle: {
+    marginTop: 5,
+    color: '#102f3a',
+    fontSize: 23,
+    lineHeight: 28,
+    fontWeight: '900',
+  },
+  dashboardWeatherImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    backgroundColor: '#d7e9ef',
+  },
+  dashboardWeatherContent: {
+    gap: 10,
+  },
+  dashboardWeatherStats: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  dashboardWeatherStat: {
+    flexGrow: 1,
+    flexBasis: 86,
+    minHeight: 68,
+    justifyContent: 'space-between',
+    padding: 9,
+    borderRadius: 10,
+    backgroundColor: '#e2f3ef',
+    borderWidth: 1,
+    borderColor: '#c0e3da',
+  },
+  dashboardWeatherStatBlue: {
+    backgroundColor: '#e4f0f7',
+    borderColor: '#c2dce9',
+  },
+  dashboardWeatherStatRain: {
+    backgroundColor: '#e1edf7',
+    borderColor: '#c3d8eb',
+  },
+  dashboardWeatherStatWind: {
+    backgroundColor: '#e6f4f2',
+    borderColor: '#c1e1dc',
+  },
+  dashboardWeatherStatGold: {
+    backgroundColor: '#fff3d7',
+    borderColor: '#ead7a3',
+  },
+  dashboardWeatherStatDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 7,
+    backgroundColor: '#1d8f8a',
+  },
+  dashboardWeatherStatLabel: {
+    marginTop: 6,
+    color: '#5e7777',
+    fontSize: 9,
+    lineHeight: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  dashboardWeatherStatValue: {
+    marginTop: 3,
+    color: '#123f4a',
+    fontSize: 18,
+    lineHeight: 22,
+    fontWeight: '900',
+  },
+  dashboardWeatherFooter: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingTop: 2,
+  },
+  dashboardWeatherFooterText: {
+    color: '#648084',
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '800',
+  },
+  dashboardWeatherMessage: {
+    color: '#58737a',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '700',
+  },
   commandListPanel: {
     flexGrow: 1,
     flexBasis: 320,
@@ -5602,6 +7872,507 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
   },
+  lureBoxScreen: {
+    gap: 18,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: '#f1f7f5',
+    borderWidth: 1,
+    borderColor: '#c9dfd8',
+  },
+  lureBoxScreenCompact: {
+    padding: 10,
+    gap: 14,
+  },
+  lureBoxInventoryHeader: {
+    minHeight: 178,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 20,
+    padding: 24,
+    overflow: 'hidden',
+    borderRadius: 19,
+    backgroundColor: '#102f3a',
+    borderWidth: 1,
+    borderColor: '#275260',
+  },
+  lureBoxInventoryHeaderCopy: {
+    flex: 1,
+  },
+  lureBoxInventoryOverline: {
+    color: '#aee3d4',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1.2,
+  },
+  lureBoxInventoryTitle: {
+    marginTop: 8,
+    color: '#ffffff',
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: '900',
+  },
+  lureBoxInventorySubtitle: {
+    maxWidth: 640,
+    marginTop: 7,
+    color: '#d9eeeb',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '700',
+  },
+  lureBoxInventoryCounter: {
+    width: 124,
+    minHeight: 124,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+    backgroundColor: '#c99332',
+    transform: [{ rotate: '3deg' }],
+  },
+  lureBoxInventoryCounterValue: {
+    color: '#ffffff',
+    fontSize: 38,
+    lineHeight: 41,
+    fontWeight: '900',
+  },
+  lureBoxInventoryCounterLabel: {
+    maxWidth: 92,
+    marginTop: 4,
+    color: '#fff8e5',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  lureBoxFilterBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d5e5e0',
+  },
+  lureBoxFilterCopy: {
+    minWidth: 112,
+  },
+  lureBoxFilterLabel: {
+    color: '#1d5961',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  lureBoxFilterHint: {
+    marginTop: 3,
+    color: '#617a75',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  lureBoxFilterOptions: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 7,
+  },
+  lureBoxFilterChip: {
+    minHeight: 35,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 11,
+    borderRadius: 999,
+    backgroundColor: '#f5faf8',
+    borderWidth: 1,
+    borderColor: '#c9dfd8',
+  },
+  lureBoxFilterChipSelected: {
+    backgroundColor: '#1f8a82',
+    borderColor: '#1f8a82',
+  },
+  lureBoxFilterChipText: {
+    color: '#1d5961',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  lureBoxFilterChipTextSelected: {
+    color: '#ffffff',
+  },
+  lureBoxFilterDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+  },
+  lureBoxAddButton: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: '#1f8a82',
+  },
+  lureBoxAddButtonMark: {
+    color: '#ffffff',
+    fontSize: 24,
+    lineHeight: 26,
+    fontWeight: '500',
+  },
+  lureBoxAddButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  lureBoxCardGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  lureBoxInventoryCard: {
+    flexGrow: 1,
+    flexBasis: 310,
+    maxWidth: 440,
+    minHeight: 405,
+    padding: 15,
+    overflow: 'hidden',
+    borderRadius: 21,
+    borderWidth: 1,
+  },
+  lureBoxCardOcean: {
+    backgroundColor: '#ffffff',
+    borderColor: '#b8d9d0',
+  },
+  lureBoxCardMist: {
+    backgroundColor: '#eaf5f1',
+    borderColor: '#c4ded5',
+  },
+  lureBoxCardTopline: {
+    minHeight: 31,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  lureBoxCardSlot: {
+    color: '#52736d',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  lureBoxCardTypeBadge: {
+    maxWidth: '82%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 255, 255, 0.84)',
+  },
+  lureBoxCardTypeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+  },
+  lureBoxCardTypeText: {
+    color: '#254b50',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  lureBoxCardImageFrame: {
+    minHeight: 238,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderRadius: 16,
+    backgroundColor: 'rgba(224, 242, 237, 0.86)',
+  },
+  lureBoxCardImage: {
+    width: '91%',
+    height: '91%',
+  },
+  lureBoxCardImageShine: {
+    position: 'absolute',
+    top: 12,
+    left: 16,
+    width: 80,
+    height: 26,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.38)',
+    transform: [{ rotate: '-18deg' }],
+  },
+  lureBoxCardInfo: {
+    flex: 1,
+    paddingTop: 14,
+  },
+  lureBoxCardName: {
+    color: '#163b42',
+    fontSize: 22,
+    lineHeight: 27,
+    fontWeight: '900',
+  },
+  lureBoxCardFacts: {
+    minHeight: 50,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    marginTop: 10,
+  },
+  lureBoxInventoryFact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  lureBoxColorSwatch: {
+    width: 14,
+    height: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(47, 35, 48, 0.18)',
+  },
+  lureBoxInventoryFactLabel: {
+    color: '#617a75',
+    fontSize: 9,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  lureBoxInventoryFactValue: {
+    marginTop: 2,
+    color: '#254b50',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  lureBoxCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 'auto',
+    paddingTop: 11,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(31, 138, 130, 0.2)',
+  },
+  lureBoxCardAction: {
+    color: '#1f766f',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  lureBoxCardArrow: {
+    color: '#1f766f',
+    fontSize: 22,
+    lineHeight: 24,
+    fontWeight: '900',
+  },
+  lureBoxEmpty: {
+    minHeight: 290,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 28,
+    borderRadius: 18,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c9dfd8',
+  },
+  lureBoxEmptyIcon: {
+    width: 76,
+    height: 76,
+    marginBottom: 12,
+  },
+  lureBoxEmptyTitle: {
+    color: '#214d52',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  lureBoxEmptyText: {
+    marginTop: 6,
+    color: '#617a75',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  lureBoxEditor: {
+    gap: 16,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c1dcd4',
+  },
+  lureBoxEditorCompact: {
+    padding: 11,
+  },
+  lureBoxEditorHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  lureBoxEditorOverline: {
+    color: '#1f8a82',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  lureBoxEditorTitle: {
+    marginTop: 4,
+    color: '#163b42',
+    fontSize: 25,
+    lineHeight: 30,
+    fontWeight: '900',
+  },
+  lureBoxEditorCancel: {
+    minHeight: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#edf5f2',
+    borderWidth: 1,
+    borderColor: '#d1e2dc',
+  },
+  lureBoxEditorCancelText: {
+    color: '#254b50',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  lureBoxEditorLayout: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 18,
+  },
+  lureBoxEditorPreviewFrame: {
+    flexGrow: 1,
+    flexBasis: 260,
+    maxWidth: 370,
+    minHeight: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderRadius: 16,
+    backgroundColor: '#dcefe9',
+  },
+  lureBoxEditorPreview: {
+    width: '88%',
+    height: '88%',
+  },
+  lureBoxEditorPreviewLabel: {
+    position: 'absolute',
+    left: 14,
+    bottom: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#1f8a82',
+  },
+  lureBoxEditorPreviewLabelText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  lureBoxEditorFields: {
+    flexGrow: 1,
+    flexBasis: 330,
+    gap: 13,
+  },
+  lureBoxEditorFieldGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  lureBoxImagePicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 11,
+    borderRadius: 12,
+    backgroundColor: '#f3faf7',
+    borderWidth: 1,
+    borderColor: '#c9dfd8',
+  },
+  lureBoxImagePickerPreview: {
+    width: 86,
+    height: 86,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderRadius: 9,
+    backgroundColor: '#ffffff',
+  },
+  lureBoxImagePickerImage: {
+    width: '90%',
+    height: '90%',
+  },
+  lureBoxImagePickerCopy: {
+    flex: 1,
+  },
+  lureBoxImagePickerLabel: {
+    color: '#254b50',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  lureBoxImagePickerHint: {
+    marginTop: 4,
+    color: '#617a75',
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '700',
+  },
+  lureBoxImagePickerActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 9,
+  },
+  lureBoxImagePickerButton: {
+    minHeight: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 11,
+    borderRadius: 7,
+    backgroundColor: '#1f8a82',
+  },
+  lureBoxImagePickerButtonText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  lureBoxImagePickerButtonSecondary: {
+    minHeight: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 11,
+    borderRadius: 7,
+    backgroundColor: '#e7f1ed',
+    borderWidth: 1,
+    borderColor: '#c1dcd4',
+  },
+  lureBoxImagePickerButtonSecondaryText: {
+    color: '#1d5961',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  lureBoxSaveButton: {
+    minHeight: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9,
+    backgroundColor: '#1f8a82',
+  },
+  lureBoxSaveButtonText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
   profileWorkspace: {
     minHeight: 224,
     flexDirection: 'row',
@@ -5842,6 +8613,7 @@ const styles = StyleSheet.create({
   panelGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'flex-start',
     gap: 14,
   },
   metricPanel: {
@@ -6398,7 +9170,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 6,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    backgroundColor: 'rgba(226, 240, 245, 0.96)',
   },
   galleryTileLureImage: {
     width: 28,
@@ -6406,7 +9178,7 @@ const styles = StyleSheet.create({
   },
   galleryTileLureText: {
     flexShrink: 1,
-    color: '#25252c',
+    color: '#214650',
     fontSize: 10,
     lineHeight: 13,
     fontWeight: '900',
@@ -6663,6 +9435,10 @@ const styles = StyleSheet.create({
     flexBasis: 260,
     position: 'relative',
     zIndex: 2,
+  },
+  gallerySelectFit: {
+    flexGrow: 0,
+    flexBasis: 'auto',
   },
   gallerySelectButton: {
     minHeight: 47,
@@ -7975,7 +10751,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
     borderRadius: 11,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
   },
   fishDetailImage: {
     width: '92%',
@@ -8106,6 +10882,87 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
     fontWeight: '700',
+  },
+  favoriteLuresPanel: {
+    paddingTop: 14,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5eee7',
+  },
+  favoriteLuresHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    marginBottom: 10,
+  },
+  favoriteLuresBar: {
+    width: 4,
+    height: 30,
+    borderRadius: 4,
+  },
+  favoriteLuresEyebrow: {
+    color: '#6d7b75',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  favoriteLuresTitle: {
+    marginTop: 3,
+    color: '#102421',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  favoriteLuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  favoriteLureCard: {
+    flexGrow: 1,
+    flexBasis: 205,
+    minHeight: 74,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    padding: 8,
+    borderRadius: 9,
+    backgroundColor: '#f7fbf8',
+    borderWidth: 1,
+  },
+  favoriteLureImageFrame: {
+    width: 72,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderRadius: 6,
+    backgroundColor: '#ffffff',
+  },
+  favoriteLureImage: {
+    width: '92%',
+    height: '92%',
+  },
+  favoriteLureCopy: {
+    flex: 1,
+  },
+  favoriteLureName: {
+    color: '#102421',
+    fontSize: 13,
+    lineHeight: 17,
+    fontWeight: '900',
+  },
+  favoriteLureAction: {
+    marginTop: 4,
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  favoriteLureArrow: {
+    paddingHorizontal: 4,
+    fontSize: 20,
+    lineHeight: 24,
+    fontWeight: '900',
   },
   catchDetailView: {
     gap: 14,
@@ -8428,6 +11285,185 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     fontWeight: '900',
   },
+  spotFormMapBlock: {
+    gap: 11,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: '#f1faf8',
+    borderWidth: 1,
+    borderColor: '#c5e2dd',
+  },
+  spotFormMapHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  spotFormMapHeadingCopy: {
+    flex: 1,
+    minWidth: 220,
+  },
+  spotFormMapHint: {
+    marginTop: 4,
+    color: '#6c8078',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  spotCoordinateSummary: {
+    minWidth: 150,
+    paddingHorizontal: 11,
+    paddingVertical: 8,
+    borderRadius: 9,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d3e7e2',
+  },
+  spotCoordinateSummaryLabel: {
+    color: '#6d7b75',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  spotCoordinateSummaryValue: {
+    marginTop: 3,
+    color: '#0f7775',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  spotMapPicker: {
+    minHeight: 330,
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: 12,
+    backgroundColor: '#b8d7d0',
+    borderWidth: 1,
+    borderColor: '#a8c9c3',
+  },
+  spotMapTileGrid: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  spotMapTile: {
+    position: 'absolute',
+    width: 256,
+    height: 256,
+  },
+  spotMapInteraction: {
+    cursor: 'grab',
+  },
+  spotMapMarker: {
+    position: 'absolute',
+    width: 22,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  spotMapMarkerPin: {
+    width: 18,
+    height: 18,
+    borderRadius: 18,
+    backgroundColor: '#e15d52',
+    borderWidth: 4,
+    borderColor: '#ffffff',
+    shadowColor: '#173d45',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  spotMapMarkerPulse: {
+    width: 5,
+    height: 5,
+    marginTop: -8,
+    borderRadius: 5,
+    backgroundColor: '#ffffff',
+  },
+  spotMapZoomControls: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    alignItems: 'center',
+    gap: 4,
+    padding: 4,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.93)',
+    borderWidth: 1,
+    borderColor: '#d6e5e2',
+    shadowColor: '#173d45',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  spotMapZoomButton: {
+    width: 34,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 7,
+    backgroundColor: '#0f7775',
+  },
+  spotMapZoomButtonDisabled: {
+    backgroundColor: '#b6c8c4',
+  },
+  spotMapZoomButtonText: {
+    color: '#ffffff',
+    fontSize: 20,
+    lineHeight: 22,
+    fontWeight: '900',
+  },
+  spotMapZoomValue: {
+    color: '#123f4a',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  spotMapTopLabel: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+    borderRadius: 8,
+    backgroundColor: 'rgba(8, 47, 63, 0.88)',
+  },
+  spotMapTopLabelText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  spotMapBottomBar: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+  },
+  spotMapBottomText: {
+    color: '#123f4a',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  spotMapAttribution: {
+    color: '#71807a',
+    fontSize: 9,
+    fontWeight: '700',
+  },
   spotMapPanel: {
     minHeight: 220,
     position: 'relative',
@@ -8569,7 +11605,7 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 12,
     borderRadius: 12,
-    backgroundColor: '#fff7fa',
+    backgroundColor: '#eef7f4',
   },
   lureInventoryImageFrame: {
     width: 124,
@@ -8585,6 +11621,43 @@ const styles = StyleSheet.create({
   },
   lureInventoryCopy: {
     flex: 1,
+  },
+  lureInventoryLibraryLabel: {
+    marginTop: 8,
+    color: '#4c746d',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  lureInventoryTypeButton: {
+    minHeight: 38,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginTop: 7,
+    paddingHorizontal: 11,
+    borderRadius: 8,
+  },
+  lureInventoryTypeDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 9,
+    backgroundColor: 'rgba(255, 255, 255, 0.86)',
+  },
+  lureInventoryTypeText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  lureInventoryTypeArrow: {
+    marginLeft: 3,
+    color: '#ffffff',
+    fontSize: 17,
+    lineHeight: 19,
+    fontWeight: '900',
   },
   quantityBlock: {
     width: 78,
@@ -8961,6 +12034,807 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 19,
     fontWeight: '800',
+  },
+  spotAtlasScreen: {
+    gap: 18,
+  },
+  spotAtlasScreenCompact: {
+    gap: 14,
+  },
+  spotAtlasHeader: {
+    minHeight: 190,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    borderRadius: 20,
+    backgroundColor: '#f4fbf9',
+    borderWidth: 1,
+    borderColor: '#c5e3df',
+  },
+  spotAtlasHeaderCompact: {
+    flexDirection: 'column',
+  },
+  spotAtlasHeaderCopy: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+  },
+  spotAtlasHeaderKicker: {
+    color: '#1687a7',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+  },
+  spotAtlasHeaderTitle: {
+    marginTop: 7,
+    color: '#102f3a',
+    fontSize: 34,
+    lineHeight: 38,
+    fontWeight: '900',
+  },
+  spotAtlasHeaderSubtitle: {
+    maxWidth: 520,
+    marginTop: 8,
+    color: '#5a716f',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '700',
+  },
+  spotAtlasHeaderMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 20,
+  },
+  spotAtlasHeaderMetaItem: {
+    minWidth: 76,
+  },
+  spotAtlasHeaderMetaValue: {
+    color: '#123f4a',
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: '900',
+  },
+  spotAtlasHeaderMetaLabel: {
+    marginTop: 2,
+    color: '#6c8780',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  spotAtlasHeaderMetaDivider: {
+    width: 1,
+    height: 34,
+    backgroundColor: '#c6ddd9',
+  },
+  spotAtlasHeaderVisual: {
+    width: '36%',
+    minHeight: 190,
+  },
+  spotAtlasHeaderVisualCompact: {
+    width: '100%',
+    minHeight: 150,
+  },
+  spotAtlasHeaderVisualImage: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  spotAtlasHeaderVisualImageStyle: {
+    opacity: 0.88,
+  },
+  spotAtlasHeaderVisualOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(8, 60, 73, 0.28)',
+  },
+  spotAtlasHeaderVisualBadge: {
+    position: 'relative',
+    margin: 18,
+    padding: 12,
+    borderRadius: 11,
+    backgroundColor: 'rgba(8, 47, 63, 0.78)',
+  },
+  spotAtlasHeaderVisualCode: {
+    color: '#bdebe4',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  spotAtlasHeaderVisualTitle: {
+    marginTop: 4,
+    color: '#ffffff',
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: '900',
+  },
+  spotAtlasHero: {
+    minHeight: 250,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    borderRadius: 20,
+    backgroundColor: '#0b3443',
+    borderWidth: 1,
+    borderColor: '#c1dfe2',
+  },
+  spotAtlasHeroCompact: {
+    flexDirection: 'column',
+  },
+  spotAtlasHeroVisual: {
+    width: '44%',
+    minHeight: 250,
+    justifyContent: 'flex-end',
+  },
+  spotAtlasHeroVisualCompact: {
+    width: '100%',
+    minHeight: 190,
+  },
+  spotAtlasHeroImage: {
+    opacity: 0.82,
+  },
+  spotAtlasHeroImageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(4, 42, 54, 0.36)',
+  },
+  spotAtlasHeroVisualCopy: {
+    position: 'relative',
+    padding: 20,
+  },
+  spotAtlasHeroVisualCode: {
+    color: '#bcebe4',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1.1,
+  },
+  spotAtlasHeroVisualTitle: {
+    marginTop: 7,
+    color: '#ffffff',
+    fontSize: 24,
+    lineHeight: 29,
+    fontWeight: '900',
+  },
+  spotAtlasHeroBody: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 25,
+    backgroundColor: '#0b3443',
+  },
+  spotAtlasHeroKicker: {
+    color: '#72d2c5',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1.2,
+  },
+  spotAtlasHeroTitle: {
+    marginTop: 8,
+    color: '#ffffff',
+    fontSize: 34,
+    lineHeight: 38,
+    fontWeight: '900',
+  },
+  spotAtlasHeroText: {
+    maxWidth: 520,
+    marginTop: 9,
+    color: '#c8d9d6',
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: '700',
+  },
+  spotAtlasHeroStats: {
+    marginTop: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 18,
+  },
+  spotAtlasHeroStat: {
+    minWidth: 84,
+  },
+  spotAtlasHeroStatValue: {
+    color: '#ffffff',
+    fontSize: 26,
+    lineHeight: 30,
+    fontWeight: '900',
+  },
+  spotAtlasHeroStatLabel: {
+    marginTop: 3,
+    color: '#8fb8b6',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  spotAtlasHeroStatDivider: {
+    width: 1,
+    height: 38,
+    backgroundColor: '#2e5962',
+  },
+  spotWeatherCard: {
+    gap: 14,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#e9f5f7',
+    borderWidth: 1,
+    borderColor: '#b9dfe1',
+  },
+  spotWeatherHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  spotWeatherHeading: {
+    flex: 1,
+    minWidth: 220,
+  },
+  spotWeatherKicker: {
+    color: '#147ea1',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  spotWeatherTitle: {
+    marginTop: 4,
+    color: '#123f4a',
+    fontSize: 21,
+    lineHeight: 25,
+    fontWeight: '900',
+  },
+  spotWeatherLocation: {
+    marginTop: 3,
+    color: '#5f7777',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  spotWeatherRefresh: {
+    minHeight: 36,
+    justifyContent: 'center',
+    paddingHorizontal: 11,
+    borderRadius: 8,
+    backgroundColor: '#147ea1',
+  },
+  spotWeatherRefreshDisabled: {
+    backgroundColor: '#91b8bb',
+  },
+  spotWeatherRefreshText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  spotWeatherDetails: {
+    gap: 9,
+  },
+  spotWeatherMetrics: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  spotWeatherMeta: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+    paddingTop: 2,
+  },
+  spotWeatherMetaItem: {
+    flexGrow: 1,
+    flexBasis: 180,
+    minHeight: 58,
+    justifyContent: 'center',
+    paddingHorizontal: 11,
+    paddingVertical: 9,
+    borderRadius: 10,
+    backgroundColor: '#f4fbfb',
+    borderWidth: 1,
+    borderColor: '#cde5e5',
+  },
+  spotWeatherMetric: {
+    flexGrow: 1,
+    flexBasis: 150,
+    minHeight: 82,
+    justifyContent: 'center',
+    padding: 11,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#cde5e5',
+  },
+  spotWeatherMetricMain: {
+    flexBasis: 230,
+    backgroundColor: '#d9eff1',
+  },
+  spotWeatherMetricUpdated: {
+    flexGrow: 1,
+    flexBasis: 180,
+    minHeight: 82,
+    justifyContent: 'center',
+    padding: 11,
+    borderRadius: 10,
+    backgroundColor: '#f4fbfb',
+  },
+  spotWeatherMetricLabel: {
+    color: '#6b8582',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  spotWeatherMetricValue: {
+    marginTop: 5,
+    color: '#123f4a',
+    fontSize: 17,
+    lineHeight: 21,
+    fontWeight: '900',
+  },
+  spotWeatherMetricHint: {
+    marginTop: 3,
+    color: '#5f7777',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  spotWeatherMetricUpdatedValue: {
+    marginTop: 5,
+    color: '#3b6065',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '800',
+  },
+  spotWeatherMetaValue: {
+    marginTop: 4,
+    color: '#3b6065',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '800',
+  },
+  spotWeatherMessage: {
+    paddingVertical: 6,
+    color: '#5f7777',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '700',
+  },
+  spotAtlasToolbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  spotAtlasActionRow: {
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+    paddingHorizontal: 3,
+  },
+  spotAtlasActionCopy: {
+    flex: 1,
+    minWidth: 220,
+  },
+  spotAtlasActionLabel: {
+    color: '#123f4a',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  spotAtlasActionHint: {
+    marginTop: 3,
+    color: '#6c8078',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  spotAtlasSearchInput: {
+    flexGrow: 1,
+    flexBasis: 280,
+    backgroundColor: '#ffffff',
+    borderColor: '#b9d8dc',
+  },
+  spotAtlasToolbarButton: {
+    minHeight: 48,
+  },
+  spotAtlasCreateButton: {
+    minHeight: 48,
+    backgroundColor: '#0f7775',
+    borderColor: '#0f7775',
+  },
+  spotAtlasIndex: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  spotAtlasTabsHeader: {
+    gap: 3,
+    paddingHorizontal: 2,
+  },
+  spotAtlasTabsLabel: {
+    color: '#123f4a',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  spotAtlasTabsHint: {
+    color: '#70827d',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  spotAtlasIndexItem: {
+    minHeight: 38,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 11,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  spotAtlasIndexItemSelected: {
+    shadowColor: '#0b3443',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  spotAtlasIndexDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+  },
+  spotAtlasIndexText: {
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  spotAtlasIndexCount: {
+    color: '#5a6b63',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  spotAtlasIndexCountSelected: {
+    color: '#dff8f3',
+  },
+  spotAtlasPagination: {
+    alignItems: 'flex-end',
+  },
+  spotTypeSection: {
+    gap: 14,
+    padding: 16,
+    borderRadius: 18,
+    borderWidth: 1,
+  },
+  spotTypePickerBlock: {
+    gap: 12,
+    padding: 14,
+    borderRadius: 13,
+    backgroundColor: '#f7fbf8',
+    borderWidth: 1,
+    borderColor: '#d5e7df',
+  },
+  spotTypePickerHeading: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  spotTypePickerHint: {
+    maxWidth: 620,
+    marginTop: 4,
+    color: '#6c8078',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  spotTypePickerSelected: {
+    color: '#0f7775',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  spotTypePickerList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  spotTypePickerOption: {
+    flexGrow: 1,
+    flexBasis: 180,
+    minHeight: 102,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+  },
+  spotTypePickerOptionSelected: {
+    backgroundColor: '#e4f4ed',
+    shadowColor: '#0f7775',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  spotTypePickerImage: {
+    width: 78,
+    height: 78,
+    borderRadius: 7,
+  },
+  spotTypePickerOptionCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  spotTypePickerOptionCode: {
+    color: '#6a8179',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+  },
+  spotTypePickerOptionLabel: {
+    marginTop: 4,
+    color: '#123f4a',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '900',
+  },
+  spotTypePickerCheck: {
+    alignSelf: 'flex-start',
+    color: '#0f7775',
+    fontSize: 9,
+    fontWeight: '900',
+  },
+  spotTypeHeader: {
+    minHeight: 82,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+  },
+  spotTypeImageFrame: {
+    width: 86,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  spotTypeImage: {
+    width: '100%',
+    height: '100%',
+  },
+  spotTypeHeaderCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  spotTypeKicker: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.9,
+    textTransform: 'uppercase',
+  },
+  spotTypeTitle: {
+    marginTop: 3,
+    color: '#102421',
+    fontSize: 21,
+    lineHeight: 25,
+    fontWeight: '900',
+  },
+  spotTypeDescription: {
+    marginTop: 3,
+    color: '#5a6b63',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  spotTypeCount: {
+    minWidth: 62,
+    minHeight: 62,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    borderRadius: 14,
+  },
+  spotTypeCountValue: {
+    color: '#ffffff',
+    fontSize: 22,
+    lineHeight: 25,
+    fontWeight: '900',
+  },
+  spotTypeCountLabel: {
+    marginTop: 2,
+    color: '#dff8f3',
+    fontSize: 9,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  spotTypeCards: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  spotAtlasCard: {
+    flexGrow: 1,
+    flexBasis: 340,
+    maxWidth: 520,
+    minHeight: 172,
+    flexDirection: 'row',
+    gap: 12,
+    padding: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  spotAtlasCardImageFrame: {
+    width: 132,
+    minHeight: 150,
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  spotAtlasCardImage: {
+    width: '100%',
+    height: '100%',
+  },
+  spotAtlasCardCode: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    minWidth: 28,
+    minHeight: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 7,
+  },
+  spotAtlasCardCodeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  spotAtlasCardBody: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    paddingVertical: 3,
+  },
+  spotAtlasCardTitle: {
+    color: '#102421',
+    fontSize: 18,
+    lineHeight: 22,
+    fontWeight: '900',
+  },
+  spotAtlasCardType: {
+    marginTop: 5,
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  spotAtlasCardRule: {
+    width: '100%',
+    height: 1,
+    marginVertical: 9,
+    backgroundColor: '#e4ebe6',
+  },
+  spotAtlasCardMeta: {
+    color: '#52645d',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '800',
+  },
+  spotAtlasCardSpecies: {
+    marginTop: 4,
+    color: '#73827b',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  spotSpeciesChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 7,
+  },
+  spotSpeciesChip: {
+    minHeight: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingRight: 8,
+    paddingLeft: 4,
+    borderRadius: 999,
+    backgroundColor: '#e5f3ed',
+    borderWidth: 1,
+    borderColor: '#c5e2d5',
+  },
+  spotSpeciesChipLarge: {
+    minHeight: 42,
+    paddingRight: 12,
+    paddingLeft: 6,
+    gap: 7,
+    backgroundColor: '#e3f2ed',
+    borderColor: '#b9dace',
+  },
+  spotSpeciesChipImage: {
+    width: 23,
+    height: 23,
+    borderRadius: 12,
+    backgroundColor: '#f8fcfa',
+  },
+  spotSpeciesChipImageLarge: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+  },
+  spotSpeciesChipText: {
+    maxWidth: 130,
+    color: '#245b50',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
+  },
+  spotSpeciesChipTextLarge: {
+    maxWidth: 220,
+    color: '#174c46',
+    fontSize: 13,
+    lineHeight: 17,
+  },
+  spotSpeciesEmpty: {
+    marginTop: 7,
+    color: '#82918a',
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '700',
+  },
+  spotDetailSpeciesPanel: {
+    gap: 8,
+    padding: 13,
+    borderRadius: 12,
+    backgroundColor: '#f2faf6',
+    borderWidth: 1,
+  },
+  spotDetailSpeciesLabel: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  spotAtlasCardFooter: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  spotAtlasCardAction: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  spotAtlasCardArrow: {
+    color: '#9aa8a2',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  spotTypeEmpty: {
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 13,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.68)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  spotTypeEmptyCode: {
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  spotTypeEmptyText: {
+    color: '#64756e',
+    fontSize: 12,
+    fontWeight: '700',
   },
   resourceGroup: {
     gap: 10,

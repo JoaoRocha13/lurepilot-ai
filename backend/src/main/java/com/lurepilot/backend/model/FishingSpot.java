@@ -15,6 +15,7 @@ import java.time.Instant;
 @Table(name = "fishing_spots", indexes = {
         @Index(name = "idx_spots_name", columnList = "name"),
         @Index(name = "idx_spots_water_type", columnList = "water_type"),
+        @Index(name = "idx_spots_spot_type", columnList = "spot_type"),
         @Index(name = "idx_spots_favorite_species", columnList = "favorite_species"),
         @Index(name = "idx_spots_created_at", columnList = "created_at")
 })
@@ -39,6 +40,9 @@ public class FishingSpot {
     @Column(nullable = false)
     private String waterType;
 
+    @Column(length = 50)
+    private String spotType;
+
     private String favoriteSpecies;
 
     @Column(nullable = false, updatable = false)
@@ -54,6 +58,11 @@ public class FishingSpot {
         this.longitude = longitude;
         this.waterType = waterType;
         this.favoriteSpecies = favoriteSpecies;
+    }
+
+    public FishingSpot(String name, String description, Double latitude, Double longitude, String waterType, String spotType, String favoriteSpecies) {
+        this(name, description, latitude, longitude, waterType, favoriteSpecies);
+        this.spotType = spotType;
     }
 
     @PrePersist
@@ -105,6 +114,14 @@ public class FishingSpot {
 
     public void setWaterType(String waterType) {
         this.waterType = waterType;
+    }
+
+    public String getSpotType() {
+        return spotType;
+    }
+
+    public void setSpotType(String spotType) {
+        this.spotType = spotType;
     }
 
     public String getFavoriteSpecies() {
