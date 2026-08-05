@@ -217,6 +217,7 @@ public class AiRecommendationService {
         return toSessionReviewResponse(aiRecommendationRepository.save(recommendation));
     }
 
+    @Transactional(readOnly = true)
     public List<AiPlanRecommendationResponse> getRecommendationsByPlan(Long planId) {
         if (!fishingPlanRepository.existsById(planId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found");
@@ -228,6 +229,7 @@ public class AiRecommendationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public AiPlanRecommendationResponse getLatestPlanRecommendation(Long planId) {
         if (!fishingPlanRepository.existsById(planId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing plan not found");
@@ -236,6 +238,19 @@ public class AiRecommendationService {
         return aiRecommendationRepository.findFirstByPlanIdAndRecommendationTypeOrderByVersionDescIdDesc(planId, PLAN_RECOMMENDATION)
                 .map(this::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI recommendation not found"));
+    }
+
+    @Transactional
+    public AiPlanRecommendationResponse savePlanRecommendation(Long recommendationId) {
+        AiRecommendation recommendation = aiRecommendationRepository.findById(recommendationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI recommendation not found"));
+
+        if (!PLAN_RECOMMENDATION.equalsIgnoreCase(recommendation.getRecommendationType()) || recommendation.getPlan() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only plan recommendations can be saved from this endpoint");
+        }
+
+        recommendation.setSaved(true);
+        return toResponse(aiRecommendationRepository.save(recommendation));
     }
 
     public List<AiSessionAdjustmentResponse> getSessionAdjustments(Long sessionId) {
@@ -307,6 +322,10 @@ public class AiRecommendationService {
                 Responde sempre em portugues de Portugal.
                 Usa apenas o contexto fornecido e conhecimento geral seguro.
                 Nao inventes dados factuais, meteorologicos, legais ou historicos.
+                Usa a hora e data planeadas, o spot, as zonas do spot, o weather snapshot e os perfis das especies para adaptar a estrategia.
+                Usa targetSpeciesProfiles para considerar habitat, horas ativas, zona de ataque, zonas comuns e lures favoritas.
+                Usa availableLibraryLures para conhecer tecnicas, dificuldade, eficacia, acao e condicoes ideais.
+                Usa history para considerar sessoes anteriores e taxas de sucesso por spot e especie.
                 No lureRanking, usa exclusivamente lures presentes em selectedLures.
                 Nao menciones nem recomendes lures que nao estejam em selectedLures.
                 Nos campos planA, planB e planC, menciona apenas lures presentes em selectedLures.
@@ -325,6 +344,7 @@ public class AiRecommendationService {
                 avoid: lista de strings com coisas a evitar.
                 confidence: low, medium ou high.
                 warnings: lista de strings quando o contexto for limitado.
+                Se o plano tiver varias especies alvo, considera-as em conjunto. Se indicar qualquer especie, usa o spot, weather e contexto geral sem inventar um alvo.
 
                 Contexto estruturado:
                 %s
@@ -1273,6 +1293,7 @@ public class AiRecommendationService {
                 confidence.score(),
                 confidence.reason(),
                 latestOrDefault(recommendation),
+                Boolean.TRUE.equals(recommendation.getSaved()),
                 readJson(recommendation.getWarningsJson(), STRING_LIST_TYPE),
                 recommendation.getCreatedAt()
         );

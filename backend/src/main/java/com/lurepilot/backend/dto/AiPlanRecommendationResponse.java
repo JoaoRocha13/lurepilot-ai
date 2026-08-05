@@ -17,6 +17,7 @@ public record AiPlanRecommendationResponse(
         Integer confidenceScore,
         String confidenceReason,
         Boolean latest,
+        Boolean saved,
         List<String> warnings,
         Instant createdAt
 ) {

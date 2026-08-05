@@ -17,7 +17,7 @@ public record CreateFishingPlanRequest(
         LocalTime plannedTime,
 
         @NotBlank
-        @Size(max = 100)
+        @Size(max = 500)
         String targetSpecies,
 
         @NotBlank

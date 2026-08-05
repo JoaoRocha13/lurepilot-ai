@@ -58,6 +58,11 @@ public class AiRecommendationController {
         return aiRecommendationService.getLatestPlanRecommendation(planId);
     }
 
+    @PostMapping("/{recommendationId}/save")
+    public AiPlanRecommendationResponse savePlanRecommendation(@PathVariable Long recommendationId) {
+        return aiRecommendationService.savePlanRecommendation(recommendationId);
+    }
+
     @GetMapping("/sessions/{sessionId}/adjustments")
     public List<AiSessionAdjustmentResponse> getSessionAdjustments(@PathVariable Long sessionId) {
         return aiRecommendationService.getSessionAdjustments(sessionId);

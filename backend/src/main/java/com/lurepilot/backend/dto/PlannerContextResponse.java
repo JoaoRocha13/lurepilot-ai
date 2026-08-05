@@ -11,8 +11,34 @@ public record PlannerContextResponse(
         List<PlannerContextLure> selectedLures,
         List<PlannerContextSession> recentSpotSessions,
         List<PlannerContextSession> recentSpeciesSessions,
-        PlannerContextDataQuality dataQuality
+        PlannerContextDataQuality dataQuality,
+        List<PlannerContextFish> targetSpeciesProfiles,
+        List<PlannerContextLibraryLure> availableLibraryLures,
+        PlannerContextHistory history
 ) {
+
+    public PlannerContextResponse(
+            PlannerContextPlan plan,
+            PlannerContextSpot spot,
+            PlannerContextWeather weather,
+            List<PlannerContextLure> selectedLures,
+            List<PlannerContextSession> recentSpotSessions,
+            List<PlannerContextSession> recentSpeciesSessions,
+            PlannerContextDataQuality dataQuality
+    ) {
+        this(
+                plan,
+                spot,
+                weather,
+                selectedLures,
+                recentSpotSessions,
+                recentSpeciesSessions,
+                dataQuality,
+                List.of(),
+                List.of(),
+                new PlannerContextHistory(0, 0, 0, 0, null, null)
+        );
+    }
 
     public record PlannerContextPlan(
             Long id,
@@ -48,6 +74,32 @@ public record PlannerContextResponse(
             String waterType,
             Long libraryItemId,
             String libraryItemName
+    ) {
+    }
+
+    public record PlannerContextFish(
+            Long id,
+            String name,
+            String waterEnvironment,
+            String description,
+            String habitatNotes,
+            String activeTimes,
+            String strikeZone,
+            String commonZones,
+            String favoriteLures
+    ) {
+    }
+
+    public record PlannerContextLibraryLure(
+            Long id,
+            String name,
+            String type,
+            String difficulty,
+            String effectiveness,
+            String description,
+            String usageNotes,
+            String actionType,
+            String idealConditions
     ) {
     }
 
@@ -90,6 +142,16 @@ public record PlannerContextResponse(
             int recentSpeciesSessionCount,
             String confidenceHint,
             List<String> warnings
+    ) {
+    }
+
+    public record PlannerContextHistory(
+            int spotSessionCount,
+            int speciesSessionCount,
+            int successfulSpotSessionCount,
+            int successfulSpeciesSessionCount,
+            Double spotSuccessRate,
+            Double speciesSuccessRate
     ) {
     }
 }

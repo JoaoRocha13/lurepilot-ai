@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Image,
   ImageBackground,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -86,6 +87,24 @@ const menuItems = [
   { id: 'library', image: libraryIcon, iconScale: 1.45 },
   { id: 'profile', image: profileIcon, iconScale: 1.7 },
 ]
+
+const ANY_SPECIES = '__ANY_SPECIES__'
+const ALL_LURES = '__ALL_LURES__'
+
+const dateTimeHtmlInputStyle = {
+  boxSizing: 'border-box',
+  width: '100%',
+  minHeight: 47,
+  padding: '0 12px',
+  borderRadius: 5,
+  backgroundColor: '#edf3ef',
+  border: '1px solid #d6ded7',
+  color: '#102421',
+  fontSize: 14,
+  fontWeight: 800,
+  fontFamily: 'inherit',
+  outline: 'none',
+}
 
 const featureImages = {
   dashboard: damSpot,
@@ -199,8 +218,8 @@ const translations = {
       weather: 'Weather relevante',
       noSnapshot: 'Sem snapshot',
       wind: 'vento',
-      weatherDistrictsLoading: 'A carregar distritos...',
-      weatherSelectionError: 'Nao foi possivel atualizar este distrito.',
+      weatherDistrictsLoading: 'A carregar localidades...',
+      weatherSelectionError: 'Nao foi possivel atualizar esta localidade.',
       weatherFallback: 'Liga um snapshot IPMA a um plano.',
       weatherMin: 'Minima',
       weatherMax: 'Maxima',
@@ -247,7 +266,7 @@ const translations = {
       weatherLoading: 'A atualizar meteorologia...',
       weatherUnavailable: 'Nao foi possivel obter a meteorologia deste spot.',
       weatherNoCoordinates: 'Seleciona um spot com coordenadas para ver a meteorologia.',
-      weatherDistrict: 'Distrito',
+      weatherDistrict: 'Localidade',
       refreshWeather: 'Atualizar meteorologia',
       temperature: 'Temperatura',
       precipitation: 'Probabilidade de chuva',
@@ -270,6 +289,38 @@ const translations = {
       createPlanSuccess: 'Plano criado com sucesso.',
       createPlanError: 'Nao foi possivel criar o plano.',
       planRequiredFields: 'Escolhe spot, data, especie alvo, claridade e nivel da agua.',
+      choosePlanDate: 'Escolher data',
+      choosePlanTime: 'Escolher hora',
+      selectTargetSpecies: 'Especies alvo',
+      anySpecies: 'Qualquer especie',
+      targetSpeciesHint: 'Escolhe uma ou varias especies da biblioteca.',
+      selectLuresForPlan: 'Lures para levar',
+      planLuresHint: 'Opcional. Estas lures ficam ligadas ao plano e entram no contexto da IA.',
+      noLuresForPlan: 'Adiciona lures ao Lure Box para as poderes associar ao plano.',
+      allLures: 'Levar toda a Lure Box',
+      optional: 'opcional',
+      aiPlanner: 'AI Planner',
+      aiPlannerHint: 'Transforma o contexto deste plano numa estrategia pratica A/B/C.',
+      generateAiPlan: 'Gerar recomendacao',
+      refreshAiPlan: 'Atualizar recomendacao',
+      aiPlanLoading: 'A preparar recomendacao...',
+      aiPlanEmpty: 'Ainda nao existe uma recomendacao para este plano.',
+      aiPlanLoadError: 'Nao foi possivel carregar a recomendacao.',
+      aiPlanGenerateError: 'Nao foi possivel gerar a recomendacao.',
+      aiPlanLmStudioUnavailable: 'Liga o servidor local do LM Studio e confirma que o modelo esta carregado antes de gerar o plano.',
+      saveAiPlan: 'Guardar recomendacao',
+      savingAiPlan: 'A guardar recomendacao...',
+      aiPlanSaved: 'Recomendacao guardada',
+      aiPlanSaveError: 'Nao foi possivel guardar a recomendacao.',
+      aiPlanSummary: 'Leitura da situacao',
+      aiPlanConfidence: 'Confianca',
+      aiPlanLures: 'Lures recomendadas',
+      aiPlanAvoid: 'Evitar',
+      aiPlanWarnings: 'Atencao',
+      aiPlanNoLures: 'Sem ranking de lures disponivel.',
+      planA: 'Plano A',
+      planB: 'Plano B',
+      planC: 'Plano C',
       chooseSpot: 'Escolher spot',
       noSpotsForPlan: 'Cria primeiro um spot para poderes planear uma sessao.',
       plannedDateHint: 'YYYY-MM-DD',
@@ -289,6 +340,7 @@ const translations = {
         fieldAtlasText: 'Pontos de agua, coordenadas e memoria de campo.',
         missionBoard: 'Quadro de missao',
         missionBoardText: 'Decisoes preparadas para a proxima saida.',
+        poweredByAi: 'Powered by AI',
         liveConsole: 'Consola da sessao',
         liveConsoleText: 'O que esta a acontecer agora junto a agua.',
         gearInventory: 'Inventario de equipamento',
@@ -351,9 +403,6 @@ const translations = {
         },
       },
       galleryImages: 'Imagens',
-      galleryCountLabel: 'capturas guardadas',
-      galleryMemory: 'Memorias de campo',
-      galleryMemoryHint: 'Cada imagem guarda uma historia, uma decisao e um lugar.',
       newCatch: 'Nova captura',
       editCatch: 'Editar captura',
       saveCatch: 'Guardar captura',
@@ -607,8 +656,8 @@ const translations = {
       weather: 'Relevant weather',
       noSnapshot: 'No snapshot',
       wind: 'wind',
-      weatherDistrictsLoading: 'Loading districts...',
-      weatherSelectionError: 'Could not update this district.',
+      weatherDistrictsLoading: 'Loading forecast locations...',
+      weatherSelectionError: 'Could not update this location.',
       weatherFallback: 'Attach an IPMA snapshot to a plan.',
       weatherMin: 'Minimum',
       weatherMax: 'Maximum',
@@ -655,7 +704,7 @@ const translations = {
       weatherLoading: 'Updating weather...',
       weatherUnavailable: 'Could not get weather for this spot.',
       weatherNoCoordinates: 'Select a spot with coordinates to see weather.',
-      weatherDistrict: 'District',
+      weatherDistrict: 'Forecast location',
       refreshWeather: 'Refresh weather',
       temperature: 'Temperature',
       precipitation: 'Rain probability',
@@ -678,6 +727,38 @@ const translations = {
       createPlanSuccess: 'Plan created successfully.',
       createPlanError: 'Could not create the plan.',
       planRequiredFields: 'Choose spot, date, target species, water clarity and water level.',
+      choosePlanDate: 'Choose date',
+      choosePlanTime: 'Choose time',
+      selectTargetSpecies: 'Target species',
+      anySpecies: 'Any species',
+      targetSpeciesHint: 'Choose one or more species from the library.',
+      selectLuresForPlan: 'Lures to take',
+      planLuresHint: 'Optional. These lures are linked to the plan and added to the AI context.',
+      noLuresForPlan: 'Add lures to the Lure Box before linking them to a plan.',
+      allLures: 'Take the whole Lure Box',
+      optional: 'optional',
+      aiPlanner: 'AI Planner',
+      aiPlannerHint: 'Turn this plan context into a practical A/B/C strategy.',
+      generateAiPlan: 'Generate recommendation',
+      refreshAiPlan: 'Update recommendation',
+      aiPlanLoading: 'Preparing recommendation...',
+      aiPlanEmpty: 'There is no recommendation for this plan yet.',
+      aiPlanLoadError: 'Could not load the recommendation.',
+      aiPlanGenerateError: 'Could not generate the recommendation.',
+      aiPlanLmStudioUnavailable: 'Start the local LM Studio server and confirm that a model is loaded before generating the plan.',
+      saveAiPlan: 'Save recommendation',
+      savingAiPlan: 'Saving recommendation...',
+      aiPlanSaved: 'Recommendation saved',
+      aiPlanSaveError: 'Could not save the recommendation.',
+      aiPlanSummary: 'Situation read',
+      aiPlanConfidence: 'Confidence',
+      aiPlanLures: 'Recommended lures',
+      aiPlanAvoid: 'Avoid',
+      aiPlanWarnings: 'Warnings',
+      aiPlanNoLures: 'No lure ranking available.',
+      planA: 'Plan A',
+      planB: 'Plan B',
+      planC: 'Plan C',
       chooseSpot: 'Choose spot',
       noSpotsForPlan: 'Create a spot first so you can plan a session.',
       plannedDateHint: 'YYYY-MM-DD',
@@ -697,6 +778,7 @@ const translations = {
         fieldAtlasText: 'Water points, coordinates and field memory.',
         missionBoard: 'Mission board',
         missionBoardText: 'Decisions prepared for the next outing.',
+        poweredByAi: 'Powered by AI',
         liveConsole: 'Session console',
         liveConsoleText: 'What is happening right now by the water.',
         gearInventory: 'Gear inventory',
@@ -759,9 +841,6 @@ const translations = {
         },
       },
       galleryImages: 'Images',
-      galleryCountLabel: 'saved catches',
-      galleryMemory: 'Field memories',
-      galleryMemoryHint: 'Every image keeps a story, a decision and a place.',
       newCatch: 'New catch',
       editCatch: 'Edit catch',
       saveCatch: 'Save catch',
@@ -1339,17 +1418,17 @@ function App() {
           <View
             style={[
               styles.topBar,
-              (activeSection === 'gallery' || activeSection === 'library') && styles.galleryTopBar,
+              activeSection !== 'dashboard' && styles.pageTopBarCompact,
               compact && styles.topBarCompact,
             ]}
           >
-            {activeSection === 'gallery' || activeSection === 'library' ? null : (
+            {activeSection === 'dashboard' ? (
               <View>
                 <Text style={styles.kicker}>{copy.today}</Text>
                 <Text style={styles.screenTitle}>{activeCopy.title}</Text>
                 <Text style={styles.screenIntro}>{activeCopy.subtitle}</Text>
               </View>
-            )}
+            ) : null}
 
             <View style={styles.topBarSide}>
               <View style={styles.workspacePill}>
@@ -1976,56 +2055,71 @@ function SpotAtlasShowcase({
 
   return (
     <View style={[styles.spotAtlasScreen, compact && styles.spotAtlasScreenCompact]}>
-      <View style={[styles.spotAtlasHeader, compact && styles.spotAtlasHeaderCompact]}>
-        <View style={styles.spotAtlasHeaderCopy}>
-          <Text style={styles.spotAtlasHeaderKicker}>{copy.resources.spotAtlas.overline}</Text>
-          <Text style={styles.spotAtlasHeaderTitle}>{copy.sections.spots.title}</Text>
-          <Text style={styles.spotAtlasHeaderSubtitle}>{copy.resources.spotAtlas.subtitle}</Text>
-          <View style={styles.spotAtlasHeaderMetaRow}>
-            <View style={styles.spotAtlasHeaderMetaItem}>
-              <Text style={styles.spotAtlasHeaderMetaValue}>{total}</Text>
-              <Text style={styles.spotAtlasHeaderMetaLabel}>{copy.resources.total}</Text>
-            </View>
-            <View style={styles.spotAtlasHeaderMetaDivider} />
-            <View style={styles.spotAtlasHeaderMetaItem}>
-              <Text style={styles.spotAtlasHeaderMetaValue}>{spotTypeCatalog.length}</Text>
-              <Text style={styles.spotAtlasHeaderMetaLabel}>{copy.resources.spotAtlas.zones}</Text>
-            </View>
-          </View>
+      <View style={[styles.lureBoxInventoryHeader, compact && styles.spotAtlasInventoryHeaderCompact]}>
+        <View style={styles.lureBoxInventoryHeaderCopy}>
+          <Text style={styles.lureBoxInventoryOverline}>ATLAS / 01</Text>
+          <Text style={styles.lureBoxInventoryTitle}>{copy.sections.spots.title}</Text>
+          <Text style={styles.lureBoxInventorySubtitle}>{copy.resources.spotAtlas.subtitle}</Text>
         </View>
-        <View style={[styles.spotAtlasHeaderVisual, compact && styles.spotAtlasHeaderVisualCompact]}>
-          <ImageBackground source={{ uri: lakeSpot }} style={styles.spotAtlasHeaderVisualImage} imageStyle={styles.spotAtlasHeaderVisualImageStyle}>
-            <View style={styles.spotAtlasHeaderVisualOverlay} />
-            <View style={styles.spotAtlasHeaderVisualBadge}>
-              <Text style={styles.spotAtlasHeaderVisualCode}>FIELD ATLAS / 01</Text>
-              <Text style={styles.spotAtlasHeaderVisualTitle}>{copy.resources.spotAtlas.visualTitle}</Text>
-            </View>
-          </ImageBackground>
+        <View style={[styles.lureBoxInventoryCounter, compact && styles.spotAtlasInventoryCounterCompact]}>
+          <Text style={styles.lureBoxInventoryCounterValue}>{total}</Text>
+          <Text style={styles.lureBoxInventoryCounterLabel}>{copy.resources.groups.spots}</Text>
         </View>
       </View>
 
-      <SpotWeatherCard
-        weather={weather}
-        spot={weatherSpot}
-        loading={weatherLoading}
-        error={weatherError}
-        onRefresh={() => setWeatherRefreshKey((current) => current + 1)}
-        copy={copy}
-      />
+      <View style={[styles.spotAtlasUtilityGrid, compact && styles.spotAtlasUtilityGridCompact]}>
+        <View style={[styles.spotAtlasExplorerPanel, compact && styles.spotAtlasExplorerPanelCompact]}>
+          <View style={styles.spotAtlasControlsHeader}>
+            <View style={styles.spotAtlasActionCopy}>
+              <Text style={styles.spotAtlasActionLabel}>{copy.resources.spotAtlas.tabsLabel}</Text>
+              <Text style={styles.spotAtlasActionHint}>{copy.resources.spotAtlas.tabsHint}</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.createSpot}
+              onPress={() => setShowCreateSpot((current) => !current)}
+              style={[styles.primaryButton, styles.spotAtlasCreateButton]}
+            >
+              <Text style={styles.primaryButtonText}>{showCreateSpot ? copy.resources.cancel : copy.resources.createSpot}</Text>
+            </Pressable>
+          </View>
 
-      <View style={styles.spotAtlasActionRow}>
-        <View style={styles.spotAtlasActionCopy}>
-          <Text style={styles.spotAtlasActionLabel}>{copy.resources.spotAtlas.tabsLabel}</Text>
-          <Text style={styles.spotAtlasActionHint}>{copy.resources.spotAtlas.tabsHint}</Text>
+          <View style={styles.spotAtlasIndex}>
+            {spotTypeCatalog.map((type) => {
+              const typeCopy = copy.resources.spotTypes[type.key]
+              const count = items.filter((item) => getSpotCategory(item) === type.key).length
+              const selected = activeType === type.key
+
+              return (
+                <Pressable
+                  key={type.key}
+                  accessibilityRole="button"
+                  accessibilityLabel={typeCopy.label}
+                  onPress={() => handleTypeSelect(type.key)}
+                  style={[styles.spotAtlasIndexItem, selected && styles.spotAtlasIndexItemSelected, { backgroundColor: selected ? type.accent : type.soft, borderColor: `${type.accent}55` }]}
+                >
+                  <View style={[styles.spotAtlasIndexDot, { backgroundColor: type.accent }]} />
+                  <Text style={[styles.spotAtlasIndexText, { color: selected ? '#ffffff' : type.accent }]}>{typeCopy.label}</Text>
+                  <Text style={[styles.spotAtlasIndexCount, selected && styles.spotAtlasIndexCountSelected]}>{count}</Text>
+                </Pressable>
+              )
+            })}
+          </View>
+
+          <View style={styles.spotAtlasPagination}>
+            <PaginationControls group={group || {}} onPageChange={onPageChange} copy={copy} />
+          </View>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={copy.resources.createSpot}
-          onPress={() => setShowCreateSpot((current) => !current)}
-          style={[styles.primaryButton, styles.spotAtlasCreateButton]}
-        >
-          <Text style={styles.primaryButtonText}>{showCreateSpot ? copy.resources.cancel : copy.resources.createSpot}</Text>
-        </Pressable>
+
+        <SpotWeatherCard
+          weather={weather}
+          spot={weatherSpot}
+          loading={weatherLoading}
+          error={weatherError}
+          onRefresh={() => setWeatherRefreshKey((current) => current + 1)}
+          copy={copy}
+          compact={compact}
+        />
       </View>
 
       {showCreateSpot && <CreateSpotForm copy={copy} onCreated={handleSpotCreated} />}
@@ -2053,32 +2147,6 @@ function SpotAtlasShowcase({
           lureLibraryItems={lureLibraryItems}
         />
       )}
-
-      <View style={styles.spotAtlasIndex}>
-        {spotTypeCatalog.map((type) => {
-          const typeCopy = copy.resources.spotTypes[type.key]
-          const count = items.filter((item) => getSpotCategory(item) === type.key).length
-          const selected = activeType === type.key
-
-          return (
-            <Pressable
-              key={type.key}
-              accessibilityRole="button"
-              accessibilityLabel={typeCopy.label}
-              onPress={() => handleTypeSelect(type.key)}
-              style={[styles.spotAtlasIndexItem, selected && styles.spotAtlasIndexItemSelected, { backgroundColor: selected ? type.accent : type.soft, borderColor: `${type.accent}55` }]}
-            >
-              <View style={[styles.spotAtlasIndexDot, { backgroundColor: type.accent }]} />
-              <Text style={[styles.spotAtlasIndexText, { color: selected ? '#ffffff' : type.accent }]}>{typeCopy.label}</Text>
-              <Text style={[styles.spotAtlasIndexCount, selected && styles.spotAtlasIndexCountSelected]}>{count}</Text>
-            </Pressable>
-          )
-        })}
-      </View>
-
-      <View style={styles.spotAtlasPagination}>
-        <PaginationControls group={group || {}} onPageChange={onPageChange} copy={copy} />
-      </View>
 
       <View style={[styles.spotTypeSection, { backgroundColor: selectedType.soft, borderColor: `${selectedType.accent}3d` }]}>
         <View style={styles.spotTypeHeader}>
@@ -2121,8 +2189,9 @@ function SpotAtlasShowcase({
   )
 }
 
-function SpotWeatherCard({ weather, spot, loading, error, onRefresh, copy }) {
+function SpotWeatherCard({ weather, spot, loading, error, onRefresh, copy, compact }) {
   const fields = copy.resources
+  const [showDetails, setShowDetails] = useState(false)
   const temperatureMin = weather?.temperatureMin != null ? `${weather.temperatureMin} °C` : '--'
   const temperatureMax = weather?.temperatureMax != null ? `${weather.temperatureMax} °C` : '--'
   const precipitation = weather?.precipitationProbability != null ? `${weather.precipitationProbability}%` : '--'
@@ -2134,22 +2203,32 @@ function SpotWeatherCard({ weather, spot, loading, error, onRefresh, copy }) {
   const sourceCoordinates = formatCoordinates(weather?.sourceLatitude, weather?.sourceLongitude) || '--'
 
   return (
-    <View style={styles.spotWeatherCard}>
+    <View style={[styles.spotWeatherCard, compact && styles.spotWeatherCardCompact]}>
       <View style={styles.spotWeatherHeader}>
         <View style={styles.spotWeatherHeading}>
-          <Text style={styles.spotWeatherKicker}>IPMA / {fields.weatherTitle}</Text>
+          <Text style={styles.spotWeatherKicker}>{fields.weatherTitle}</Text>
           <Text style={styles.spotWeatherTitle}>{spot?.name || fields.spotAtlas.overline}</Text>
           <Text style={styles.spotWeatherLocation}>{weather?.sourceLocationName ? `${fields.weatherDistrict}: ${weather.sourceLocationName}` : (formatCoordinates(spot?.latitude, spot?.longitude) || fields.weatherNoCoordinates)}</Text>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={fields.refreshWeather}
-          onPress={onRefresh}
-          disabled={loading || !spot}
-          style={[styles.spotWeatherRefresh, (loading || !spot) && styles.spotWeatherRefreshDisabled]}
-        >
-          <Text style={styles.spotWeatherRefreshText}>{loading ? fields.weatherLoading : fields.refreshWeather}</Text>
-        </Pressable>
+        <View style={styles.spotWeatherActions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={fields.refreshWeather}
+            onPress={onRefresh}
+            disabled={loading || !spot}
+            style={[styles.spotWeatherRefresh, (loading || !spot) && styles.spotWeatherRefreshDisabled]}
+          >
+            <Text style={styles.spotWeatherRefreshText}>{loading ? fields.weatherLoading : fields.refreshWeather}</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={showDetails ? fields.close : fields.details}
+            onPress={() => setShowDetails((current) => !current)}
+            style={styles.spotWeatherDetailsButton}
+          >
+            <Text style={styles.spotWeatherDetailsButtonText}>{showDetails ? fields.close : fields.details}</Text>
+          </Pressable>
+        </View>
       </View>
 
       {error ? (
@@ -2158,46 +2237,46 @@ function SpotWeatherCard({ weather, spot, loading, error, onRefresh, copy }) {
         <Text style={styles.spotWeatherMessage}>{fields.weatherNoCoordinates}</Text>
       ) : (
         <View style={styles.spotWeatherDetails}>
-          <View style={styles.spotWeatherMetrics}>
-          <View style={[styles.spotWeatherMetric, styles.spotWeatherMetricMain]}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.temperatureMin}</Text>
-            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : temperatureMin}</Text>
+          <View style={styles.spotWeatherSummary}>
+            <View style={[styles.spotWeatherMetric, styles.spotWeatherTemperatureMetric]}>
+              <Text style={styles.spotWeatherMetricLabel}>{fields.temperature}</Text>
+              <View style={styles.spotWeatherTemperatureValues}>
+                <Text style={styles.spotWeatherTemperatureMin}>{loading ? '--' : temperatureMin}</Text>
+                <Text style={styles.spotWeatherTemperatureDivider}>/</Text>
+                <Text style={styles.spotWeatherTemperatureMax}>{loading ? '--' : temperatureMax}</Text>
+              </View>
+            </View>
+            <View style={[styles.spotWeatherMetric, styles.spotWeatherRainMetric]}>
+              <Text style={styles.spotWeatherMetricLabel}>{fields.precipitation}</Text>
+              <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : precipitation}</Text>
+            </View>
+            <View style={[styles.spotWeatherMetric, styles.spotWeatherWindMetric]}>
+              <Text style={styles.spotWeatherMetricLabel}>{fields.wind}</Text>
+              <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : windDirection}</Text>
+              <Text style={styles.spotWeatherMetricHint}>{fields.windSpeedClass}: {loading ? '--' : windSpeedClass}</Text>
+            </View>
           </View>
-          <View style={[styles.spotWeatherMetric, styles.spotWeatherMetricMain]}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.temperatureMax}</Text>
-            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : temperatureMax}</Text>
-          </View>
-          <View style={styles.spotWeatherMetric}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.precipitation}</Text>
-            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : precipitation}</Text>
-          </View>
-          <View style={styles.spotWeatherMetric}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.windDirection}</Text>
-            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : windDirection}</Text>
-          </View>
-          <View style={styles.spotWeatherMetric}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.windSpeedClass}</Text>
-            <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : windSpeedClass}</Text>
-          </View>
-          </View>
-          <View style={styles.spotWeatherMeta}>
-          <View style={styles.spotWeatherMetaItem}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherForecastDate}</Text>
-            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : forecastDate}</Text>
-          </View>
-          <View style={styles.spotWeatherMetaItem}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherDataUpdate}</Text>
-            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : dataUpdate}</Text>
-          </View>
-          <View style={styles.spotWeatherMetaItem}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherCapturedAt}</Text>
-            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : capturedAt}</Text>
-          </View>
-          <View style={styles.spotWeatherMetaItem}>
-            <Text style={styles.spotWeatherMetricLabel}>{fields.weatherSourceCoordinates}</Text>
-            <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : sourceCoordinates}</Text>
-          </View>
-          </View>
+
+          {showDetails && (
+            <View style={styles.spotWeatherMeta}>
+              <View style={styles.spotWeatherMetaItem}>
+                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherForecastDate}</Text>
+                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : forecastDate}</Text>
+              </View>
+              <View style={styles.spotWeatherMetaItem}>
+                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherDataUpdate}</Text>
+                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : dataUpdate}</Text>
+              </View>
+              <View style={styles.spotWeatherMetaItem}>
+                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherCapturedAt}</Text>
+                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : capturedAt}</Text>
+              </View>
+              <View style={styles.spotWeatherMetaItem}>
+                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherSourceCoordinates}</Text>
+                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : sourceCoordinates}</Text>
+              </View>
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -2295,22 +2374,28 @@ function MissionWorkspaceHeader({ section, groups, compact, copy }) {
       </View>
       <View style={styles.missionWorkspaceBody}>
         <View style={styles.missionWorkspaceTop}>
-          <View>
+          <View style={styles.missionWorkspaceMain}>
             <Text style={styles.workspaceOverline}>{copy.resources.workspace.missionBoard}</Text>
             <Text style={styles.missionWorkspaceTitle}>{section.title}</Text>
+            <Text style={styles.missionWorkspaceText}>{copy.resources.workspace.missionBoardText}</Text>
+            <View style={styles.missionTrack}>
+              <MissionTrackPoint label="A" active />
+              <View style={styles.missionTrackLine} />
+              <MissionTrackPoint label="B" />
+              <View style={styles.missionTrackLine} />
+              <MissionTrackPoint label="C" />
+            </View>
           </View>
-          <View style={styles.missionWorkspaceCount}>
-            <Text style={styles.missionWorkspaceCountValue}>{total}</Text>
-            <Text style={styles.missionWorkspaceCountLabel}>{copy.resources.workspace.planned}</Text>
+          <View style={styles.missionWorkspaceHeaderAside}>
+            <View style={[styles.lureBoxInventoryCounter, styles.missionWorkspaceCounter]}>
+              <Text style={styles.lureBoxInventoryCounterValue}>{total}</Text>
+              <Text style={styles.lureBoxInventoryCounterLabel}>{copy.resources.groups.plans}</Text>
+            </View>
+            <View style={[styles.missionWorkspaceAiBadge, styles.missionWorkspaceAiBadgeRight]}>
+              <View style={styles.missionWorkspaceAiDot} />
+              <Text style={styles.missionWorkspaceAiBadgeText}>{copy.resources.workspace.poweredByAi}</Text>
+            </View>
           </View>
-        </View>
-        <Text style={styles.missionWorkspaceText}>{copy.resources.workspace.missionBoardText}</Text>
-        <View style={styles.missionTrack}>
-          <MissionTrackPoint label="A" active />
-          <View style={styles.missionTrackLine} />
-          <MissionTrackPoint label="B" />
-          <View style={styles.missionTrackLine} />
-          <MissionTrackPoint label="C" />
         </View>
       </View>
     </View>
@@ -2472,12 +2557,6 @@ function GalleryShowcase({
           <Text style={styles.galleryShowcaseEyebrow}>{copy.resources.galleryImages}</Text>
           <Text style={styles.galleryShowcaseTitle}>{copy.sections.gallery.title}</Text>
           <Text style={styles.galleryShowcaseSubtitle}>{copy.sections.gallery.subtitle}</Text>
-          <View style={styles.galleryHeaderMetaRow}>
-            <View style={styles.galleryHeaderMetaDot} />
-            <Text style={styles.galleryHeaderMetaText}>{group?.totalItems ?? items.length} {copy.resources.galleryCountLabel}</Text>
-            <Text style={styles.galleryHeaderMetaDivider}>/</Text>
-            <Text style={styles.galleryHeaderMetaText}>{copy.resources.galleryMemory}</Text>
-          </View>
         </View>
         <View style={styles.galleryHeaderVisual}>
           <View style={styles.galleryHeaderVisualStripe} />
@@ -2501,6 +2580,12 @@ function GalleryShowcase({
           <Text style={styles.galleryCreateButtonText}>{copy.resources.newCatch}</Text>
         </Pressable>
       </View>
+
+      {group && (
+        <View style={styles.galleryPagination}>
+          <PaginationControls group={group} onPageChange={onPageChange} copy={copy} />
+        </View>
+      )}
 
       {loading && (
         <View style={styles.loadingLine}>
@@ -2553,7 +2638,7 @@ function GalleryShowcase({
             <GalleryTile
               key={`gallery-${getItemId(item, 'catches')}`}
               item={item}
-              index={index}
+              index={index + (group?.page || 0) * (group?.size || items.length || 1)}
               copy={copy}
               onPress={() => onOpenDetail(item, group)}
             />
@@ -2977,31 +3062,54 @@ function LibraryShowcase({
 
   return (
     <View style={[styles.libraryScreen, compact && styles.libraryScreenCompact]}>
-      <View style={styles.libraryShowcaseHeader}>
-        <Text style={styles.libraryShowcaseTitle}>{copy.sections.library.title}</Text>
-        <Text style={styles.libraryShowcaseSubtitle}>{subtitle}</Text>
-        <View style={styles.librarySwitch}>
+      <View style={[styles.libraryShowcaseHeader, compact && styles.libraryShowcaseHeaderCompact]}>
+        <View style={styles.libraryShowcaseHeaderCopy}>
+          <Text style={styles.libraryShowcaseOverline}>CATALOG / 01</Text>
+          <Text style={styles.libraryShowcaseTitle}>{copy.sections.library.title}</Text>
+          <Text style={styles.libraryShowcaseSubtitle}>{subtitle}</Text>
+        </View>
+        <View style={[styles.libraryShowcaseCounter, compact && styles.libraryShowcaseCounterCompact]}>
+          <Text style={styles.libraryShowcaseCounterValue}>{selectedGroup?.totalItems ?? items.length}</Text>
+          <Text style={styles.libraryShowcaseCounterLabel}>{title}</Text>
+        </View>
+      </View>
+
+      <View style={[styles.libraryControlsPanel, compact && styles.libraryControlsPanelCompact]}>
+        <View style={[styles.libraryControlsTop, compact && styles.libraryControlsTopCompact]}>
+          <View style={styles.librarySwitch}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.groups.fish}
+              onPress={() => changeLibraryType('fish')}
+              style={[styles.librarySwitchButton, libraryType === 'fish' && styles.librarySwitchButtonSelected]}
+            >
+              <Text style={[styles.librarySwitchText, libraryType === 'fish' && styles.librarySwitchTextSelected]}>
+                {copy.resources.groups.fish}
+              </Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.groups.lureLibrary}
+              onPress={() => changeLibraryType('lures')}
+              style={[styles.librarySwitchButton, libraryType === 'lures' && styles.librarySwitchButtonSelected]}
+            >
+              <Text style={[styles.librarySwitchText, libraryType === 'lures' && styles.librarySwitchTextSelected]}>
+                {copy.resources.groups.lureLibrary}
+              </Text>
+            </Pressable>
+          </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={copy.resources.groups.fish}
-            onPress={() => changeLibraryType('fish')}
-            style={[styles.librarySwitchButton, libraryType === 'fish' && styles.librarySwitchButtonSelected]}
+            accessibilityLabel={libraryType === 'fish' ? copy.resources.newFish : copy.resources.newLure}
+            onPress={openCreateForm}
+            style={styles.libraryCreateButton}
           >
-            <Text style={[styles.librarySwitchText, libraryType === 'fish' && styles.librarySwitchTextSelected]}>
-              {copy.resources.groups.fish}
-            </Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copy.resources.groups.lureLibrary}
-            onPress={() => changeLibraryType('lures')}
-            style={[styles.librarySwitchButton, libraryType === 'lures' && styles.librarySwitchButtonSelected]}
-          >
-            <Text style={[styles.librarySwitchText, libraryType === 'lures' && styles.librarySwitchTextSelected]}>
-              {copy.resources.groups.lureLibrary}
+            <Text style={styles.libraryCreateButtonText}>
+              + {libraryType === 'fish' ? copy.resources.newFish : copy.resources.newLure}
             </Text>
           </Pressable>
         </View>
+
         {libraryType === 'fish' && (
           <View style={styles.libraryEnvironmentFilter}>
             <Text style={styles.libraryEnvironmentLabel}>{copy.resources.waterEnvironment}</Text>
@@ -3036,16 +3144,6 @@ function LibraryShowcase({
             </View>
           </View>
         )}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={libraryType === 'fish' ? copy.resources.newFish : copy.resources.newLure}
-          onPress={openCreateForm}
-          style={styles.libraryCreateButton}
-        >
-          <Text style={styles.libraryCreateButtonText}>
-            + {libraryType === 'fish' ? copy.resources.newFish : copy.resources.newLure}
-          </Text>
-        </Pressable>
       </View>
 
       {selectedGroup && (
@@ -3590,15 +3688,46 @@ function FishEnvironmentField({ value, onChange, copy }) {
   )
 }
 
-function MultiSelectCombo({ label, values, options, onChange, hint, emptyText, copy }) {
+function DateTimeField({ label, value, onChangeText, type, placeholder }) {
+  return (
+    <View style={styles.formField}>
+      <Text style={styles.formLabel}>{label}</Text>
+      {Platform.OS === 'web' ? (
+        <input
+          aria-label={label}
+          value={value}
+          onChange={(event) => onChangeText(event.target.value)}
+          placeholder={placeholder}
+          type={type}
+          style={dateTimeHtmlInputStyle}
+        />
+      ) : (
+        <TextInput
+          accessibilityLabel={label}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#7b8982"
+          inputMode="numeric"
+          style={[styles.formInput, styles.dateTimeInput]}
+        />
+      )}
+    </View>
+  )
+}
+
+function MultiSelectCombo({ label, values, options, onChange, hint, emptyText, copy, exclusiveValues = [] }) {
   const [open, setOpen] = useState(false)
   const selectedValues = Array.isArray(values) ? values : parseListValue(values)
   const selectedOptions = selectedValues.map((value) => options.find((option) => option.value === value) || { value, label: value })
 
   function toggleOption(option) {
+    const isExclusive = exclusiveValues.includes(option.value)
     const nextValues = selectedValues.includes(option.value)
       ? selectedValues.filter((value) => value !== option.value)
-      : [...selectedValues, option.value]
+      : isExclusive
+        ? [option.value]
+        : [...selectedValues.filter((value) => !exclusiveValues.includes(value)), option.value]
 
     onChange(nextValues)
   }
@@ -3827,22 +3956,26 @@ function ResourceScreen({
           compact && styles.resourceToolbarCompact,
         ]}
       >
-        <TextInput
-          accessibilityLabel={copy.resources.searchPlaceholder}
-          value={search}
-          onChangeText={onSearchChange}
-          placeholder={copy.resources.searchPlaceholder}
-          placeholderTextColor="#6d7b75"
-          style={styles.searchInput}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={copy.resources.clear}
-          onPress={() => onSearchChange('')}
-          style={styles.secondaryButton}
-        >
-          <Text style={styles.secondaryButtonText}>{copy.resources.clear}</Text>
-        </Pressable>
+        {section.id !== 'plans' && (
+          <>
+            <TextInput
+              accessibilityLabel={copy.resources.searchPlaceholder}
+              value={search}
+              onChangeText={onSearchChange}
+              placeholder={copy.resources.searchPlaceholder}
+              placeholderTextColor="#6d7b75"
+              style={styles.searchInput}
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.clear}
+              onPress={() => onSearchChange('')}
+              style={styles.secondaryButton}
+            >
+              <Text style={styles.secondaryButtonText}>{copy.resources.clear}</Text>
+            </Pressable>
+          </>
+        )}
         {canCreateSpot && (
           <Pressable
             accessibilityRole="button"
@@ -4932,13 +5065,17 @@ function CreatePlanForm({ copy, onCreated }) {
     spotId: null,
     plannedDate: '',
     plannedTime: '',
-    targetSpecies: '',
+    targetSpecies: [ANY_SPECIES],
+    lureIds: [],
     waterClarity: 'CLEAR',
     waterLevel: 'NORMAL',
     notes: '',
   })
   const [spots, setSpots] = useState([])
+  const [fishSpecies, setFishSpecies] = useState([])
+  const [lures, setLures] = useState([])
   const [spotsLoading, setSpotsLoading] = useState(true)
+  const [optionsLoading, setOptionsLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const fields = copy.resources.fields
@@ -4994,6 +5131,47 @@ function CreatePlanForm({ copy, onCreated }) {
     }
   }, [])
 
+  useEffect(() => {
+    let ignore = false
+
+    async function loadPlanOptions() {
+      setOptionsLoading(true)
+
+      try {
+        const [fishResponse, luresResponse] = await Promise.all([
+          fetch('/api/fish?page=0&size=100&sortBy=name&sortDirection=asc'),
+          fetch('/api/lure-box?page=0&size=100&sortBy=name&sortDirection=asc'),
+        ])
+
+        if (!fishResponse.ok || !luresResponse.ok) {
+          throw new Error('Plan options unavailable')
+        }
+
+        const [fishPayload, luresPayload] = await Promise.all([fishResponse.json(), luresResponse.json()])
+
+        if (!ignore) {
+          setFishSpecies(fishPayload.items || [])
+          setLures(luresPayload.items || [])
+        }
+      } catch {
+        if (!ignore) {
+          setFishSpecies([])
+          setLures([])
+        }
+      } finally {
+        if (!ignore) {
+          setOptionsLoading(false)
+        }
+      }
+    }
+
+    loadPlanOptions()
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
   function updateField(field, value) {
     setFeedback(null)
     setForm((current) => ({
@@ -5003,10 +5181,18 @@ function CreatePlanForm({ copy, onCreated }) {
   }
 
   async function submit() {
+    const targetSpeciesValues = Array.isArray(form.targetSpecies) ? form.targetSpecies : parseListValue(form.targetSpecies)
+    const targetSpecies = targetSpeciesValues.includes(ANY_SPECIES)
+      ? copy.resources.anySpecies
+      : targetSpeciesValues.join(', ')
+    const selectedLureIds = form.lureIds.includes(ALL_LURES)
+      ? lures.map((lure) => lure.id)
+      : form.lureIds
+
     if (
       !form.spotId ||
       !isIsoDate(form.plannedDate) ||
-      !form.targetSpecies.trim() ||
+      !targetSpecies.trim() ||
       !form.waterClarity ||
       !form.waterLevel
     ) {
@@ -5027,7 +5213,7 @@ function CreatePlanForm({ copy, onCreated }) {
           spotId: form.spotId,
           plannedDate: form.plannedDate.trim(),
           plannedTime: toNullableTime(form.plannedTime),
-          targetSpecies: form.targetSpecies.trim(),
+          targetSpecies,
           waterClarity: form.waterClarity,
           waterLevel: form.waterLevel,
           notes: toNullableText(form.notes),
@@ -5038,11 +5224,28 @@ function CreatePlanForm({ copy, onCreated }) {
         throw new Error('Create plan failed')
       }
 
+      const createdPlan = await response.json()
+
+      await Promise.all(
+        selectedLureIds.map(async (lureId) => {
+          const lureResponse = await fetch(`/api/plans/${createdPlan.id}/lures`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lureId }),
+          })
+
+          if (!lureResponse.ok) {
+            throw new Error('Plan lure link failed')
+          }
+        }),
+      )
+
       setForm((current) => ({
         ...current,
         plannedDate: '',
         plannedTime: '',
-        targetSpecies: '',
+        targetSpecies: [ANY_SPECIES],
+        lureIds: [],
         notes: '',
       }))
       setFeedback({ type: 'success', text: copy.resources.createPlanSuccess })
@@ -5056,10 +5259,30 @@ function CreatePlanForm({ copy, onCreated }) {
 
   return (
     <View style={styles.formPanel}>
-      <View>
+      <View style={styles.formHeader}>
         <Text style={styles.panelLabel}>{copy.resources.createPlan}</Text>
         <Text style={styles.formTitle}>{copy.sections.plans.title}</Text>
       </View>
+
+      <View style={[styles.formTopBar, Platform.OS === 'web' ? { position: 'sticky', top: 0, zIndex: 10 } : null]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.resources.savePlan}
+          disabled={saving || spots.length === 0}
+          onPress={submit}
+          style={[styles.submitButton, styles.formTopButton, (saving || spots.length === 0) && styles.submitButtonDisabled]}
+        >
+          <Text style={styles.submitButtonText}>{saving ? copy.resources.saving : copy.resources.savePlan}</Text>
+        </Pressable>
+      </View>
+
+      {feedback && (
+        <View style={[styles.formFeedback, feedback.type === 'success' && styles.formFeedbackSuccess]}>
+          <Text style={[styles.formFeedbackText, feedback.type === 'success' && styles.formFeedbackTextSuccess]}>
+            {feedback.text}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.formSection}>
         <Text style={styles.formLabel}>{copy.resources.chooseSpot}</Text>
@@ -5097,24 +5320,57 @@ function CreatePlanForm({ copy, onCreated }) {
       </View>
 
       <View style={styles.formGrid}>
-        <FormField
-          label={fields.plannedFor}
+        <DateTimeField
+          label={copy.resources.choosePlanDate}
           value={form.plannedDate}
           onChangeText={(value) => updateField('plannedDate', value)}
+          type="date"
           placeholder={copy.resources.plannedDateHint}
         />
-        <FormField
-          label={copy.resources.plannedTimeHint}
+        <DateTimeField
+          label={copy.resources.choosePlanTime}
           value={form.plannedTime}
           onChangeText={(value) => updateField('plannedTime', value)}
+          type="time"
           placeholder={copy.resources.plannedTimeHint}
         />
-        <FormField
-          label={fields.targetSpecies}
-          value={form.targetSpecies}
-          onChangeText={(value) => updateField('targetSpecies', value)}
-        />
       </View>
+
+      <MultiSelectCombo
+        label={copy.resources.selectTargetSpecies}
+        values={form.targetSpecies}
+        options={[
+          { value: ANY_SPECIES, label: copy.resources.anySpecies },
+          ...fishSpecies.map((fish) => ({
+            value: fish.name,
+            label: fish.name,
+            image: getImageSource(fish.imageUrl, getFishImage(fish.name)),
+          })),
+        ]}
+        onChange={(value) => updateField('targetSpecies', value)}
+        hint={optionsLoading ? copy.loading : copy.resources.targetSpeciesHint}
+        emptyText={copy.resources.noFishAvailable}
+        exclusiveValues={[ANY_SPECIES]}
+        copy={copy}
+      />
+
+      <MultiSelectCombo
+        label={copy.resources.selectLuresForPlan}
+        values={form.lureIds}
+        options={[
+          { value: ALL_LURES, label: copy.resources.allLures },
+          ...lures.map((lure) => ({
+            value: lure.id,
+            label: lure.name,
+            image: getImageSource(lure.imageUrl, getLureImage(lure.name)),
+          })),
+        ]}
+        onChange={(value) => updateField('lureIds', value)}
+        hint={optionsLoading ? copy.loading : copy.resources.planLuresHint}
+        emptyText={copy.resources.noLuresForPlan}
+        exclusiveValues={[ALL_LURES]}
+        copy={copy}
+      />
 
       <ChoiceGroup
         label={fields.waterClarity}
@@ -5130,29 +5386,12 @@ function CreatePlanForm({ copy, onCreated }) {
       />
 
       <FormField
-        label={fields.notes}
+        label={`${fields.notes} (${copy.resources.optional})`}
         value={form.notes}
         onChangeText={(value) => updateField('notes', value)}
         multiline
       />
 
-      {feedback && (
-        <View style={[styles.formFeedback, feedback.type === 'success' && styles.formFeedbackSuccess]}>
-          <Text style={[styles.formFeedbackText, feedback.type === 'success' && styles.formFeedbackTextSuccess]}>
-            {feedback.text}
-          </Text>
-        </View>
-      )}
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={copy.resources.savePlan}
-        disabled={saving || spots.length === 0}
-        onPress={submit}
-        style={[styles.submitButton, (saving || spots.length === 0) && styles.submitButtonDisabled]}
-      >
-        <Text style={styles.submitButtonText}>{saving ? copy.resources.saving : copy.resources.savePlan}</Text>
-      </Pressable>
     </View>
   )
 }
@@ -5427,24 +5666,296 @@ function PlanDetail({ detail, copy, tone }) {
   const fields = copy.resources.fields
 
   return (
-    <View style={styles.detailContent}>
-      <View style={[styles.planMissionHeader, { backgroundColor: tone.imageBackground }]}>
-        <View>
-          <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.sections.plans.title}</Text>
-          <Text style={styles.detailFeatureTitle}>{source.targetSpecies || copy.dashboard.speciesFallback}</Text>
-        </View>
-        <View style={[styles.planDateBadge, { backgroundColor: tone.accent }]}>
-          <Text style={styles.planDateText}>{formatSchedule(source.plannedDate, source.plannedTime, copy)}</Text>
-        </View>
-      </View>
+    <View style={[styles.detailContent, styles.planDetailContent]}>
       <View style={styles.planSteps}>
-        <PlanStep number="01" label={fields.spot} value={source.spotName} tone={tone.accent} />
-        <PlanStep number="02" label={fields.waterClarity} value={source.waterClarity} tone={tone.accent} />
-        <PlanStep number="03" label={fields.waterLevel} value={source.waterLevel} tone={tone.accent} />
+        <PlanStep number="01" label={fields.waterClarity} value={source.waterClarity} tone={tone.accent} />
+        <PlanStep number="02" label={fields.waterLevel} value={source.waterLevel} tone={tone.accent} />
       </View>
-      <DetailSection title={fields.notes} tone={tone.accent}>
-        <Text style={styles.detailLongText}>{source.notes || copy.resources.empty}</Text>
-      </DetailSection>
+      {hasDetailValue(source.notes) && (
+        <View style={styles.planNotesPanel}>
+          <View style={[styles.planNotesBar, { backgroundColor: tone.accent }]} />
+          <View style={styles.planNotesCopy}>
+            <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{fields.notes}</Text>
+            <Text style={styles.detailLongText}>{source.notes}</Text>
+          </View>
+        </View>
+      )}
+      <PlanRecommendationPanel planId={source.id} copy={copy} tone={tone} />
+    </View>
+  )
+}
+
+function PlanRecommendationPanel({ planId, copy, tone }) {
+  const [recommendation, setRecommendation] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [saveLoading, setSaveLoading] = useState(false)
+  const [saveError, setSaveError] = useState(false)
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadLatestRecommendation() {
+      if (!planId) {
+        return
+      }
+
+      setLoading(true)
+      setError(false)
+      setErrorMessage('')
+      setSaveError(false)
+
+      try {
+        const response = await fetch(`/api/recommendations/plans/${planId}/latest`)
+
+        if (response.status === 404) {
+          if (!ignore) {
+            setRecommendation(null)
+          }
+          return
+        }
+
+        if (!response.ok) {
+          throw new Error('Recommendation unavailable')
+        }
+
+        const data = await response.json()
+
+        if (!ignore) {
+          setRecommendation(data)
+        }
+      } catch {
+        if (!ignore) {
+          setError(true)
+          setErrorMessage(copy.resources.aiPlanLoadError)
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadLatestRecommendation()
+
+    return () => {
+      ignore = true
+    }
+  }, [planId])
+
+  async function generateRecommendation() {
+    if (!planId) {
+      return
+    }
+
+    setLoading(true)
+    setError(false)
+    setErrorMessage('')
+    setSaveError(false)
+
+    try {
+      const response = await fetch('/api/recommendations/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId }),
+      })
+
+      if (!response.ok) {
+        if (response.status === 502) {
+          throw new Error(copy.resources.aiPlanLmStudioUnavailable)
+        }
+
+        throw new Error(copy.resources.aiPlanGenerateError)
+      }
+
+      const data = await response.json()
+      setRecommendation(data)
+    } catch (generationError) {
+      setError(true)
+      setErrorMessage(generationError.message || copy.resources.aiPlanGenerateError)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function saveRecommendation() {
+    if (!recommendation?.id || recommendation.saved || saveLoading) {
+      return
+    }
+
+    setSaveLoading(true)
+    setSaveError(false)
+
+    try {
+      const response = await fetch(`/api/recommendations/${recommendation.id}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) {
+        throw new Error(copy.resources.aiPlanSaveError)
+      }
+
+      setRecommendation(await response.json())
+    } catch {
+      setSaveError(true)
+    } finally {
+      setSaveLoading(false)
+    }
+  }
+
+  const confidence = String(recommendation?.confidence || '').toLowerCase()
+  const confidenceOption = getLureLevelOption('effectiveness', confidence, copy)
+  const confidenceLabel = confidenceOption?.label || recommendation?.confidence || '-'
+  const confidenceColor = confidenceOption?.color || tone.accent
+  const lureRanking = Array.isArray(recommendation?.lureRanking) ? recommendation.lureRanking : []
+  const avoid = Array.isArray(recommendation?.avoid) ? recommendation.avoid : parseListValue(recommendation?.avoid)
+  const warnings = Array.isArray(recommendation?.warnings) ? recommendation.warnings : parseListValue(recommendation?.warnings)
+
+  return (
+    <View style={[styles.planRecommendation, { borderColor: `${tone.accent}55` }]}>
+      <View style={styles.planRecommendationHeader}>
+        <View style={styles.planRecommendationHeading}>
+          <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.aiPlanner}</Text>
+          <Text style={styles.planRecommendationTitle}>{copy.resources.aiPlannerHint}</Text>
+        </View>
+        <View style={styles.planRecommendationActions}>
+          {recommendation && !recommendation.saved && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.saveAiPlan}
+              disabled={saveLoading || loading}
+              onPress={saveRecommendation}
+              style={[styles.planRecommendationSaveButton, saveLoading && styles.planRecommendationButtonDisabled]}
+            >
+              <Text style={styles.planRecommendationSaveButtonText}>
+                {saveLoading ? copy.resources.savingAiPlan : copy.resources.saveAiPlan}
+              </Text>
+            </Pressable>
+          )}
+          {recommendation?.saved && (
+            <View style={styles.planRecommendationSavedBadge}>
+              <Text style={styles.planRecommendationSavedText}>{copy.resources.aiPlanSaved}</Text>
+            </View>
+          )}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={recommendation ? copy.resources.refreshAiPlan : copy.resources.generateAiPlan}
+            disabled={loading || saveLoading}
+            onPress={generateRecommendation}
+            style={[styles.planRecommendationButton, { backgroundColor: tone.accent }, loading && styles.planRecommendationButtonDisabled]}
+          >
+            <Text style={styles.planRecommendationButtonText}>
+              {loading ? copy.resources.aiPlanLoading : recommendation ? copy.resources.refreshAiPlan : copy.resources.generateAiPlan}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {saveError && (
+        <View style={styles.planRecommendationNotice}>
+          <Text style={styles.planRecommendationNoticeText}>{copy.resources.aiPlanSaveError}</Text>
+        </View>
+      )}
+
+      {loading && !recommendation && (
+        <View style={styles.planRecommendationLoading}>
+          <ActivityIndicator color={tone.accent} />
+          <Text style={styles.planRecommendationLoadingText}>{copy.resources.aiPlanLoading}</Text>
+        </View>
+      )}
+
+      {!loading && error && (
+        <View style={styles.planRecommendationNotice}>
+          <Text style={styles.planRecommendationNoticeText}>
+            {errorMessage || (recommendation ? copy.resources.aiPlanGenerateError : copy.resources.aiPlanLoadError)}
+          </Text>
+        </View>
+      )}
+
+      {!loading && !error && !recommendation && (
+        <View style={styles.planRecommendationEmpty}>
+          <Text style={styles.planRecommendationEmptyText}>{copy.resources.aiPlanEmpty}</Text>
+        </View>
+      )}
+
+      {recommendation && (
+        <View style={styles.planRecommendationBody}>
+          <View style={styles.planRecommendationSummary}>
+            <View style={styles.planRecommendationSummaryCopy}>
+              <Text style={styles.planRecommendationSectionLabel}>{copy.resources.aiPlanSummary}</Text>
+              <Text style={styles.planRecommendationSummaryText}>{recommendation.summary || copy.resources.empty}</Text>
+            </View>
+            <View style={[styles.planRecommendationConfidence, { borderColor: `${confidenceColor}66` }]}>
+              <Text style={styles.planRecommendationConfidenceLabel}>{copy.resources.aiPlanConfidence}</Text>
+              <Text style={[styles.planRecommendationConfidenceValue, { color: confidenceColor }]}>{confidenceLabel}</Text>
+            </View>
+          </View>
+
+          <View style={styles.planRecommendationColumns}>
+            <RecommendationPlanCard label={copy.resources.planA} value={recommendation.planA} tone="#2b8c68" />
+            <RecommendationPlanCard label={copy.resources.planB} value={recommendation.planB} tone="#c58a2b" />
+            <RecommendationPlanCard label={copy.resources.planC} value={recommendation.planC} tone="#2c76c7" />
+          </View>
+
+          <View style={styles.planRecommendationLures}>
+            <Text style={styles.planRecommendationSectionLabel}>{copy.resources.aiPlanLures}</Text>
+            {lureRanking.length > 0 ? (
+              <View style={styles.planRecommendationLureList}>
+                {lureRanking.map((entry, index) => (
+                  <View key={`${entry.lure || 'lure'}-${index}`} style={styles.planRecommendationLureRow}>
+                    <View style={[styles.planRecommendationLureRank, { backgroundColor: tone.accent }]}>
+                      <Text style={styles.planRecommendationLureRankText}>{entry.rank || index + 1}</Text>
+                    </View>
+                    <View style={styles.planRecommendationLureCopy}>
+                      <Text style={styles.planRecommendationLureName}>{entry.lure || '-'}</Text>
+                      <Text style={styles.planRecommendationLureReason}>{entry.reason || copy.resources.empty}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.planRecommendationMutedText}>{copy.resources.aiPlanNoLures}</Text>
+            )}
+          </View>
+
+          {(avoid.length > 0 || warnings.length > 0) && (
+            <View style={styles.planRecommendationNotes}>
+              {avoid.length > 0 && <RecommendationList title={copy.resources.aiPlanAvoid} items={avoid} tone="#b95e47" />}
+              {warnings.length > 0 && <RecommendationList title={copy.resources.aiPlanWarnings} items={warnings} tone="#c58a2b" />}
+            </View>
+          )}
+        </View>
+      )}
+    </View>
+  )
+}
+
+function RecommendationPlanCard({ label, value, tone }) {
+  return (
+    <View style={[styles.planRecommendationPlanCard, { borderTopColor: tone }]}>
+      <View style={styles.planRecommendationPlanHeader}>
+        <View style={[styles.planRecommendationPlanDot, { backgroundColor: tone }]} />
+        <Text style={[styles.planRecommendationPlanLabel, { color: tone }]}>{label}</Text>
+      </View>
+      <Text style={styles.planRecommendationPlanText}>{value || '-'}</Text>
+    </View>
+  )
+}
+
+function RecommendationList({ title, items, tone }) {
+  return (
+    <View style={styles.planRecommendationNoteGroup}>
+      <Text style={[styles.planRecommendationSectionLabel, { color: tone }]}>{title}</Text>
+      <View style={styles.planRecommendationNoteList}>
+        {items.map((item, index) => (
+          <View key={`${item}-${index}`} style={styles.planRecommendationNoteItem}>
+            <View style={[styles.planRecommendationNoteDot, { backgroundColor: tone }]} />
+            <Text style={styles.planRecommendationNoteText}>{item}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   )
 }
@@ -6968,7 +7479,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 18,
   },
-  galleryTopBar: {
+  pageTopBarCompact: {
     minHeight: 18,
     justifyContent: 'flex-end',
   },
@@ -7647,14 +8158,18 @@ const styles = StyleSheet.create({
   },
   missionWorkspaceBody: {
     flex: 1,
-    justifyContent: 'space-between',
-    padding: 24,
+    padding: 20,
   },
   missionWorkspaceTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     justifyContent: 'space-between',
     gap: 16,
+    flexWrap: 'wrap',
+  },
+  missionWorkspaceMain: {
+    flex: 1,
+    minWidth: 0,
   },
   missionWorkspaceTitle: {
     marginTop: 8,
@@ -7663,22 +8178,46 @@ const styles = StyleSheet.create({
     lineHeight: 35,
     fontWeight: '900',
   },
-  missionWorkspaceCount: {
-    minWidth: 76,
-    alignItems: 'flex-end',
+  missionWorkspaceCounter: {
+    alignSelf: 'center',
+    marginTop: 14,
   },
-  missionWorkspaceCountValue: {
-    color: '#f0bf58',
-    fontSize: 34,
-    lineHeight: 36,
-    fontWeight: '900',
+  missionWorkspaceHeaderAside: {
+    alignItems: 'center',
   },
-  missionWorkspaceCountLabel: {
-    marginTop: 3,
-    color: '#aebdce',
+  missionWorkspaceAiBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 13,
+    minHeight: 38,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: '#f0bf58',
+    borderWidth: 1,
+    borderColor: '#ffe4a1',
+    shadowColor: '#f0bf58',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+  },
+  missionWorkspaceAiDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: '#17243b',
+  },
+  missionWorkspaceAiBadgeText: {
+    color: '#17243b',
     fontSize: 11,
     fontWeight: '900',
     textTransform: 'uppercase',
+  },
+  missionWorkspaceAiBadgeRight: {
+    alignSelf: 'center',
+    marginTop: 11,
   },
   missionWorkspaceText: {
     maxWidth: 500,
@@ -7945,6 +8484,14 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
     textTransform: 'uppercase',
+  },
+  spotAtlasInventoryHeaderCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 14,
+  },
+  spotAtlasInventoryCounterCompact: {
+    alignSelf: 'flex-start',
   },
   lureBoxFilterBar: {
     flexDirection: 'row',
@@ -8893,17 +9440,16 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   galleryShowcaseHeader: {
+    minHeight: 178,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 20,
-    padding: 20,
-    borderRadius: 16,
-    backgroundColor: '#fffdfb',
+    padding: 24,
+    borderRadius: 19,
+    backgroundColor: '#102f3a',
     borderWidth: 1,
-    borderColor: '#eee0d8',
-    borderLeftWidth: 6,
-    borderLeftColor: '#e66f51',
+    borderColor: '#275260',
   },
   galleryShowcaseHeaderCompact: {
     flexDirection: 'column',
@@ -8914,99 +9460,66 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   galleryShowcaseEyebrow: {
-    color: '#b95e47',
+    color: '#aee3d4',
     fontSize: 11,
     fontWeight: '900',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
   galleryShowcaseTitle: {
-    color: '#25252c',
-    fontSize: 31,
-    lineHeight: 37,
+    marginTop: 8,
+    color: '#ffffff',
+    fontSize: 32,
+    lineHeight: 38,
     fontWeight: '900',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
   },
   galleryShowcaseSubtitle: {
     maxWidth: 620,
     marginTop: 8,
-    color: '#666679',
+    color: '#d9eeeb',
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '700',
   },
-  galleryHeaderMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 7,
-    marginTop: 14,
-  },
-  galleryHeaderMetaDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 8,
-    backgroundColor: '#e66f51',
-  },
-  galleryHeaderMetaText: {
-    color: '#856b61',
-    fontSize: 11,
-    fontWeight: '900',
-    letterSpacing: 0.2,
-  },
-  galleryHeaderMetaDivider: {
-    color: '#d3a693',
-    fontSize: 14,
-    fontWeight: '900',
-  },
   galleryHeaderVisual: {
-    minWidth: 182,
-    minHeight: 98,
-    flexDirection: 'row',
+    width: 124,
+    minWidth: 124,
+    minHeight: 124,
+    flexDirection: 'column',
     alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: '#123f4d',
+    justifyContent: 'center',
+    gap: 2,
+    padding: 12,
+    borderRadius: 18,
+    backgroundColor: '#c99332',
+    transform: [{ rotate: '3deg' }],
   },
   galleryHeaderVisualStripe: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    width: 8,
-    backgroundColor: '#e66f51',
+    display: 'none',
   },
   galleryHeaderVisualBlock: {
-    position: 'absolute',
-    top: -18,
-    right: 36,
-    width: 72,
-    height: 136,
-    transform: [{ rotate: '18deg' }],
-    backgroundColor: '#1b5d6b',
+    display: 'none',
   },
   galleryHeaderVisualIcon: {
-    width: 62,
-    height: 62,
-    marginLeft: 8,
+    width: 47,
+    height: 47,
+    marginLeft: 0,
     zIndex: 1,
   },
   galleryHeaderVisualCaption: {
     zIndex: 1,
-    marginLeft: 10,
+    alignItems: 'center',
+    marginLeft: 0,
   },
   galleryHeaderVisualNumber: {
     color: '#ffffff',
-    fontSize: 27,
-    lineHeight: 29,
+    fontSize: 30,
+    lineHeight: 33,
     fontWeight: '900',
   },
   galleryHeaderVisualLabel: {
     marginTop: 3,
-    color: '#b9e3df',
+    color: '#fff8e5',
     fontSize: 10,
     fontWeight: '900',
     letterSpacing: 0.7,
@@ -9030,6 +9543,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: -6,
     marginBottom: -3,
+  },
+  galleryPagination: {
+    alignItems: 'center',
+    marginTop: -4,
+    marginBottom: -2,
   },
   galleryCreateButtonMark: {
     color: '#ffffff',
@@ -9121,20 +9639,22 @@ const styles = StyleSheet.create({
   galleryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 4,
+    justifyContent: 'flex-start',
+    gap: 16,
+    paddingHorizontal: 2,
   },
   galleryGridCompact: {
-    gap: 10,
+    gap: 12,
     paddingHorizontal: 0,
   },
   galleryTile: {
-    flexGrow: 1,
-    flexBasis: 190,
-    maxWidth: 250,
+    flexGrow: 0,
+    flexShrink: 1,
+    flexBasis: 320,
+    width: 320,
+    maxWidth: '100%',
     overflow: 'hidden',
-    borderRadius: 10,
+    borderRadius: 14,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#dddded',
@@ -9223,7 +9743,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   galleryTileCaption: {
-    minHeight: 94,
+    minHeight: 104,
     justifyContent: 'center',
     gap: 7,
     padding: 12,
@@ -9259,8 +9779,8 @@ const styles = StyleSheet.create({
   },
   galleryTileTitle: {
     color: '#25252c',
-    fontSize: 15,
-    lineHeight: 19,
+    fontSize: 17,
+    lineHeight: 21,
     fontWeight: '900',
   },
   galleryTileMeta: {
@@ -9539,34 +10059,101 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   libraryShowcaseHeader: {
+    minHeight: 178,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 4,
+    justifyContent: 'space-between',
+    gap: 20,
+    padding: 24,
+    borderRadius: 19,
+    backgroundColor: '#102f3a',
+    borderWidth: 1,
+    borderColor: '#275260',
   },
-  libraryShowcaseTitle: {
-    color: '#183d35',
-    fontSize: 34,
-    lineHeight: 40,
+  libraryShowcaseHeaderCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  libraryShowcaseHeaderCopy: {
+    flex: 1,
+  },
+  libraryShowcaseOverline: {
+    color: '#aee3d4',
+    fontSize: 11,
     fontWeight: '900',
     letterSpacing: 1.2,
-    textAlign: 'center',
-    textTransform: 'uppercase',
+  },
+  libraryShowcaseCounter: {
+    width: 124,
+    minHeight: 124,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 18,
+    backgroundColor: '#c99332',
+    transform: [{ rotate: '3deg' }],
+  },
+  libraryShowcaseCounterCompact: {
+    alignSelf: 'flex-start',
+  },
+  libraryShowcaseTitle: {
+    marginTop: 8,
+    color: '#ffffff',
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: '900',
   },
   libraryShowcaseSubtitle: {
     maxWidth: 620,
     marginTop: 8,
-    color: '#54746b',
+    color: '#d9eeeb',
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '700',
+  },
+  libraryShowcaseCounterValue: {
+    color: '#ffffff',
+    fontSize: 38,
+    lineHeight: 41,
+    fontWeight: '900',
+  },
+  libraryShowcaseCounterLabel: {
+    maxWidth: 92,
+    marginTop: 4,
+    color: '#fff8e5',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
     textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  libraryControlsPanel: {
+    gap: 12,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c9dfd5',
+  },
+  libraryControlsPanelCompact: {
+    padding: 12,
+  },
+  libraryControlsTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  libraryControlsTopCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
   },
   librarySwitch: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     gap: 10,
-    marginTop: 20,
   },
   librarySwitchButton: {
     minWidth: 164,
@@ -9594,9 +10181,8 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   libraryEnvironmentFilter: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 7,
-    marginTop: 15,
   },
   libraryEnvironmentLabel: {
     color: '#54746b',
@@ -9642,12 +10228,11 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   libraryCreateButton: {
-    minHeight: 42,
+    minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 13,
     paddingHorizontal: 17,
-    borderRadius: 5,
+    borderRadius: 10,
     backgroundColor: '#2b8c68',
   },
   libraryCreateButtonText: {
@@ -10325,9 +10910,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   resourceToolbarMission: {
-    backgroundColor: '#f4f1fa',
-    borderColor: '#d7cce6',
-    borderRadius: 14,
+    minHeight: 0,
+    padding: 0,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    borderColor: 'transparent',
+    borderRadius: 0,
   },
   resourceToolbarLive: {
     backgroundColor: '#eaf7f5',
@@ -10389,6 +10977,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#b8e9df',
+  },
+  formHeader: {
+    gap: 0,
+  },
+  formTopBar: {
+    alignItems: 'flex-start',
+    paddingVertical: 4,
+    backgroundColor: '#ffffff',
+  },
+  formTopButton: {
+    minWidth: 150,
   },
   formTitle: {
     marginTop: 6,
@@ -11518,19 +12117,22 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
   },
+  planDetailContent: {
+    gap: 12,
+  },
   planSteps: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 9,
+    gap: 10,
   },
   planStep: {
     flexGrow: 1,
-    flexBasis: 190,
-    minHeight: 84,
+    flexBasis: 260,
+    minHeight: 72,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    padding: 12,
+    padding: 14,
     borderRadius: 10,
     backgroundColor: '#fffdf7',
     borderWidth: 1,
@@ -11549,6 +12151,320 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     fontWeight: '900',
+  },
+  planNotesPanel: {
+    flexDirection: 'row',
+    gap: 10,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#f7faf7',
+    borderWidth: 1,
+    borderColor: '#e0e8e1',
+  },
+  planNotesBar: {
+    width: 4,
+    borderRadius: 4,
+  },
+  planNotesCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 7,
+  },
+  planRecommendation: {
+    gap: 12,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: '#f7fbf8',
+    borderWidth: 1,
+  },
+  planRecommendationHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  planRecommendationActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  planRecommendationHeading: {
+    flex: 1,
+    minWidth: 0,
+  },
+  planRecommendationTitle: {
+    marginTop: 5,
+    color: '#19342d',
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '900',
+  },
+  planRecommendationButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 13,
+    borderRadius: 5,
+  },
+  planRecommendationButtonDisabled: {
+    opacity: 0.62,
+  },
+  planRecommendationButtonText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  planRecommendationSaveButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 13,
+    borderRadius: 5,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c58a2b',
+  },
+  planRecommendationSaveButtonText: {
+    color: '#9a6715',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  planRecommendationSavedBadge: {
+    minHeight: 40,
+    justifyContent: 'center',
+    paddingHorizontal: 11,
+    borderRadius: 5,
+    backgroundColor: '#e8f8ef',
+    borderWidth: 1,
+    borderColor: '#a6dfba',
+  },
+  planRecommendationSavedText: {
+    color: '#166534',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  planRecommendationLoading: {
+    minHeight: 62,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 12,
+    borderRadius: 9,
+    backgroundColor: '#fffdf7',
+  },
+  planRecommendationLoadingText: {
+    color: '#65776f',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  planRecommendationNotice: {
+    padding: 12,
+    borderRadius: 9,
+    backgroundColor: '#fff1ed',
+    borderWidth: 1,
+    borderColor: '#efc8bd',
+  },
+  planRecommendationNoticeText: {
+    color: '#9e4e3d',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '800',
+  },
+  planRecommendationEmpty: {
+    padding: 12,
+    borderRadius: 9,
+    backgroundColor: '#fffdf7',
+    borderWidth: 1,
+    borderColor: '#eee3bd',
+  },
+  planRecommendationEmptyText: {
+    color: '#65776f',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '800',
+  },
+  planRecommendationBody: {
+    gap: 12,
+  },
+  planRecommendationSummary: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 12,
+  },
+  planRecommendationSummaryCopy: {
+    flex: 1,
+    minWidth: 0,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#fffdf7',
+    borderWidth: 1,
+    borderColor: '#eee3bd',
+  },
+  planRecommendationSectionLabel: {
+    color: '#6d756f',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  planRecommendationSummaryText: {
+    marginTop: 6,
+    color: '#19342d',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '800',
+  },
+  planRecommendationConfidence: {
+    width: 116,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#fffdf7',
+    borderWidth: 1,
+  },
+  planRecommendationConfidenceLabel: {
+    color: '#6d756f',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  planRecommendationConfidenceValue: {
+    marginTop: 6,
+    fontSize: 17,
+    fontWeight: '900',
+    textTransform: 'capitalize',
+  },
+  planRecommendationColumns: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  planRecommendationPlanCard: {
+    flexGrow: 1,
+    flexBasis: 210,
+    minHeight: 116,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e1e6df',
+    borderTopWidth: 4,
+  },
+  planRecommendationPlanHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  planRecommendationPlanDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+  },
+  planRecommendationPlanLabel: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  planRecommendationPlanText: {
+    marginTop: 10,
+    color: '#19342d',
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '700',
+  },
+  planRecommendationLures: {
+    gap: 9,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#f4faf6',
+    borderWidth: 1,
+    borderColor: '#cde4d5',
+  },
+  planRecommendationLureList: {
+    gap: 8,
+  },
+  planRecommendationLureRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 2,
+  },
+  planRecommendationLureRank: {
+    width: 25,
+    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 25,
+  },
+  planRecommendationLureRankText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  planRecommendationLureCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  planRecommendationLureName: {
+    color: '#19342d',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  planRecommendationLureReason: {
+    marginTop: 2,
+    color: '#62766b',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  planRecommendationMutedText: {
+    color: '#62766b',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  planRecommendationNotes: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  planRecommendationNoteGroup: {
+    flexGrow: 1,
+    flexBasis: 220,
+    gap: 8,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e1e6df',
+  },
+  planRecommendationNoteList: {
+    gap: 6,
+  },
+  planRecommendationNoteItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 7,
+  },
+  planRecommendationNoteDot: {
+    width: 6,
+    height: 6,
+    marginTop: 5,
+    borderRadius: 6,
+  },
+  planRecommendationNoteText: {
+    flex: 1,
+    color: '#4f625a',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
   },
   sessionStatusHeader: {
     minHeight: 100,
@@ -12041,112 +12957,6 @@ const styles = StyleSheet.create({
   spotAtlasScreenCompact: {
     gap: 14,
   },
-  spotAtlasHeader: {
-    minHeight: 190,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    borderRadius: 20,
-    backgroundColor: '#f4fbf9',
-    borderWidth: 1,
-    borderColor: '#c5e3df',
-  },
-  spotAtlasHeaderCompact: {
-    flexDirection: 'column',
-  },
-  spotAtlasHeaderCopy: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-  },
-  spotAtlasHeaderKicker: {
-    color: '#1687a7',
-    fontSize: 11,
-    fontWeight: '900',
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
-  },
-  spotAtlasHeaderTitle: {
-    marginTop: 7,
-    color: '#102f3a',
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: '900',
-  },
-  spotAtlasHeaderSubtitle: {
-    maxWidth: 520,
-    marginTop: 8,
-    color: '#5a716f',
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: '700',
-  },
-  spotAtlasHeaderMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginTop: 20,
-  },
-  spotAtlasHeaderMetaItem: {
-    minWidth: 76,
-  },
-  spotAtlasHeaderMetaValue: {
-    color: '#123f4a',
-    fontSize: 24,
-    lineHeight: 28,
-    fontWeight: '900',
-  },
-  spotAtlasHeaderMetaLabel: {
-    marginTop: 2,
-    color: '#6c8780',
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
-  spotAtlasHeaderMetaDivider: {
-    width: 1,
-    height: 34,
-    backgroundColor: '#c6ddd9',
-  },
-  spotAtlasHeaderVisual: {
-    width: '36%',
-    minHeight: 190,
-  },
-  spotAtlasHeaderVisualCompact: {
-    width: '100%',
-    minHeight: 150,
-  },
-  spotAtlasHeaderVisualImage: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  spotAtlasHeaderVisualImageStyle: {
-    opacity: 0.88,
-  },
-  spotAtlasHeaderVisualOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(8, 60, 73, 0.28)',
-  },
-  spotAtlasHeaderVisualBadge: {
-    position: 'relative',
-    margin: 18,
-    padding: 12,
-    borderRadius: 11,
-    backgroundColor: 'rgba(8, 47, 63, 0.78)',
-  },
-  spotAtlasHeaderVisualCode: {
-    color: '#bdebe4',
-    fontSize: 9,
-    fontWeight: '900',
-    letterSpacing: 1,
-  },
-  spotAtlasHeaderVisualTitle: {
-    marginTop: 4,
-    color: '#ffffff',
-    fontSize: 16,
-    lineHeight: 20,
-    fontWeight: '900',
-  },
   spotAtlasHero: {
     minHeight: 250,
     flexDirection: 'row',
@@ -12248,6 +13058,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2e5962',
   },
   spotWeatherCard: {
+    flex: 1,
+    minWidth: 330,
     gap: 14,
     padding: 16,
     borderRadius: 16,
@@ -12255,12 +13067,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#b9dfe1',
   },
+  spotWeatherCardCompact: {
+    minWidth: 0,
+  },
   spotWeatherHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: 12,
+  },
+  spotWeatherActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 7,
   },
   spotWeatherHeading: {
     flex: 1,
@@ -12301,8 +13122,65 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '900',
   },
+  spotWeatherDetailsButton: {
+    minHeight: 36,
+    justifyContent: 'center',
+    paddingHorizontal: 11,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#b9dfe1',
+  },
+  spotWeatherDetailsButtonText: {
+    color: '#147ea1',
+    fontSize: 11,
+    fontWeight: '900',
+  },
   spotWeatherDetails: {
     gap: 9,
+  },
+  spotWeatherSummary: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  spotWeatherTemperatureMetric: {
+    flexGrow: 2,
+    flexBasis: 170,
+    backgroundColor: '#d9eff1',
+  },
+  spotWeatherRainMetric: {
+    flexGrow: 1,
+    flexBasis: 110,
+    backgroundColor: '#f7fcfc',
+  },
+  spotWeatherWindMetric: {
+    flexGrow: 1,
+    flexBasis: 110,
+    backgroundColor: '#f7fcfc',
+  },
+  spotWeatherTemperatureValues: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 5,
+    marginTop: 5,
+  },
+  spotWeatherTemperatureMin: {
+    color: '#123f4a',
+    fontSize: 17,
+    lineHeight: 21,
+    fontWeight: '900',
+  },
+  spotWeatherTemperatureDivider: {
+    color: '#6b8582',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  spotWeatherTemperatureMax: {
+    color: '#147ea1',
+    fontSize: 17,
+    lineHeight: 21,
+    fontWeight: '900',
   },
   spotWeatherMetrics: {
     flexDirection: 'row',
@@ -12395,6 +13273,34 @@ const styles = StyleSheet.create({
   spotAtlasToolbar: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  spotAtlasUtilityGrid: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 14,
+  },
+  spotAtlasUtilityGridCompact: {
+    flexDirection: 'column',
+  },
+  spotAtlasExplorerPanel: {
+    flex: 1.2,
+    minWidth: 330,
+    gap: 12,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d4e4dc',
+  },
+  spotAtlasExplorerPanelCompact: {
+    minWidth: 0,
+  },
+  spotAtlasControlsHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: 10,
   },

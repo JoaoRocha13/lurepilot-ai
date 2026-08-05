@@ -55,6 +55,8 @@ Initial frontend area:
 - Spot cards present favorite species as individual image chips, and the create/detail views keep the focus on the location, water type, spot type, coordinates and species instead of showing description or created-at metadata.
 - The Spots header follows the visual language of Gallery and Lure Box, with clearer spacing, counters and a primary create action; the Spots screen no longer uses a search bar.
 - The Spots tab refreshes the latest IPMA weather snapshot for the selected spot and allows a manual refresh; the weather context shows the nearest supported IPMA forecast location selected from the coordinates.
+- The Plans screen uses date/time selectors, fish-library multi-select targets including "Any species", optional selected lures or the full Lure Box, and a compact A/B/C workspace header.
+- The frontend AI Planner calls the local LM Studio backend, displays the validated recommendation and confidence, allows saving the recommendation, and highlights the feature as Powered by AI.
 
 ## Stack
 
@@ -180,6 +182,7 @@ AI:
 - `POST /api/recommendations/session-review`
 - `GET /api/recommendations/plans/{planId}`
 - `GET /api/recommendations/plans/{planId}/latest`
+- `POST /api/recommendations/{recommendationId}/save`
 - `GET /api/recommendations/sessions/{sessionId}/adjustments`
 - `GET /api/recommendations/sessions/{sessionId}/adjustments/latest`
 - `GET /api/recommendations/sessions/{sessionId}/reviews`

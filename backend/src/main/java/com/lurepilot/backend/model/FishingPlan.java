@@ -40,7 +40,7 @@ public class FishingPlan {
 
     private LocalTime plannedTime;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String targetSpecies;
 
     @Column(nullable = false)

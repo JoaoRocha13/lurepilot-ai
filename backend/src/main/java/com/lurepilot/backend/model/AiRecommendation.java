@@ -76,6 +76,8 @@ public class AiRecommendation {
 
     private Boolean latest = true;
 
+    private Boolean saved = false;
+
     private Instant supersededAt;
 
     @Lob
@@ -114,6 +116,9 @@ public class AiRecommendation {
         }
         if (latest == null) {
             latest = true;
+        }
+        if (saved == null) {
+            saved = false;
         }
     }
 
@@ -195,6 +200,14 @@ public class AiRecommendation {
 
     public void setLatest(Boolean latest) {
         this.latest = latest;
+    }
+
+    public Boolean getSaved() {
+        return saved;
+    }
+
+    public void setSaved(Boolean saved) {
+        this.saved = saved;
     }
 
     public Instant getSupersededAt() {

@@ -2078,6 +2078,27 @@
           "response": []
         },
         {
+          "name": "Save AI Plan Recommendation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recommendations/{{recommendationId}}/save",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{recommendationId}}",
+                "save"
+              ]
+            },
+            "description": "Marks a generated PLAN recommendation as saved for later reference."
+          },
+          "response": []
+        },
+        {
           "name": "Create Session Adjustment",
           "request": {
             "method": "POST",

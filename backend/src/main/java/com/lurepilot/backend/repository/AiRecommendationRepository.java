@@ -2,6 +2,7 @@ package com.lurepilot.backend.repository;
 
 import com.lurepilot.backend.model.AiRecommendation;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,10 +12,13 @@ import java.util.Optional;
 
 public interface AiRecommendationRepository extends JpaRepository<AiRecommendation, Long> {
 
+    @EntityGraph(attributePaths = {"plan", "session"})
     List<AiRecommendation> findByPlanIdOrderByCreatedAtDescIdDesc(Long planId);
 
+    @EntityGraph(attributePaths = {"plan", "session"})
     List<AiRecommendation> findByPlanIdAndRecommendationTypeOrderByCreatedAtDescIdDesc(Long planId, String recommendationType);
 
+    @EntityGraph(attributePaths = {"plan", "session"})
     Optional<AiRecommendation> findFirstByPlanIdAndRecommendationTypeOrderByVersionDescIdDesc(Long planId, String recommendationType);
 
     @Query("""
