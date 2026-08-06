@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Table(name = "weather_snapshots", indexes = {
         @Index(name = "idx_weather_plan", columnList = "plan_id"),
         @Index(name = "idx_weather_session", columnList = "session_id"),
-        @Index(name = "idx_weather_location", columnList = "source_global_id_local"),
+        @Index(name = "idx_weather_location", columnList = "source_location_id"),
         @Index(name = "idx_weather_forecast_date", columnList = "forecast_date"),
         @Index(name = "idx_weather_captured_at", columnList = "captured_at")
 })
@@ -40,7 +40,8 @@ public class WeatherSnapshot {
     @Column(nullable = false)
     private String source;
 
-    private Integer sourceGlobalIdLocal;
+    @Column(name = "source_location_id")
+    private Integer sourceLocationId;
 
     private String sourceLocationName;
 
@@ -64,6 +65,29 @@ public class WeatherSnapshot {
 
     private Integer windSpeedClass;
 
+    private Double currentTemperature;
+
+    private Double apparentTemperature;
+
+    private Double relativeHumidity;
+
+    private Double precipitation;
+
+    private Double pressureMsl;
+
+    private Integer cloudCover;
+
+    private Double windSpeedKmh;
+
+    private Double windGustsKmh;
+
+    private String sunrise;
+
+    private String sunset;
+
+    @Column(columnDefinition = "text")
+    private String hourlyForecastJson;
+
     @Column(length = 1000)
     private String notes;
 
@@ -73,11 +97,11 @@ public class WeatherSnapshot {
     public WeatherSnapshot() {
     }
 
-    public WeatherSnapshot(FishingPlan plan, FishingSession session, String source, Integer sourceGlobalIdLocal, String sourceLocationName, Double sourceLatitude, Double sourceLongitude, LocalDate forecastDate, Instant dataUpdate, Integer weatherTypeId, Double temperatureMin, Double temperatureMax, Double precipitationProbability, String windDirection, Integer windSpeedClass, String notes) {
+    public WeatherSnapshot(FishingPlan plan, FishingSession session, String source, Integer sourceLocationId, String sourceLocationName, Double sourceLatitude, Double sourceLongitude, LocalDate forecastDate, Instant dataUpdate, Integer weatherTypeId, Double temperatureMin, Double temperatureMax, Double precipitationProbability, String windDirection, Integer windSpeedClass, Double currentTemperature, Double apparentTemperature, Double relativeHumidity, Double precipitation, Double pressureMsl, Integer cloudCover, Double windSpeedKmh, Double windGustsKmh, String sunrise, String sunset, String hourlyForecastJson, String notes) {
         this.plan = plan;
         this.session = session;
         this.source = source;
-        this.sourceGlobalIdLocal = sourceGlobalIdLocal;
+        this.sourceLocationId = sourceLocationId;
         this.sourceLocationName = sourceLocationName;
         this.sourceLatitude = sourceLatitude;
         this.sourceLongitude = sourceLongitude;
@@ -89,6 +113,17 @@ public class WeatherSnapshot {
         this.precipitationProbability = precipitationProbability;
         this.windDirection = windDirection;
         this.windSpeedClass = windSpeedClass;
+        this.currentTemperature = currentTemperature;
+        this.apparentTemperature = apparentTemperature;
+        this.relativeHumidity = relativeHumidity;
+        this.precipitation = precipitation;
+        this.pressureMsl = pressureMsl;
+        this.cloudCover = cloudCover;
+        this.windSpeedKmh = windSpeedKmh;
+        this.windGustsKmh = windGustsKmh;
+        this.sunrise = sunrise;
+        this.sunset = sunset;
+        this.hourlyForecastJson = hourlyForecastJson;
         this.notes = notes;
     }
 
@@ -115,8 +150,8 @@ public class WeatherSnapshot {
         return source;
     }
 
-    public Integer getSourceGlobalIdLocal() {
-        return sourceGlobalIdLocal;
+    public Integer getSourceLocationId() {
+        return sourceLocationId;
     }
 
     public String getSourceLocationName() {
@@ -161,6 +196,50 @@ public class WeatherSnapshot {
 
     public Integer getWindSpeedClass() {
         return windSpeedClass;
+    }
+
+    public Double getCurrentTemperature() {
+        return currentTemperature;
+    }
+
+    public Double getApparentTemperature() {
+        return apparentTemperature;
+    }
+
+    public Double getRelativeHumidity() {
+        return relativeHumidity;
+    }
+
+    public Double getPrecipitation() {
+        return precipitation;
+    }
+
+    public Double getPressureMsl() {
+        return pressureMsl;
+    }
+
+    public Integer getCloudCover() {
+        return cloudCover;
+    }
+
+    public Double getWindSpeedKmh() {
+        return windSpeedKmh;
+    }
+
+    public Double getWindGustsKmh() {
+        return windGustsKmh;
+    }
+
+    public String getSunrise() {
+        return sunrise;
+    }
+
+    public String getSunset() {
+        return sunset;
+    }
+
+    public String getHourlyForecastJson() {
+        return hourlyForecastJson;
     }
 
     public String getNotes() {

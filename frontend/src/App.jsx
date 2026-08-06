@@ -35,6 +35,7 @@ import libraryIcon from '../assets/images/ui/library-icon.png'
 import lureBoxIcon from '../assets/images/ui/lurebox-icon.png'
 import profileIcon from '../assets/images/ui/profile-icon.png'
 import sessionIcon from '../assets/images/ui/session-icon.png'
+import weatherMenuIcon from '../assets/images/ui/weather-icon.png'
 import damSpot from '../assets/images/spots/dam.png'
 import harborSpot from '../assets/images/spots/harbor-platform.png'
 import lakeSpot from '../assets/images/spots/lake.png'
@@ -44,7 +45,9 @@ import seaSideSpot from '../assets/images/spots/sea-side.png'
 import spotsIcon from '../assets/images/ui/spots-icon.png'
 import clearSky from '../assets/images/weather/clear-sky.png'
 import cloudySky from '../assets/images/weather/cloudy.png'
+import fogWeather from '../assets/images/weather/fog.png'
 import rainWeather from '../assets/images/weather/rain.png'
+import windWeather from '../assets/images/weather/wind.png'
 import crankbait from '../assets/images/lures/crankbait.png'
 import frog from '../assets/images/lures/frog.png'
 import grub from '../assets/images/lures/grub.png'
@@ -81,6 +84,7 @@ const menuItems = [
   { id: 'dashboard', image: dashboardIcon, iconScale: 1.55 },
   { id: 'gallery', image: galleryIcon, iconScale: 1.55 },
   { id: 'spots', image: spotsIcon, iconScale: 1.55 },
+  { id: 'weather', image: weatherMenuIcon, iconScale: 1.55 },
   { id: 'plans', image: fishingPlanIcon, iconScale: 1.55 },
   { id: 'session', image: sessionIcon, iconScale: 1.55 },
   { id: 'lureBox', image: lureBoxIcon, iconScale: 1.55 },
@@ -115,6 +119,7 @@ const featureImages = {
   lureBox: spinnerbait,
   library: pike,
   profile: profileIcon,
+  weather: cloudySky,
 }
 
 const sectionThemes = {
@@ -125,6 +130,7 @@ const sectionThemes = {
   lureBox: { accent: '#1f8a82', surface: '#eef7f4', visual: '#d9eee8', border: '#b8d9d0' },
   library: { accent: '#2b8c68', surface: '#effaf4', visual: '#d9eee1', border: '#c2e2cf' },
   profile: { accent: '#2c76c7', surface: '#f0f6ff', visual: '#d9e9fb', border: '#c5dcef' },
+  weather: { accent: '#2d86a5', surface: '#eef8fc', visual: '#d8edf4', border: '#c2e2eb' },
 }
 
 const groupTones = {
@@ -135,6 +141,39 @@ const groupTones = {
   lureBox: { backgroundColor: '#eef7f4', borderColor: '#bfded4', accent: '#1f8a82', imageBackground: '#dcefe9' },
   fish: { backgroundColor: '#f3fbf6', borderColor: '#c9e5d2', accent: '#2b8c68', imageBackground: '#dcefe3' },
   lureLibrary: { backgroundColor: '#f4f8ff', borderColor: '#cdddf1', accent: '#2c76c7', imageBackground: '#dfeafa' },
+}
+
+const portugalWeatherDistricts = [
+  'Aveiro',
+  'Beja',
+  'Braga',
+  'Bragança',
+  'Castelo Branco',
+  'Coimbra',
+  'Évora',
+  'Faro',
+  'Guarda',
+  'Leiria',
+  'Lisboa',
+  'Portalegre',
+  'Porto',
+  'Santarém',
+  'Setúbal',
+  'Viana do Castelo',
+  'Vila Real',
+  'Viseu',
+  'Açores',
+  'Madeira',
+].map((district) => ({ value: district, label: district }))
+
+function normalizeWeatherDistrict(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\b(distrito|district)\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 const translations = {
@@ -153,6 +192,7 @@ const translations = {
       dashboard: 'Dashboard',
       gallery: 'Galeria',
       spots: 'Spots',
+      weather: 'Weather',
       plans: 'Planos',
       session: 'Sessão',
       lureBox: 'Lure Box',
@@ -171,6 +211,10 @@ const translations = {
       spots: {
         title: 'Spots',
         subtitle: 'Locais, água, espécies e notas de terreno.',
+      },
+      weather: {
+        title: 'Weather & Solunar',
+        subtitle: 'Previsão detalhada e horas de atividade para cada spot.',
       },
       plans: {
         title: 'Planos',
@@ -218,15 +262,17 @@ const translations = {
       weather: 'Weather relevante',
       noSnapshot: 'Sem snapshot',
       wind: 'vento',
-      weatherDistrictsLoading: 'A carregar localidades...',
+      weatherDistrictsLoading: 'A procurar localidades...',
       weatherSelectionError: 'Nao foi possivel atualizar esta localidade.',
-      weatherFallback: 'Liga um snapshot IPMA a um plano.',
+      weatherFallback: 'Pesquisa uma cidade, vila ou codigo postal para ver a meteorologia.',
+      weatherLocationSearch: 'Pesquisar localidade',
+      weatherLocationSearchHint: 'Cidade, vila ou codigo postal',
+      weatherLocationSearchEmpty: 'Escreve pelo menos 2 caracteres.',
       weatherMin: 'Minima',
       weatherMax: 'Maxima',
       weatherRain: 'Chuva',
       weatherWindDirection: 'Direcao',
       weatherWindClass: 'Classe do vento',
-      weatherForecast: 'Previsao',
       weatherChecked: 'Atualizado',
       latestResult: 'Último resultado',
       noResults: 'Sem resultados ainda',
@@ -237,6 +283,57 @@ const translations = {
       inWord: 'em',
       unnamedSpot: 'spot sem nome',
       catchFallback: 'A galeria ganha vida quando adicionares fotos.',
+    },
+    weather: {
+      eyebrow: 'WEATHER / SOLUNAR',
+      title: 'Meteorologia para pescar melhor',
+      subtitle: 'Cruza previsão horária, condições atuais e atividade solunar no mesmo lugar.',
+      poweredBy: 'Open-Meteo + cálculo astronómico',
+      chooseSpot: 'Spot',
+      chooseDate: 'Data da previsão',
+      chooseSpotPlaceholder: 'Escolhe um spot',
+      chooseDatePlaceholder: 'Escolhe uma data',
+      noSpots: 'Cria primeiro um spot com coordenadas para consultar a previsão.',
+      refresh: 'Atualizar previsão',
+      loading: 'A calcular previsão...',
+      unavailable: 'Não foi possível carregar a previsão deste spot.',
+      current: 'Agora',
+      feelsLike: 'Sensação',
+      minimum: 'Mínima',
+      maximum: 'Máxima',
+      rain: 'Chuva',
+      humidity: 'Humidade',
+      pressure: 'Pressão',
+      clouds: 'Nuvens',
+      wind: 'Vento',
+      gusts: 'Rajadas',
+      sunrise: 'Nascer do sol',
+      sunset: 'Pôr do sol',
+      hourly: 'Previsão por hora',
+      solunar: 'Solunar forecast',
+      solunarHint: 'Indicador tradicional de atividade baseado na Lua e no Sol.',
+      moonPhase: 'Fase lunar',
+      illumination: 'Iluminação',
+      moonrise: 'Nascer da Lua',
+      moonset: 'Pôr da Lua',
+      major: 'Períodos major',
+      minor: 'Períodos minor',
+      noPeriods: 'Sem períodos calculados para este dia.',
+      high: 'Atividade elevada',
+      medium: 'Atividade moderada',
+      low: 'Atividade baixa',
+      activity: 'Atividade estimada',
+      note: 'Usa como apoio à decisão, não como garantia de captura.',
+      moonPhases: {
+        NEW_MOON: 'Lua nova',
+        WAXING_CRESCENT: 'Crescente',
+        FIRST_QUARTER: 'Quarto crescente',
+        WAXING_GIBBOUS: 'Gibosa crescente',
+        FULL_MOON: 'Lua cheia',
+        WANING_GIBBOUS: 'Gibosa minguante',
+        LAST_QUARTER: 'Quarto minguante',
+        WANING_CRESCENT: 'Minguante',
+      },
     },
     resources: {
       loadError: 'Nao foi possivel carregar os dados deste ecra.',
@@ -266,19 +363,30 @@ const translations = {
       weatherLoading: 'A atualizar meteorologia...',
       weatherUnavailable: 'Nao foi possivel obter a meteorologia deste spot.',
       weatherNoCoordinates: 'Seleciona um spot com coordenadas para ver a meteorologia.',
-      weatherDistrict: 'Localidade',
+      weatherDistrict: 'Distrito',
+      weatherDistrictPlaceholder: 'Escolher distrito',
+      weatherDistrictLoading: 'A procurar previsao...',
+      weatherCoordinates: 'Coordenadas',
       refreshWeather: 'Atualizar meteorologia',
       temperature: 'Temperatura',
+      currentTemperature: 'Agora',
+      apparentTemperature: 'Sensacao',
       precipitation: 'Probabilidade de chuva',
+      precipitationAmount: 'Precipitacao',
+      humidity: 'Humidade',
+      pressure: 'Pressao',
+      cloudCover: 'Nuvens',
       wind: 'Vento',
+      windSpeed: 'Velocidade do vento',
+      windGusts: 'Rajadas',
       temperatureMin: 'Temperatura minima',
       temperatureMax: 'Temperatura maxima',
       windDirection: 'Direcao do vento',
       windSpeedClass: 'Classe do vento',
-      weatherForecastDate: 'Previsao para',
-      weatherDataUpdate: 'Atualizacao IPMA',
+      weatherDataUpdate: 'Atualizacao Open-Meteo',
       weatherCapturedAt: 'Consultado em',
-      weatherSourceCoordinates: 'Coordenadas da previsao',
+      sunrise: 'Nascer do sol',
+      sunset: 'Por do sol',
       weatherUpdated: 'Atualizado',
       waterEnvironmentOptions: {
         freshwater: 'Freshwater',
@@ -312,6 +420,9 @@ const translations = {
       savingAiPlan: 'A guardar recomendacao...',
       aiPlanSaved: 'Recomendacao guardada',
       aiPlanSaveError: 'Nao foi possivel guardar a recomendacao.',
+      planContext: 'Contexto da saida',
+      planStrategy: 'Estrategia de pesca',
+      planWatchouts: 'Pontos de atencao',
       aiPlanSummary: 'Leitura da situacao',
       aiPlanConfidence: 'Confianca',
       aiPlanLures: 'Lures recomendadas',
@@ -591,6 +702,7 @@ const translations = {
       dashboard: 'Dashboard',
       gallery: 'Gallery',
       spots: 'Spots',
+      weather: 'Weather',
       plans: 'Plans',
       session: 'Session',
       lureBox: 'Lure Box',
@@ -609,6 +721,10 @@ const translations = {
       spots: {
         title: 'Spots',
         subtitle: 'Locations, water, species and field notes.',
+      },
+      weather: {
+        title: 'Weather & Solunar',
+        subtitle: 'Detailed forecast and activity windows for every spot.',
       },
       plans: {
         title: 'Plans',
@@ -656,15 +772,17 @@ const translations = {
       weather: 'Relevant weather',
       noSnapshot: 'No snapshot',
       wind: 'wind',
-      weatherDistrictsLoading: 'Loading forecast locations...',
+      weatherDistrictsLoading: 'Searching forecast locations...',
       weatherSelectionError: 'Could not update this location.',
-      weatherFallback: 'Attach an IPMA snapshot to a plan.',
+      weatherFallback: 'Search for a city, town or postal code to see the weather.',
+      weatherLocationSearch: 'Search location',
+      weatherLocationSearchHint: 'City, town or postal code',
+      weatherLocationSearchEmpty: 'Type at least 2 characters.',
       weatherMin: 'Minimum',
       weatherMax: 'Maximum',
       weatherRain: 'Rain',
       weatherWindDirection: 'Direction',
       weatherWindClass: 'Wind class',
-      weatherForecast: 'Forecast',
       weatherChecked: 'Updated',
       latestResult: 'Latest result',
       noResults: 'No results yet',
@@ -675,6 +793,57 @@ const translations = {
       inWord: 'at',
       unnamedSpot: 'unnamed spot',
       catchFallback: 'The gallery comes alive when you add photos.',
+    },
+    weather: {
+      eyebrow: 'WEATHER / SOLUNAR',
+      title: 'Weather for better decisions',
+      subtitle: 'Bring hourly conditions and solunar activity together for every spot.',
+      poweredBy: 'Open-Meteo + astronomical calculation',
+      chooseSpot: 'Spot',
+      chooseDate: 'Forecast date',
+      chooseSpotPlaceholder: 'Choose a spot',
+      chooseDatePlaceholder: 'Choose a date',
+      noSpots: 'Create a spot with coordinates first to view the forecast.',
+      refresh: 'Refresh forecast',
+      loading: 'Calculating forecast...',
+      unavailable: 'Could not load the forecast for this spot.',
+      current: 'Now',
+      feelsLike: 'Feels like',
+      minimum: 'Minimum',
+      maximum: 'Maximum',
+      rain: 'Rain',
+      humidity: 'Humidity',
+      pressure: 'Pressure',
+      clouds: 'Clouds',
+      wind: 'Wind',
+      gusts: 'Gusts',
+      sunrise: 'Sunrise',
+      sunset: 'Sunset',
+      hourly: 'Hourly forecast',
+      solunar: 'Solunar forecast',
+      solunarHint: 'A traditional activity indicator based on the Moon and Sun.',
+      moonPhase: 'Moon phase',
+      illumination: 'Illumination',
+      moonrise: 'Moonrise',
+      moonset: 'Moonset',
+      major: 'Major periods',
+      minor: 'Minor periods',
+      noPeriods: 'No periods calculated for this day.',
+      high: 'High activity',
+      medium: 'Moderate activity',
+      low: 'Low activity',
+      activity: 'Estimated activity',
+      note: 'Use it as decision support, not as a catch guarantee.',
+      moonPhases: {
+        NEW_MOON: 'New moon',
+        WAXING_CRESCENT: 'Waxing crescent',
+        FIRST_QUARTER: 'First quarter',
+        WAXING_GIBBOUS: 'Waxing gibbous',
+        FULL_MOON: 'Full moon',
+        WANING_GIBBOUS: 'Waning gibbous',
+        LAST_QUARTER: 'Last quarter',
+        WANING_CRESCENT: 'Waning crescent',
+      },
     },
     resources: {
       loadError: 'Could not load data for this screen.',
@@ -704,19 +873,30 @@ const translations = {
       weatherLoading: 'Updating weather...',
       weatherUnavailable: 'Could not get weather for this spot.',
       weatherNoCoordinates: 'Select a spot with coordinates to see weather.',
-      weatherDistrict: 'Forecast location',
+      weatherDistrict: 'District',
+      weatherDistrictPlaceholder: 'Choose district',
+      weatherDistrictLoading: 'Searching forecast...',
+      weatherCoordinates: 'Coordinates',
       refreshWeather: 'Refresh weather',
       temperature: 'Temperature',
+      currentTemperature: 'Now',
+      apparentTemperature: 'Feels like',
       precipitation: 'Rain probability',
+      precipitationAmount: 'Precipitation',
+      humidity: 'Humidity',
+      pressure: 'Pressure',
+      cloudCover: 'Cloud cover',
       wind: 'Wind',
+      windSpeed: 'Wind speed',
+      windGusts: 'Wind gusts',
       temperatureMin: 'Minimum temperature',
       temperatureMax: 'Maximum temperature',
       windDirection: 'Wind direction',
       windSpeedClass: 'Wind class',
-      weatherForecastDate: 'Forecast for',
-      weatherDataUpdate: 'IPMA update',
+      weatherDataUpdate: 'Open-Meteo update',
       weatherCapturedAt: 'Checked at',
-      weatherSourceCoordinates: 'Forecast coordinates',
+      sunrise: 'Sunrise',
+      sunset: 'Sunset',
       weatherUpdated: 'Updated',
       waterEnvironmentOptions: {
         freshwater: 'Freshwater',
@@ -750,6 +930,9 @@ const translations = {
       savingAiPlan: 'Saving recommendation...',
       aiPlanSaved: 'Recommendation saved',
       aiPlanSaveError: 'Could not save the recommendation.',
+      planContext: 'Trip context',
+      planStrategy: 'Fishing strategy',
+      planWatchouts: 'Points to watch',
       aiPlanSummary: 'Situation read',
       aiPlanConfidence: 'Confidence',
       aiPlanLures: 'Recommended lures',
@@ -1456,6 +1639,8 @@ function App() {
               onNavigate={navigateToSection}
               copy={copy}
             />
+          ) : activeSection === 'weather' ? (
+            <WeatherView compact={compact} copy={copy} />
           ) : activeSection === 'profile' ? (
             <ProfileScreen compact={compact} copy={copy} />
           ) : (
@@ -1493,7 +1678,10 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   const recentResult = dashboard.recentResults?.[0]
   const recentCatch = dashboard.recentCatches?.[0]
   const [weatherLocations, setWeatherLocations] = useState([])
+  const [weatherLocationQuery, setWeatherLocationQuery] = useState(dashboard.relevantWeatherSnapshot?.sourceLocationName || 'Lisboa')
+  const [selectedWeatherDistrict, setSelectedWeatherDistrict] = useState('')
   const [selectedWeatherLocationId, setSelectedWeatherLocationId] = useState('')
+  const [weatherLocationsLoading, setWeatherLocationsLoading] = useState(false)
   const [weather, setWeather] = useState(dashboard.relevantWeatherSnapshot)
   const [weatherLoading, setWeatherLoading] = useState(false)
   const [weatherError, setWeatherError] = useState(false)
@@ -1501,7 +1689,14 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   useEffect(() => {
     let cancelled = false
 
-    fetch('/api/weather-locations/ipma')
+    if (weatherLocationQuery.trim().length < 2) {
+      setWeatherLocations([])
+      setWeatherLocationsLoading(false)
+      return undefined
+    }
+
+    setWeatherLocationsLoading(true)
+    fetch(`/api/weather-locations/search?query=${encodeURIComponent(weatherLocationQuery.trim())}&countryCode=PT`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Weather locations request failed')
@@ -1516,14 +1711,16 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
 
         const nextLocations = Array.isArray(locations) ? locations : []
         setWeatherLocations(nextLocations)
+        const currentWeatherName = dashboard.relevantWeatherSnapshot?.sourceLocationName
+        const matchingLocation = nextLocations.find((location) => location.name === currentWeatherName)
+        const matchingDistrict = portugalWeatherDistricts.find((district) => normalizeWeatherDistrict(district.value) === normalizeWeatherDistrict(matchingLocation?.admin1))
+        setSelectedWeatherDistrict((selected) => selected || matchingDistrict?.value || '')
         setSelectedWeatherLocationId((current) => {
           if (current || !nextLocations.length) {
             return current
           }
 
-          const currentWeatherName = dashboard.relevantWeatherSnapshot?.sourceLocationName
-          const matchingLocation = nextLocations.find((location) => location.name === currentWeatherName)
-          return String(matchingLocation?.globalIdLocal || nextLocations[0].globalIdLocal)
+          return String(matchingLocation?.id || nextLocations[0].id)
         })
       })
       .catch(() => {
@@ -1531,14 +1728,20 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
           setWeatherLocations([])
         }
       })
+      .finally(() => {
+        if (!cancelled) {
+          setWeatherLocationsLoading(false)
+        }
+      })
 
     return () => {
       cancelled = true
     }
-  }, [dashboard.relevantWeatherSnapshot?.sourceLocationName])
+  }, [weatherLocationQuery])
 
   useEffect(() => {
-    if (!selectedWeatherLocationId) {
+    const selectedLocation = weatherLocations.find((location) => String(location.id) === String(selectedWeatherLocationId))
+    if (!selectedLocation) {
       return undefined
     }
 
@@ -1546,10 +1749,15 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     setWeatherLoading(true)
     setWeatherError(false)
 
-    fetch('/api/weather-snapshots/ipma/location', {
+    fetch('/api/weather-snapshots/location', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ globalIdLocal: Number(selectedWeatherLocationId) }),
+      body: JSON.stringify({
+        locationId: selectedLocation.id,
+        name: selectedLocation.name,
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
+      }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -1577,16 +1785,14 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     return () => {
       cancelled = true
     }
-  }, [selectedWeatherLocationId])
+  }, [selectedWeatherLocationId, weatherLocations])
 
-  const weatherLocationOptions = weatherLocations.map((location) => ({
-    value: String(location.globalIdLocal),
-    label: location.name,
-  }))
-
-  function handleWeatherLocationChange(locationId) {
+  function handleWeatherDistrictChange(district) {
+    setSelectedWeatherDistrict(district)
+    setWeatherLocationQuery(district)
+    setWeatherLocations([])
+    setSelectedWeatherLocationId('')
     setWeather(null)
-    setSelectedWeatherLocationId(locationId)
   }
 
   return (
@@ -1652,7 +1858,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
         />
       </View>
 
-      <View style={styles.panelGrid}>
+      <View style={[styles.panelGrid, styles.dashboardTopPanelGrid]}>
         <DashboardLurePanel bestLure={bestLure} dashboardCopy={dashboardCopy} compact={compact} />
         <DashboardWeatherShowcase
           dashboardCopy={dashboardCopy}
@@ -1661,11 +1867,11 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
           weather={weather}
           weatherLoading={weatherLoading}
           weatherError={weatherError}
-          weatherLocationOptions={weatherLocationOptions}
-          selectedWeatherLocationId={selectedWeatherLocationId}
-          onWeatherLocationChange={handleWeatherLocationChange}
-          loading={loading}
           weatherIcon={getWeatherIcon(weather)}
+          districtValue={selectedWeatherDistrict}
+          districtOptions={portugalWeatherDistricts}
+          onDistrictChange={handleWeatherDistrictChange}
+          districtLoading={weatherLocationsLoading}
         />
       </View>
 
@@ -1749,29 +1955,28 @@ function DashboardWeatherShowcase({
   weather,
   weatherLoading,
   weatherError,
-  weatherLocationOptions,
-  selectedWeatherLocationId,
-  onWeatherLocationChange,
-  loading,
   weatherIcon,
+  districtValue,
+  districtOptions,
+  onDistrictChange,
+  districtLoading,
 }) {
   return (
     <View style={[styles.dashboardWeatherPanel, compact && styles.panelFull]}>
       <View style={styles.dashboardWeatherHeader}>
         <View style={styles.dashboardWeatherHeading}>
           <Text style={styles.dashboardWeatherLabel}>{dashboardCopy.weather}</Text>
-          <Text style={styles.dashboardWeatherTitle}>{weather?.sourceLocationName || dashboardCopy.noSnapshot}</Text>
+          <Text style={styles.dashboardWeatherTitle}>{districtValue || weather?.sourceLocationName || dashboardCopy.noSnapshot}</Text>
+          <WeatherLocationPicker
+            copy={copy}
+            districtValue={districtValue}
+            districtOptions={districtOptions}
+            onDistrictChange={onDistrictChange}
+            loading={districtLoading}
+          />
         </View>
         <Image source={{ uri: weatherIcon }} style={styles.dashboardWeatherImage} resizeMode="cover" />
       </View>
-      <GallerySelect
-        label={copy.resources.weatherDistrict}
-        value={selectedWeatherLocationId}
-        options={weatherLocationOptions}
-        onChange={onWeatherLocationChange}
-        placeholder={loading ? dashboardCopy.weatherDistrictsLoading : copy.resources.weatherDistrict}
-        fitContent
-      />
       {weatherLoading ? (
         <Text style={styles.dashboardWeatherMessage}>{copy.resources.weatherLoading}</Text>
       ) : weatherError ? (
@@ -1786,13 +1991,27 @@ function DashboardWeatherShowcase({
             <DashboardWeatherStat label={dashboardCopy.weatherWindClass} value={weather.windSpeedClass ?? '-'} tone="gold" />
           </View>
           <View style={styles.dashboardWeatherFooter}>
-            <Text style={styles.dashboardWeatherFooterText}>{dashboardCopy.weatherForecast}: {weather.forecastDate || '-'}</Text>
             <Text style={styles.dashboardWeatherFooterText}>{dashboardCopy.weatherChecked}: {formatDateTime(weather.dataUpdate || weather.capturedAt) || '-'}</Text>
           </View>
         </View>
       ) : (
         <Text style={styles.dashboardWeatherMessage}>{dashboardCopy.weatherFallback}</Text>
       )}
+    </View>
+  )
+}
+
+function WeatherLocationPicker({ copy, districtValue, districtOptions, onDistrictChange, loading }) {
+  return (
+    <View style={styles.weatherDistrictPicker}>
+      <GallerySelect
+        label={copy.resources.weatherDistrict}
+        value={districtValue}
+        options={districtOptions}
+        onChange={onDistrictChange}
+        placeholder={loading ? copy.resources.weatherDistrictLoading : copy.resources.weatherDistrictPlaceholder}
+        fitContent
+      />
     </View>
   )
 }
@@ -1851,8 +2070,343 @@ function getWeatherIcon(weather) {
     return cloudySky
   }
 
-  const precipitation = Number(weather.precipitationProbability)
-  return Number.isFinite(precipitation) && precipitation > 20 ? rainWeather : clearSky
+  const weatherCode = Number(weather.weatherTypeId ?? weather.weatherCode)
+  const precipitationProbability = Number(weather.precipitationProbability)
+  const precipitation = Number(weather.precipitation)
+  const cloudCover = Number(weather.cloudCover)
+  const windSpeed = Number(weather.windSpeedKmh)
+
+  if ([45, 48].includes(weatherCode)) {
+    return fogWeather
+  }
+
+  if (
+    (Number.isFinite(precipitationProbability) && precipitationProbability > 20) ||
+    (Number.isFinite(precipitation) && precipitation > 0.1) ||
+    [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99].includes(weatherCode)
+  ) {
+    return rainWeather
+  }
+
+  if (Number.isFinite(windSpeed) && windSpeed >= 35) {
+    return windWeather
+  }
+
+  if (
+    (Number.isFinite(cloudCover) && cloudCover >= 45) ||
+    [1, 2, 3].includes(weatherCode)
+  ) {
+    return cloudySky
+  }
+
+  return clearSky
+}
+
+function WeatherView({ compact, copy }) {
+  const weatherCopy = copy.weather
+  const today = new Date().toISOString().slice(0, 10)
+  const [spots, setSpots] = useState([])
+  const [selectedSpotId, setSelectedSpotId] = useState('')
+  const [selectedDate, setSelectedDate] = useState(today)
+  const [weather, setWeather] = useState(null)
+  const [solunar, setSolunar] = useState(null)
+  const [spotsLoading, setSpotsLoading] = useState(true)
+  const [forecastLoading, setForecastLoading] = useState(false)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadSpots() {
+      setSpotsLoading(true)
+      try {
+        const response = await fetch('/api/spots?page=0&size=100&sortBy=name&sortDirection=asc')
+        if (!response.ok) {
+          throw new Error('Spots unavailable')
+        }
+
+        const payload = await response.json()
+        const items = (payload.items || []).filter((spot) => spot.latitude != null && spot.longitude != null)
+
+        if (!cancelled) {
+          setSpots(items)
+          setSelectedSpotId((current) => current || String(items[0]?.id || ''))
+        }
+      } catch {
+        if (!cancelled) {
+          setSpots([])
+          setError(true)
+        }
+      } finally {
+        if (!cancelled) {
+          setSpotsLoading(false)
+        }
+      }
+    }
+
+    loadSpots()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const selectedSpot = spots.find((spot) => String(spot.id) === String(selectedSpotId))
+  const spotOptions = spots.map((spot) => ({
+    value: String(spot.id),
+    label: spot.name,
+    image: getSpotImage(spot),
+  }))
+
+  useEffect(() => {
+    let cancelled = false
+
+    if (!selectedSpot || !selectedDate) {
+      setWeather(null)
+      setSolunar(null)
+      return undefined
+    }
+
+    async function loadForecast() {
+      setForecastLoading(true)
+      setError(false)
+
+      try {
+        const [weatherResponse, solunarResponse] = await Promise.all([
+          fetch('/api/weather-snapshots/coordinates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              latitude: Number(selectedSpot.latitude),
+              longitude: Number(selectedSpot.longitude),
+              forecastDate: selectedDate,
+            }),
+          }),
+          fetch(`/api/solunar/spots/${selectedSpot.id}?date=${encodeURIComponent(selectedDate)}`),
+        ])
+
+        if (!weatherResponse.ok || !solunarResponse.ok) {
+          throw new Error('Forecast unavailable')
+        }
+
+        const [weatherData, solunarData] = await Promise.all([
+          weatherResponse.json(),
+          solunarResponse.json(),
+        ])
+
+        if (!cancelled) {
+          setWeather(weatherData)
+          setSolunar(solunarData)
+        }
+      } catch {
+        if (!cancelled) {
+          setWeather(null)
+          setSolunar(null)
+          setError(true)
+        }
+      } finally {
+        if (!cancelled) {
+          setForecastLoading(false)
+        }
+      }
+    }
+
+    loadForecast()
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedDate, selectedSpot?.id, selectedSpot?.latitude, selectedSpot?.longitude])
+
+  const hourlyForecast = weather?.hourlyForecast || []
+  const weatherIcon = getWeatherIcon(weather)
+  const activityLabel = solunar ? weatherCopy[solunar.activityLevel?.toLowerCase()] || weatherCopy.medium : null
+
+  return (
+    <View style={styles.weatherWorkspace}>
+      <View style={[styles.weatherHero, compact && styles.weatherHeroCompact]}>
+        <View style={styles.weatherHeroCopy}>
+          <Text style={styles.weatherEyebrow}>{weatherCopy.eyebrow}</Text>
+          <Text style={styles.weatherHeroTitle}>{weatherCopy.title}</Text>
+          <Text style={styles.weatherHeroText}>{weatherCopy.subtitle}</Text>
+        </View>
+        <View style={styles.weatherPoweredBadge}>
+          <Image source={{ uri: weatherMenuIcon }} style={styles.weatherPoweredIcon} resizeMode="contain" />
+          <Text style={styles.weatherPoweredText}>{weatherCopy.poweredBy}</Text>
+        </View>
+      </View>
+
+      <View style={[styles.weatherControlPanel, compact && styles.weatherControlPanelCompact]}>
+        <View style={styles.weatherControlIntro}>
+          <Text style={styles.weatherControlLabel}>{weatherCopy.chooseSpot}</Text>
+          <Text style={styles.weatherControlHint}>{spotsLoading ? copy.loading : weatherCopy.chooseSpotPlaceholder}</Text>
+        </View>
+        <View style={styles.weatherControlField}>
+          <GallerySelect
+            label={weatherCopy.chooseSpot}
+            value={selectedSpotId}
+            options={spotOptions}
+            onChange={setSelectedSpotId}
+            placeholder={spotsLoading ? copy.loading : weatherCopy.chooseSpotPlaceholder}
+            fitContent
+          />
+        </View>
+        <View style={styles.weatherControlField}>
+          <DateTimeField
+            label={weatherCopy.chooseDate}
+            value={selectedDate}
+            onChangeText={setSelectedDate}
+            type="date"
+            placeholder={weatherCopy.chooseDatePlaceholder}
+            compact
+          />
+        </View>
+      </View>
+
+      {spots.length === 0 && !spotsLoading ? (
+        <View style={styles.weatherEmptyState}>
+          <Image source={{ uri: weatherMenuIcon }} style={styles.weatherEmptyIcon} resizeMode="contain" />
+          <Text style={styles.weatherEmptyTitle}>{weatherCopy.noSpots}</Text>
+        </View>
+      ) : forecastLoading ? (
+        <View style={styles.weatherLoadingState}>
+          <ActivityIndicator color="#2d86a5" />
+          <Text style={styles.weatherLoadingText}>{weatherCopy.loading}</Text>
+        </View>
+      ) : error || !weather || !solunar ? (
+        <View style={styles.weatherEmptyState}>
+          <Text style={styles.weatherEmptyTitle}>{weatherCopy.unavailable}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={[styles.weatherCurrentPanel, compact && styles.panelFull]}>
+            <View style={styles.weatherCurrentMain}>
+              <View style={styles.weatherCurrentIconFrame}>
+                <Image source={{ uri: weatherIcon }} style={styles.weatherCurrentIcon} resizeMode="cover" />
+              </View>
+              <View style={styles.weatherCurrentCopy}>
+                <Text style={styles.weatherSectionLabel}>{weatherCopy.current}</Text>
+                <Text style={styles.weatherCurrentTitle}>{selectedSpot.name}</Text>
+                <Text style={styles.weatherCurrentTemp}>{weather.currentTemperature ?? '--'}°C</Text>
+                <Text style={styles.weatherCurrentMeta}>{weatherCopy.feelsLike} {weather.apparentTemperature ?? '--'}°C</Text>
+              </View>
+            </View>
+            <View style={styles.weatherCurrentStats}>
+              <WeatherStat label={weatherCopy.minimum} value={`${weather.temperatureMin ?? '--'}°C`} tone="blue" />
+              <WeatherStat label={weatherCopy.maximum} value={`${weather.temperatureMax ?? '--'}°C`} tone="gold" />
+              <WeatherStat label={weatherCopy.rain} value={`${weather.precipitationProbability ?? '--'}%`} tone="rain" />
+              <WeatherStat label={weatherCopy.humidity} value={`${weather.relativeHumidity ?? '--'}%`} tone="teal" />
+              <WeatherStat label={weatherCopy.wind} value={`${weather.windDirection || '--'} ${weather.windSpeedKmh ?? '--'} km/h`} tone="blue" />
+              <WeatherStat label={weatherCopy.gusts} value={`${weather.windGustsKmh ?? '--'} km/h`} tone="gold" />
+              <WeatherStat label={weatherCopy.pressure} value={`${weather.pressureMsl ?? '--'} hPa`} tone="teal" />
+              <WeatherStat label={weatherCopy.clouds} value={`${weather.cloudCover ?? '--'}%`} tone="blue" />
+            </View>
+            <View style={styles.weatherSunRow}>
+              <WeatherSunItem label={weatherCopy.sunrise} value={formatWeatherClock(weather.sunrise)} />
+              <WeatherSunItem label={weatherCopy.sunset} value={formatWeatherClock(weather.sunset)} />
+            </View>
+          </View>
+
+          <View style={[styles.weatherHourlyPanel, compact && styles.panelFull]}>
+            <View style={styles.weatherPanelHeadingRow}>
+              <View>
+                <Text style={styles.weatherSectionLabel}>{weatherCopy.hourly}</Text>
+                <Text style={styles.weatherPanelTitle}>{selectedSpot.name} · {selectedDate}</Text>
+              </View>
+              <Text style={styles.weatherPanelMeta}>{hourlyForecast.length} h</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.weatherHourlyRow}>
+              {hourlyForecast.map((hour) => (
+                <View key={hour.time} style={styles.weatherHourCard}>
+                  <Text style={styles.weatherHourTime}>{formatWeatherClock(hour.time)}</Text>
+                  <Image source={{ uri: getWeatherIcon(hour) }} style={styles.weatherHourIcon} resizeMode="cover" />
+                  <Text style={styles.weatherHourTemp}>{hour.temperature ?? '--'}°</Text>
+                  <Text style={styles.weatherHourRain}>{hour.precipitationProbability ?? '--'}% {weatherCopy.rain.toLowerCase()}</Text>
+                  <Text style={styles.weatherHourWind}>{hour.windDirection ?? '--'} · {hour.windSpeedKmh ?? '--'} km/h</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={[styles.solunarPanel, compact && styles.panelFull]}>
+            <View style={styles.solunarHeader}>
+              <View style={styles.solunarHeaderCopy}>
+                <Text style={styles.solunarEyebrow}>{weatherCopy.solunar}</Text>
+                <Text style={styles.solunarTitle}>{weatherCopy.activity}</Text>
+                <Text style={styles.solunarHint}>{weatherCopy.solunarHint}</Text>
+              </View>
+              <View style={styles.solunarActivityBadge}>
+                <View style={styles.solunarActivityDot} />
+                <Text style={styles.solunarActivityText}>{activityLabel}</Text>
+              </View>
+            </View>
+            <View style={[styles.solunarOverview, compact && styles.solunarOverviewCompact]}>
+              <View style={styles.moonVisualFrame}>
+                <View style={[styles.moonDisc, { opacity: Math.max(0.28, Number(solunar.moonIlluminationPercent || 0) / 100) }]} />
+              </View>
+              <View style={styles.solunarPhaseCopy}>
+                <Text style={styles.solunarPhaseLabel}>{weatherCopy.moonPhase}</Text>
+                <Text style={styles.solunarPhaseTitle}>{weatherCopy.moonPhases[solunar.moonPhase] || solunar.moonPhase}</Text>
+                <Text style={styles.solunarPhaseMeta}>{weatherCopy.illumination} {solunar.moonIlluminationPercent ?? '--'}%</Text>
+              </View>
+              <WeatherSunItem label={weatherCopy.moonrise} value={formatWeatherClock(solunar.moonrise)} dark />
+              <WeatherSunItem label={weatherCopy.moonset} value={formatWeatherClock(solunar.moonset)} dark />
+            </View>
+            <View style={[styles.solunarPeriodGrid, compact && styles.solunarPeriodGridCompact]}>
+              <SolunarPeriodGroup label={weatherCopy.major} periods={solunar.majorPeriods} empty={weatherCopy.noPeriods} accent="gold" />
+              <SolunarPeriodGroup label={weatherCopy.minor} periods={solunar.minorPeriods} empty={weatherCopy.noPeriods} accent="blue" />
+            </View>
+            <Text style={styles.solunarNote}>{weatherCopy.note}</Text>
+          </View>
+        </>
+      )}
+    </View>
+  )
+}
+
+function WeatherStat({ label, value, tone }) {
+  return (
+    <View style={[styles.weatherStat, tone === 'gold' && styles.weatherStatGold, tone === 'rain' && styles.weatherStatRain, tone === 'blue' && styles.weatherStatBlue]}>
+      <Text style={styles.weatherStatLabel}>{label}</Text>
+      <Text style={styles.weatherStatValue}>{value}</Text>
+    </View>
+  )
+}
+
+function WeatherSunItem({ label, value, dark = false }) {
+  return (
+    <View style={[styles.weatherSunItem, dark && styles.weatherSunItemDark]}>
+      <Text style={[styles.weatherSunLabel, dark && styles.weatherSunLabelDark]}>{label}</Text>
+      <Text style={[styles.weatherSunValue, dark && styles.weatherSunValueDark]}>{value || '--'}</Text>
+    </View>
+  )
+}
+
+function SolunarPeriodGroup({ label, periods, empty, accent }) {
+  return (
+    <View style={[styles.solunarPeriodGroup, accent === 'blue' && styles.solunarPeriodGroupBlue]}>
+      <Text style={styles.solunarPeriodLabel}>{label}</Text>
+      {(periods || []).length > 0 ? periods.map((period) => (
+        <View key={period.type} style={styles.solunarPeriodRow}>
+          <View style={styles.solunarPeriodMarker} />
+          <View style={styles.solunarPeriodCopy}>
+            <Text style={styles.solunarPeriodTitle}>{period.title}</Text>
+            <Text style={styles.solunarPeriodTime}>{formatWeatherClock(period.startsAt)} - {formatWeatherClock(period.endsAt)}</Text>
+          </View>
+          <Text style={styles.solunarPeriodPeak}>{formatWeatherClock(period.peakAt)}</Text>
+        </View>
+      )) : <Text style={styles.solunarPeriodEmpty}>{empty}</Text>}
+    </View>
+  )
+}
+
+function formatWeatherClock(value) {
+  if (!value) {
+    return '--'
+  }
+
+  const text = String(value)
+  return text.includes('T') ? text.slice(11, 16) : text.slice(0, 5)
 }
 
 function MissionAction({ label, detail, image, onPress }) {
@@ -1981,75 +2535,17 @@ function SpotAtlasShowcase({
   const items = group?.items || []
   const [showCreateSpot, setShowCreateSpot] = useState(false)
   const [activeType, setActiveType] = useState('reservoirs')
-  const [weatherSpotId, setWeatherSpotId] = useState(null)
-  const [weather, setWeather] = useState(null)
-  const [weatherLoading, setWeatherLoading] = useState(false)
-  const [weatherError, setWeatherError] = useState(false)
-  const [weatherRefreshKey, setWeatherRefreshKey] = useState(0)
   const total = group?.totalItems ?? items.length
   const lureLibraryItems = groups.find((candidate) => candidate.key === 'lureLibrary')?.items || []
   const selectedType = spotTypeCatalog.find((type) => type.key === activeType) || spotTypeCatalog[0]
   const selectedTypeCopy = copy.resources.spotTypes[selectedType.key]
   const selectedTypeItems = items.filter((item) => getSpotCategory(item) === selectedType.key)
-  const weatherSpot = items.find((item) => String(item.id) === String(weatherSpotId)) || items[0]
-
-  useEffect(() => {
-    if (!weatherSpot?.latitude || !weatherSpot?.longitude) {
-      setWeather(null)
-      setWeatherLoading(false)
-      return undefined
-    }
-
-    let cancelled = false
-    setWeatherLoading(true)
-    setWeatherError(false)
-
-    fetch('/api/weather-snapshots/ipma/coordinates', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        latitude: Number(weatherSpot.latitude),
-        longitude: Number(weatherSpot.longitude),
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Weather request failed')
-        }
-
-        return response.json()
-      })
-      .then((data) => {
-        if (!cancelled) {
-          setWeather(data)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setWeather(null)
-          setWeatherError(true)
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setWeatherLoading(false)
-        }
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [weatherRefreshKey, weatherSpot?.id, weatherSpot?.latitude, weatherSpot?.longitude])
 
   function handleTypeSelect(typeKey) {
     setActiveType(typeKey)
-    const firstSpot = items.find((item) => getSpotCategory(item) === typeKey)
-    setWeatherSpotId(firstSpot?.id || null)
   }
 
-  function handleSpotCreated(createdSpot) {
-    setWeatherSpotId(createdSpot?.id || null)
-    setWeatherRefreshKey((current) => current + 1)
+  function handleSpotCreated() {
     onCreated()
   }
 
@@ -2110,16 +2606,6 @@ function SpotAtlasShowcase({
             <PaginationControls group={group || {}} onPageChange={onPageChange} copy={copy} />
           </View>
         </View>
-
-        <SpotWeatherCard
-          weather={weather}
-          spot={weatherSpot}
-          loading={weatherLoading}
-          error={weatherError}
-          onRefresh={() => setWeatherRefreshKey((current) => current + 1)}
-          copy={copy}
-          compact={compact}
-        />
       </View>
 
       {showCreateSpot && <CreateSpotForm copy={copy} onCreated={handleSpotCreated} />}
@@ -2174,7 +2660,6 @@ function SpotAtlasShowcase({
                 typeCopy={selectedTypeCopy}
                 copy={copy}
                 onPress={onOpenDetail}
-                onSelect={(item) => setWeatherSpotId(item.id)}
               />
             ))}
           </View>
@@ -2189,109 +2674,12 @@ function SpotAtlasShowcase({
   )
 }
 
-function SpotWeatherCard({ weather, spot, loading, error, onRefresh, copy, compact }) {
-  const fields = copy.resources
-  const [showDetails, setShowDetails] = useState(false)
-  const temperatureMin = weather?.temperatureMin != null ? `${weather.temperatureMin} °C` : '--'
-  const temperatureMax = weather?.temperatureMax != null ? `${weather.temperatureMax} °C` : '--'
-  const precipitation = weather?.precipitationProbability != null ? `${weather.precipitationProbability}%` : '--'
-  const windDirection = weather?.windDirection || '--'
-  const windSpeedClass = weather?.windSpeedClass != null ? `${weather.windSpeedClass}` : '--'
-  const forecastDate = weather?.forecastDate || '--'
-  const dataUpdate = weather?.dataUpdate ? formatDateTime(weather.dataUpdate) : '--'
-  const capturedAt = weather?.capturedAt ? formatDateTime(weather.capturedAt) : '--'
-  const sourceCoordinates = formatCoordinates(weather?.sourceLatitude, weather?.sourceLongitude) || '--'
-
-  return (
-    <View style={[styles.spotWeatherCard, compact && styles.spotWeatherCardCompact]}>
-      <View style={styles.spotWeatherHeader}>
-        <View style={styles.spotWeatherHeading}>
-          <Text style={styles.spotWeatherKicker}>{fields.weatherTitle}</Text>
-          <Text style={styles.spotWeatherTitle}>{spot?.name || fields.spotAtlas.overline}</Text>
-          <Text style={styles.spotWeatherLocation}>{weather?.sourceLocationName ? `${fields.weatherDistrict}: ${weather.sourceLocationName}` : (formatCoordinates(spot?.latitude, spot?.longitude) || fields.weatherNoCoordinates)}</Text>
-        </View>
-        <View style={styles.spotWeatherActions}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={fields.refreshWeather}
-            onPress={onRefresh}
-            disabled={loading || !spot}
-            style={[styles.spotWeatherRefresh, (loading || !spot) && styles.spotWeatherRefreshDisabled]}
-          >
-            <Text style={styles.spotWeatherRefreshText}>{loading ? fields.weatherLoading : fields.refreshWeather}</Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={showDetails ? fields.close : fields.details}
-            onPress={() => setShowDetails((current) => !current)}
-            style={styles.spotWeatherDetailsButton}
-          >
-            <Text style={styles.spotWeatherDetailsButtonText}>{showDetails ? fields.close : fields.details}</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      {error ? (
-        <Text style={styles.spotWeatherMessage}>{fields.weatherUnavailable}</Text>
-      ) : !spot ? (
-        <Text style={styles.spotWeatherMessage}>{fields.weatherNoCoordinates}</Text>
-      ) : (
-        <View style={styles.spotWeatherDetails}>
-          <View style={styles.spotWeatherSummary}>
-            <View style={[styles.spotWeatherMetric, styles.spotWeatherTemperatureMetric]}>
-              <Text style={styles.spotWeatherMetricLabel}>{fields.temperature}</Text>
-              <View style={styles.spotWeatherTemperatureValues}>
-                <Text style={styles.spotWeatherTemperatureMin}>{loading ? '--' : temperatureMin}</Text>
-                <Text style={styles.spotWeatherTemperatureDivider}>/</Text>
-                <Text style={styles.spotWeatherTemperatureMax}>{loading ? '--' : temperatureMax}</Text>
-              </View>
-            </View>
-            <View style={[styles.spotWeatherMetric, styles.spotWeatherRainMetric]}>
-              <Text style={styles.spotWeatherMetricLabel}>{fields.precipitation}</Text>
-              <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : precipitation}</Text>
-            </View>
-            <View style={[styles.spotWeatherMetric, styles.spotWeatherWindMetric]}>
-              <Text style={styles.spotWeatherMetricLabel}>{fields.wind}</Text>
-              <Text style={styles.spotWeatherMetricValue}>{loading ? '--' : windDirection}</Text>
-              <Text style={styles.spotWeatherMetricHint}>{fields.windSpeedClass}: {loading ? '--' : windSpeedClass}</Text>
-            </View>
-          </View>
-
-          {showDetails && (
-            <View style={styles.spotWeatherMeta}>
-              <View style={styles.spotWeatherMetaItem}>
-                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherForecastDate}</Text>
-                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : forecastDate}</Text>
-              </View>
-              <View style={styles.spotWeatherMetaItem}>
-                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherDataUpdate}</Text>
-                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : dataUpdate}</Text>
-              </View>
-              <View style={styles.spotWeatherMetaItem}>
-                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherCapturedAt}</Text>
-                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : capturedAt}</Text>
-              </View>
-              <View style={styles.spotWeatherMetaItem}>
-                <Text style={styles.spotWeatherMetricLabel}>{fields.weatherSourceCoordinates}</Text>
-                <Text style={styles.spotWeatherMetaValue}>{loading ? '--' : sourceCoordinates}</Text>
-              </View>
-            </View>
-          )}
-        </View>
-      )}
-    </View>
-  )
-}
-
-function SpotAtlasCard({ item, type, typeCopy, copy, onPress, onSelect }) {
+function SpotAtlasCard({ item, type, typeCopy, copy, onPress }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${copy.resources.viewDetails}: ${item.name || copy.menu.spots}`}
-      onPress={() => {
-        onSelect?.(item)
-        onPress(item, { key: 'spots' })
-      }}
+      onPress={() => onPress(item, { key: 'spots' })}
       style={[styles.spotAtlasCard, { backgroundColor: '#ffffff', borderColor: `${type.accent}45` }]}
     >
       <View style={[styles.spotAtlasCardImageFrame, { backgroundColor: type.soft }]}>
@@ -2869,7 +3257,7 @@ function GallerySelect({ label, value, options, onChange, placeholder, allowEmpt
   const selected = options.find((option) => String(option.value) === String(value))
 
   return (
-    <View style={[styles.gallerySelect, fitContent && styles.gallerySelectFit]}>
+    <View style={[styles.gallerySelect, fitContent && styles.gallerySelectFit, open && styles.gallerySelectOpen]}>
       <Text style={styles.formLabel}>{label}</Text>
       <Pressable
         accessibilityRole="combobox"
@@ -3688,9 +4076,9 @@ function FishEnvironmentField({ value, onChange, copy }) {
   )
 }
 
-function DateTimeField({ label, value, onChangeText, type, placeholder }) {
+function DateTimeField({ label, value, onChangeText, type, placeholder, compact = false }) {
   return (
-    <View style={styles.formField}>
+    <View style={[styles.formField, compact && styles.formFieldCompact]}>
       <Text style={styles.formLabel}>{label}</Text>
       {Platform.OS === 'web' ? (
         <input
@@ -5667,9 +6055,18 @@ function PlanDetail({ detail, copy, tone }) {
 
   return (
     <View style={[styles.detailContent, styles.planDetailContent]}>
-      <View style={styles.planSteps}>
-        <PlanStep number="01" label={fields.waterClarity} value={source.waterClarity} tone={tone.accent} />
-        <PlanStep number="02" label={fields.waterLevel} value={source.waterLevel} tone={tone.accent} />
+      <View style={[styles.planContextSection, { borderColor: `${tone.accent}44` }]}>
+        <View style={styles.planSectionHeader}>
+          <View style={[styles.planSectionMarker, { backgroundColor: tone.accent }]} />
+          <View style={styles.planSectionHeaderCopy}>
+            <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.planContext}</Text>
+            <Text style={styles.planSectionTitle}>{fields.waterClarity} + {fields.waterLevel}</Text>
+          </View>
+        </View>
+        <View style={styles.planSteps}>
+          <PlanStep number="01" label={fields.waterClarity} value={source.waterClarity} tone={tone.accent} />
+          <PlanStep number="02" label={fields.waterLevel} value={source.waterLevel} tone={tone.accent} />
+        </View>
       </View>
       {hasDetailValue(source.notes) && (
         <View style={styles.planNotesPanel}>
@@ -5816,9 +6213,14 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
   return (
     <View style={[styles.planRecommendation, { borderColor: `${tone.accent}55` }]}>
       <View style={styles.planRecommendationHeader}>
-        <View style={styles.planRecommendationHeading}>
-          <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.aiPlanner}</Text>
-          <Text style={styles.planRecommendationTitle}>{copy.resources.aiPlannerHint}</Text>
+        <View style={styles.planRecommendationHeadingRow}>
+          <View style={[styles.planRecommendationAiMark, { backgroundColor: tone.accent }]}>
+            <Text style={styles.planRecommendationAiMarkText}>AI</Text>
+          </View>
+          <View style={styles.planRecommendationHeading}>
+            <Text style={[styles.planRecommendationTitle, { color: tone.accent }]}>{copy.resources.aiPlanner}</Text>
+            <Text style={styles.planRecommendationSubtitle}>{copy.resources.planStrategy}</Text>
+          </View>
         </View>
         <View style={styles.planRecommendationActions}>
           {recommendation && !recommendation.saved && (
@@ -5853,6 +6255,8 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
         </View>
       </View>
 
+      <View style={styles.planRecommendationDivider} />
+
       {saveError && (
         <View style={styles.planRecommendationNotice}>
           <Text style={styles.planRecommendationNoticeText}>{copy.resources.aiPlanSaveError}</Text>
@@ -5882,25 +6286,47 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
 
       {recommendation && (
         <View style={styles.planRecommendationBody}>
-          <View style={styles.planRecommendationSummary}>
-            <View style={styles.planRecommendationSummaryCopy}>
+          <View style={styles.planRecommendationOverview}>
+            <View style={styles.planRecommendationSummary}>
               <Text style={styles.planRecommendationSectionLabel}>{copy.resources.aiPlanSummary}</Text>
               <Text style={styles.planRecommendationSummaryText}>{recommendation.summary || copy.resources.empty}</Text>
             </View>
             <View style={[styles.planRecommendationConfidence, { borderColor: `${confidenceColor}66` }]}>
-              <Text style={styles.planRecommendationConfidenceLabel}>{copy.resources.aiPlanConfidence}</Text>
-              <Text style={[styles.planRecommendationConfidenceValue, { color: confidenceColor }]}>{confidenceLabel}</Text>
+              <View style={styles.planRecommendationConfidenceTopline}>
+                <Text style={styles.planRecommendationConfidenceLabel}>{copy.resources.aiPlanConfidence}</Text>
+                <Text style={[styles.planRecommendationConfidenceValue, { color: confidenceColor }]}>{confidenceLabel}</Text>
+              </View>
+              <View style={styles.planRecommendationConfidenceTrack}>
+                <View
+                  style={[
+                    styles.planRecommendationConfidenceFill,
+                    {
+                      width: confidence === 'high' ? '92%' : confidence === 'medium' ? '62%' : '30%',
+                      backgroundColor: confidenceColor,
+                    },
+                  ]}
+                />
+              </View>
             </View>
           </View>
 
-          <View style={styles.planRecommendationColumns}>
-            <RecommendationPlanCard label={copy.resources.planA} value={recommendation.planA} tone="#2b8c68" />
-            <RecommendationPlanCard label={copy.resources.planB} value={recommendation.planB} tone="#c58a2b" />
-            <RecommendationPlanCard label={copy.resources.planC} value={recommendation.planC} tone="#2c76c7" />
+          <View style={styles.planRecommendationSection}>
+            <View style={styles.planRecommendationSectionHeading}>
+              <Text style={styles.planRecommendationSectionLabel}>{copy.resources.planStrategy}</Text>
+              <Text style={styles.planRecommendationSectionHint}>A / B / C</Text>
+            </View>
+            <View style={styles.planRecommendationColumns}>
+              <RecommendationPlanCard label={copy.resources.planA} value={recommendation.planA} tone="#2b8c68" />
+              <RecommendationPlanCard label={copy.resources.planB} value={recommendation.planB} tone="#c58a2b" />
+              <RecommendationPlanCard label={copy.resources.planC} value={recommendation.planC} tone="#2c76c7" />
+            </View>
           </View>
 
           <View style={styles.planRecommendationLures}>
-            <Text style={styles.planRecommendationSectionLabel}>{copy.resources.aiPlanLures}</Text>
+            <View style={styles.planRecommendationSectionHeading}>
+              <Text style={styles.planRecommendationSectionLabel}>{copy.resources.aiPlanLures}</Text>
+              <Text style={styles.planRecommendationSectionHint}>{lureRanking.length}</Text>
+            </View>
             {lureRanking.length > 0 ? (
               <View style={styles.planRecommendationLureList}>
                 {lureRanking.map((entry, index) => (
@@ -5921,9 +6347,12 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
           </View>
 
           {(avoid.length > 0 || warnings.length > 0) && (
-            <View style={styles.planRecommendationNotes}>
+            <View style={styles.planRecommendationWatchouts}>
+              <Text style={styles.planRecommendationSectionLabel}>{copy.resources.planWatchouts}</Text>
+              <View style={styles.planRecommendationNotes}>
               {avoid.length > 0 && <RecommendationList title={copy.resources.aiPlanAvoid} items={avoid} tone="#b95e47" />}
               {warnings.length > 0 && <RecommendationList title={copy.resources.aiPlanWarnings} items={warnings} tone="#c58a2b" />}
+              </View>
             </View>
           )}
         </View>
@@ -5946,7 +6375,7 @@ function RecommendationPlanCard({ label, value, tone }) {
 
 function RecommendationList({ title, items, tone }) {
   return (
-    <View style={styles.planRecommendationNoteGroup}>
+    <View style={[styles.planRecommendationNoteGroup, { borderLeftColor: tone }]}>
       <Text style={[styles.planRecommendationSectionLabel, { color: tone }]}>{title}</Text>
       <View style={styles.planRecommendationNoteList}>
         {items.map((item, index) => (
@@ -7850,16 +8279,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f8fb',
     borderWidth: 1,
     borderColor: '#b8d5df',
+    position: 'relative',
+    zIndex: 40,
+    overflow: 'visible',
   },
   dashboardWeatherHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 10,
+    position: 'relative',
+    zIndex: 50,
   },
   dashboardWeatherHeading: {
     flex: 1,
     minWidth: 0,
+  },
+  weatherDistrictPicker: {
+    width: '100%',
+    marginTop: 8,
+    position: 'relative',
+    zIndex: 60,
+    overflow: 'visible',
   },
   dashboardWeatherLabel: {
     color: '#2c7183',
@@ -7954,6 +8395,546 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '700',
+  },
+  weatherWorkspace: {
+    gap: 16,
+    paddingVertical: 8,
+  },
+  weatherHero: {
+    minHeight: 190,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 22,
+    paddingHorizontal: 26,
+    paddingVertical: 24,
+    borderRadius: 18,
+    backgroundColor: '#082f3f',
+    borderWidth: 1,
+    borderColor: '#174d5d',
+  },
+  weatherHeroCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  weatherHeroCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  weatherEyebrow: {
+    color: '#9ddad7',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  weatherHeroTitle: {
+    marginTop: 9,
+    color: '#ffffff',
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '900',
+  },
+  weatherHeroText: {
+    maxWidth: 680,
+    marginTop: 9,
+    color: '#d8eeeb',
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '700',
+  },
+  weatherPoweredBadge: {
+    maxWidth: 250,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: '#144b5b',
+    borderWidth: 1,
+    borderColor: '#2a6977',
+  },
+  weatherPoweredIcon: {
+    width: 42,
+    height: 42,
+  },
+  weatherPoweredText: {
+    flex: 1,
+    color: '#d9f1ee',
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '900',
+  },
+  weatherControlPanel: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c9e2e8',
+    position: 'relative',
+    zIndex: 30,
+    overflow: 'visible',
+  },
+  weatherControlPanelCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  weatherControlIntro: {
+    flex: 0.7,
+    minWidth: 150,
+    paddingTop: 7,
+  },
+  weatherControlLabel: {
+    color: '#176b7c',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  weatherControlHint: {
+    marginTop: 5,
+    color: '#60777b',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  weatherControlField: {
+    flex: 1,
+    minWidth: 190,
+    position: 'relative',
+    zIndex: 40,
+  },
+  weatherCurrentPanel: {
+    gap: 16,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: '#eef8fc',
+    borderWidth: 1,
+    borderColor: '#c2e2eb',
+    position: 'relative',
+    zIndex: 2,
+  },
+  weatherCurrentMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  weatherCurrentIconFrame: {
+    width: 106,
+    height: 106,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    backgroundColor: '#d8edf4',
+  },
+  weatherCurrentIcon: {
+    width: 94,
+    height: 94,
+    borderRadius: 14,
+  },
+  weatherCurrentCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  weatherSectionLabel: {
+    color: '#2d7e91',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  weatherCurrentTitle: {
+    marginTop: 5,
+    color: '#102f3a',
+    fontSize: 25,
+    lineHeight: 29,
+    fontWeight: '900',
+  },
+  weatherCurrentTemp: {
+    marginTop: 5,
+    color: '#0d6f83',
+    fontSize: 34,
+    lineHeight: 38,
+    fontWeight: '900',
+  },
+  weatherCurrentMeta: {
+    marginTop: 3,
+    color: '#5b7378',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  weatherCurrentStats: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  weatherStat: {
+    flexGrow: 1,
+    flexBasis: 120,
+    minHeight: 68,
+    justifyContent: 'space-between',
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#dff2ee',
+    borderWidth: 1,
+    borderColor: '#bfdfd9',
+  },
+  weatherStatGold: {
+    backgroundColor: '#fff1cf',
+    borderColor: '#ecd39a',
+  },
+  weatherStatRain: {
+    backgroundColor: '#dcecf8',
+    borderColor: '#bed8e9',
+  },
+  weatherStatBlue: {
+    backgroundColor: '#e5f1f7',
+    borderColor: '#c8dfe9',
+  },
+  weatherStatLabel: {
+    color: '#5c777d',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  weatherStatValue: {
+    marginTop: 6,
+    color: '#123f4a',
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: '900',
+  },
+  weatherSunRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  weatherSunItem: {
+    flexGrow: 1,
+    flexBasis: 160,
+    padding: 11,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c9e2e8',
+  },
+  weatherSunItemDark: {
+    backgroundColor: '#153f4e',
+    borderColor: '#315f6b',
+  },
+  weatherSunLabel: {
+    color: '#668087',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  weatherSunLabelDark: {
+    color: '#9fc6cc',
+  },
+  weatherSunValue: {
+    marginTop: 5,
+    color: '#123f4a',
+    fontSize: 17,
+    fontWeight: '900',
+  },
+  weatherSunValueDark: {
+    color: '#ffffff',
+  },
+  weatherHourlyPanel: {
+    gap: 13,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d5e2df',
+  },
+  weatherPanelHeadingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  weatherPanelTitle: {
+    marginTop: 4,
+    color: '#173e49',
+    fontSize: 19,
+    lineHeight: 23,
+    fontWeight: '900',
+  },
+  weatherPanelMeta: {
+    color: '#5c777d',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  weatherHourlyRow: {
+    gap: 9,
+    paddingVertical: 2,
+  },
+  weatherHourCard: {
+    width: 126,
+    minHeight: 160,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 11,
+    borderRadius: 12,
+    backgroundColor: '#f1f8fb',
+    borderWidth: 1,
+    borderColor: '#c9e2e8',
+  },
+  weatherHourTime: {
+    color: '#267183',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  weatherHourIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 10,
+  },
+  weatherHourTemp: {
+    color: '#123f4a',
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  weatherHourRain: {
+    color: '#277492',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  weatherHourWind: {
+    color: '#688087',
+    fontSize: 10,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  solunarPanel: {
+    gap: 16,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: '#102f3a',
+    borderWidth: 1,
+    borderColor: '#285563',
+  },
+  solunarHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  solunarHeaderCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  solunarEyebrow: {
+    color: '#9ddad7',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  solunarTitle: {
+    marginTop: 6,
+    color: '#ffffff',
+    fontSize: 25,
+    lineHeight: 30,
+    fontWeight: '900',
+  },
+  solunarHint: {
+    marginTop: 5,
+    color: '#bdd8d7',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  solunarActivityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: '#214b58',
+    borderWidth: 1,
+    borderColor: '#396d78',
+  },
+  solunarActivityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    backgroundColor: '#e4b24d',
+  },
+  solunarActivityText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  solunarOverview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    padding: 13,
+    borderRadius: 13,
+    backgroundColor: '#173f4e',
+    borderWidth: 1,
+    borderColor: '#2d6070',
+  },
+  solunarOverviewCompact: {
+    flexWrap: 'wrap',
+  },
+  moonVisualFrame: {
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 72,
+    backgroundColor: '#285768',
+  },
+  moonDisc: {
+    width: 47,
+    height: 47,
+    borderRadius: 47,
+    backgroundColor: '#f1d48a',
+    borderWidth: 2,
+    borderColor: '#f9e6ad',
+  },
+  solunarPhaseCopy: {
+    flex: 1,
+    minWidth: 130,
+  },
+  solunarPhaseLabel: {
+    color: '#9fc6cc',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  solunarPhaseTitle: {
+    marginTop: 5,
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  solunarPhaseMeta: {
+    marginTop: 4,
+    color: '#bdd8d7',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  solunarPeriodGrid: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  solunarPeriodGridCompact: {
+    flexDirection: 'column',
+  },
+  solunarPeriodGroup: {
+    flex: 1,
+    minWidth: 240,
+    padding: 13,
+    borderRadius: 12,
+    backgroundColor: '#fff1cf',
+    borderWidth: 1,
+    borderColor: '#e7c56e',
+  },
+  solunarPeriodGroupBlue: {
+    backgroundColor: '#dcecf8',
+    borderColor: '#bad5e6',
+  },
+  solunarPeriodLabel: {
+    color: '#875d17',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  solunarPeriodRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 11,
+    paddingTop: 9,
+    borderTopWidth: 1,
+    borderTopColor: '#ecd7a0',
+  },
+  solunarPeriodMarker: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    backgroundColor: '#c58a2b',
+  },
+  solunarPeriodCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  solunarPeriodTitle: {
+    color: '#4c3a1d',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  solunarPeriodTime: {
+    marginTop: 3,
+    color: '#806b45',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  solunarPeriodPeak: {
+    color: '#8a6018',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  solunarPeriodEmpty: {
+    marginTop: 11,
+    color: '#806b45',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  solunarNote: {
+    color: '#a9cecc',
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '700',
+  },
+  weatherLoadingState: {
+    minHeight: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 16,
+    backgroundColor: '#eef8fc',
+    borderWidth: 1,
+    borderColor: '#c2e2eb',
+  },
+  weatherLoadingText: {
+    color: '#2d7182',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  weatherEmptyState: {
+    minHeight: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    padding: 24,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d5e2df',
+  },
+  weatherEmptyIcon: {
+    width: 58,
+    height: 58,
+  },
+  weatherEmptyTitle: {
+    maxWidth: 520,
+    color: '#41616a',
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: '800',
+    textAlign: 'center',
   },
   commandListPanel: {
     flexGrow: 1,
@@ -9163,6 +10144,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 14,
   },
+  dashboardTopPanelGrid: {
+    position: 'relative',
+    zIndex: 60,
+    overflow: 'visible',
+  },
   metricPanel: {
     flexGrow: 1,
     flexBasis: 320,
@@ -9956,6 +10942,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: 2,
   },
+  gallerySelectOpen: {
+    zIndex: 100,
+    elevation: 100,
+  },
   gallerySelectFit: {
     flexGrow: 0,
     flexBasis: 'auto',
@@ -10009,7 +10999,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    zIndex: 20,
+    elevation: 12,
+    zIndex: 120,
   },
   gallerySelectOption: {
     minHeight: 42,
@@ -11008,6 +11999,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexBasis: 240,
     gap: 6,
+  },
+  formFieldCompact: {
+    flexGrow: 0,
+    flexBasis: 'auto',
   },
   formFieldWide: {
     flexBasis: '100%',
@@ -12118,25 +13113,52 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   planDetailContent: {
-    gap: 12,
+    gap: 14,
+  },
+  planContextSection: {
+    gap: 13,
+    padding: 15,
+    borderRadius: 12,
+    backgroundColor: '#fcfcf8',
+    borderWidth: 1,
+  },
+  planSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  planSectionMarker: {
+    width: 4,
+    height: 32,
+    borderRadius: 4,
+  },
+  planSectionHeaderCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  planSectionTitle: {
+    marginTop: 3,
+    color: '#19342d',
+    fontSize: 14,
+    fontWeight: '900',
   },
   planSteps: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 11,
   },
   planStep: {
     flexGrow: 1,
     flexBasis: 260,
-    minHeight: 72,
+    minHeight: 78,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    padding: 14,
+    padding: 13,
     borderRadius: 10,
-    backgroundColor: '#fffdf7',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#eee3bd',
+    borderColor: '#e8e8df',
   },
   planStepNumber: {
     fontSize: 20,
@@ -12171,17 +13193,39 @@ const styles = StyleSheet.create({
     gap: 7,
   },
   planRecommendation: {
-    gap: 12,
-    padding: 14,
+    overflow: 'hidden',
     borderRadius: 14,
-    backgroundColor: '#f7fbf8',
+    backgroundColor: '#f8fbf9',
     borderWidth: 1,
   },
   planRecommendationHeader: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 14,
+    padding: 16,
+    backgroundColor: '#edf7f2',
+  },
+  planRecommendationHeadingRow: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 11,
+  },
+  planRecommendationAiMark: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  planRecommendationAiMarkText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
   planRecommendationActions: {
     flexDirection: 'row',
@@ -12195,11 +13239,19 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   planRecommendationTitle: {
-    marginTop: 5,
-    color: '#19342d',
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 19,
     fontWeight: '900',
+  },
+  planRecommendationSubtitle: {
+    marginTop: 3,
+    color: '#587168',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  planRecommendationDivider: {
+    height: 1,
+    backgroundColor: '#d9e9df',
   },
   planRecommendationButton: {
     minHeight: 40,
@@ -12254,6 +13306,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     paddingHorizontal: 12,
+    margin: 16,
     borderRadius: 9,
     backgroundColor: '#fffdf7',
   },
@@ -12263,6 +13316,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   planRecommendationNotice: {
+    margin: 16,
     padding: 12,
     borderRadius: 9,
     backgroundColor: '#fff1ed',
@@ -12276,6 +13330,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   planRecommendationEmpty: {
+    margin: 16,
     padding: 12,
     borderRadius: 9,
     backgroundColor: '#fffdf7',
@@ -12289,21 +13344,25 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   planRecommendationBody: {
-    gap: 12,
+    gap: 16,
+    padding: 16,
+  },
+  planRecommendationOverview: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'stretch',
+    gap: 11,
   },
   planRecommendationSummary: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: 12,
-  },
-  planRecommendationSummaryCopy: {
     flex: 1,
+    flexBasis: 300,
     minWidth: 0,
-    padding: 13,
+    justifyContent: 'center',
+    padding: 15,
     borderRadius: 10,
-    backgroundColor: '#fffdf7',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#eee3bd',
+    borderColor: '#e1e9e3',
   },
   planRecommendationSectionLabel: {
     color: '#6d756f',
@@ -12320,13 +13379,30 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   planRecommendationConfidence: {
-    width: 116,
-    alignItems: 'center',
+    width: 170,
+    minHeight: 84,
     justifyContent: 'center',
-    padding: 10,
+    padding: 14,
     borderRadius: 10,
-    backgroundColor: '#fffdf7',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
+  },
+  planRecommendationConfidenceTopline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  planRecommendationConfidenceTrack: {
+    height: 7,
+    marginTop: 12,
+    overflow: 'hidden',
+    borderRadius: 7,
+    backgroundColor: '#e8eee9',
+  },
+  planRecommendationConfidenceFill: {
+    height: '100%',
+    borderRadius: 7,
   },
   planRecommendationConfidenceLabel: {
     color: '#6d756f',
@@ -12336,22 +13412,36 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   planRecommendationConfidenceValue: {
-    marginTop: 6,
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '900',
     textTransform: 'capitalize',
+  },
+  planRecommendationSection: {
+    gap: 10,
+  },
+  planRecommendationSectionHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  planRecommendationSectionHint: {
+    color: '#8a9a92',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
   },
   planRecommendationColumns: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 11,
   },
   planRecommendationPlanCard: {
     flexGrow: 1,
-    flexBasis: 210,
-    minHeight: 116,
-    padding: 13,
-    borderRadius: 10,
+    flexBasis: 240,
+    minHeight: 132,
+    padding: 15,
+    borderRadius: 11,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e1e6df',
@@ -12381,9 +13471,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   planRecommendationLures: {
-    gap: 9,
-    padding: 13,
-    borderRadius: 10,
+    gap: 10,
+    padding: 15,
+    borderRadius: 11,
     backgroundColor: '#f4faf6',
     borderWidth: 1,
     borderColor: '#cde4d5',
@@ -12395,7 +13485,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
-    paddingVertical: 2,
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: '#dcebe1',
   },
   planRecommendationLureRank: {
     width: 25,
@@ -12433,7 +13525,15 @@ const styles = StyleSheet.create({
   planRecommendationNotes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 11,
+  },
+  planRecommendationWatchouts: {
+    gap: 10,
+    padding: 15,
+    borderRadius: 11,
+    backgroundColor: '#f7f9f7',
+    borderWidth: 1,
+    borderColor: '#e1e8e2',
   },
   planRecommendationNoteGroup: {
     flexGrow: 1,
@@ -12444,6 +13544,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e1e6df',
+    borderLeftWidth: 4,
   },
   planRecommendationNoteList: {
     gap: 6,
@@ -13057,219 +14158,6 @@ const styles = StyleSheet.create({
     height: 38,
     backgroundColor: '#2e5962',
   },
-  spotWeatherCard: {
-    flex: 1,
-    minWidth: 330,
-    gap: 14,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#e9f5f7',
-    borderWidth: 1,
-    borderColor: '#b9dfe1',
-  },
-  spotWeatherCardCompact: {
-    minWidth: 0,
-  },
-  spotWeatherHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  spotWeatherActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 7,
-  },
-  spotWeatherHeading: {
-    flex: 1,
-    minWidth: 220,
-  },
-  spotWeatherKicker: {
-    color: '#147ea1',
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  spotWeatherTitle: {
-    marginTop: 4,
-    color: '#123f4a',
-    fontSize: 21,
-    lineHeight: 25,
-    fontWeight: '900',
-  },
-  spotWeatherLocation: {
-    marginTop: 3,
-    color: '#5f7777',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  spotWeatherRefresh: {
-    minHeight: 36,
-    justifyContent: 'center',
-    paddingHorizontal: 11,
-    borderRadius: 8,
-    backgroundColor: '#147ea1',
-  },
-  spotWeatherRefreshDisabled: {
-    backgroundColor: '#91b8bb',
-  },
-  spotWeatherRefreshText: {
-    color: '#ffffff',
-    fontSize: 11,
-    fontWeight: '900',
-  },
-  spotWeatherDetailsButton: {
-    minHeight: 36,
-    justifyContent: 'center',
-    paddingHorizontal: 11,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#b9dfe1',
-  },
-  spotWeatherDetailsButtonText: {
-    color: '#147ea1',
-    fontSize: 11,
-    fontWeight: '900',
-  },
-  spotWeatherDetails: {
-    gap: 9,
-  },
-  spotWeatherSummary: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 9,
-  },
-  spotWeatherTemperatureMetric: {
-    flexGrow: 2,
-    flexBasis: 170,
-    backgroundColor: '#d9eff1',
-  },
-  spotWeatherRainMetric: {
-    flexGrow: 1,
-    flexBasis: 110,
-    backgroundColor: '#f7fcfc',
-  },
-  spotWeatherWindMetric: {
-    flexGrow: 1,
-    flexBasis: 110,
-    backgroundColor: '#f7fcfc',
-  },
-  spotWeatherTemperatureValues: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 5,
-    marginTop: 5,
-  },
-  spotWeatherTemperatureMin: {
-    color: '#123f4a',
-    fontSize: 17,
-    lineHeight: 21,
-    fontWeight: '900',
-  },
-  spotWeatherTemperatureDivider: {
-    color: '#6b8582',
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  spotWeatherTemperatureMax: {
-    color: '#147ea1',
-    fontSize: 17,
-    lineHeight: 21,
-    fontWeight: '900',
-  },
-  spotWeatherMetrics: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 9,
-  },
-  spotWeatherMeta: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 9,
-    paddingTop: 2,
-  },
-  spotWeatherMetaItem: {
-    flexGrow: 1,
-    flexBasis: 180,
-    minHeight: 58,
-    justifyContent: 'center',
-    paddingHorizontal: 11,
-    paddingVertical: 9,
-    borderRadius: 10,
-    backgroundColor: '#f4fbfb',
-    borderWidth: 1,
-    borderColor: '#cde5e5',
-  },
-  spotWeatherMetric: {
-    flexGrow: 1,
-    flexBasis: 150,
-    minHeight: 82,
-    justifyContent: 'center',
-    padding: 11,
-    borderRadius: 10,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#cde5e5',
-  },
-  spotWeatherMetricMain: {
-    flexBasis: 230,
-    backgroundColor: '#d9eff1',
-  },
-  spotWeatherMetricUpdated: {
-    flexGrow: 1,
-    flexBasis: 180,
-    minHeight: 82,
-    justifyContent: 'center',
-    padding: 11,
-    borderRadius: 10,
-    backgroundColor: '#f4fbfb',
-  },
-  spotWeatherMetricLabel: {
-    color: '#6b8582',
-    fontSize: 9,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  spotWeatherMetricValue: {
-    marginTop: 5,
-    color: '#123f4a',
-    fontSize: 17,
-    lineHeight: 21,
-    fontWeight: '900',
-  },
-  spotWeatherMetricHint: {
-    marginTop: 3,
-    color: '#5f7777',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  spotWeatherMetricUpdatedValue: {
-    marginTop: 5,
-    color: '#3b6065',
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '800',
-  },
-  spotWeatherMetaValue: {
-    marginTop: 4,
-    color: '#3b6065',
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '800',
-  },
-  spotWeatherMessage: {
-    paddingVertical: 6,
-    color: '#5f7777',
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '700',
-  },
   spotAtlasToolbar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -13277,16 +14165,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   spotAtlasUtilityGrid: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: 14,
+    width: '100%',
   },
   spotAtlasUtilityGridCompact: {
     flexDirection: 'column',
   },
   spotAtlasExplorerPanel: {
-    flex: 1.2,
-    minWidth: 330,
+    width: '100%',
     gap: 12,
     padding: 16,
     borderRadius: 16,

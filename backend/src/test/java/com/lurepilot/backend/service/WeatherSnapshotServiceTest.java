@@ -1,7 +1,7 @@
 package com.lurepilot.backend.service;
 
-import com.lurepilot.backend.client.IpmaClient;
-import com.lurepilot.backend.dto.CreateIpmaCoordinateSnapshotRequest;
+import com.lurepilot.backend.client.OpenMeteoClient;
+import com.lurepilot.backend.dto.CreateWeatherCoordinateSnapshotRequest;
 import com.lurepilot.backend.dto.WeatherSnapshotResponse;
 import com.lurepilot.backend.model.WeatherSnapshot;
 import com.lurepilot.backend.repository.FishingPlanRepository;
@@ -33,47 +33,73 @@ class WeatherSnapshotServiceTest {
     private FishingSessionRepository fishingSessionRepository;
 
     @Mock
-    private IpmaClient ipmaClient;
+    private OpenMeteoClient openMeteoClient;
 
     @InjectMocks
     private WeatherSnapshotService weatherSnapshotService;
 
     @Test
-    void createIpmaSnapshotForCoordinatesUsesNearestIpmaLocation() {
-        LocalDate forecastDate = LocalDate.of(2026, 7, 24);
-        CreateIpmaCoordinateSnapshotRequest request = new CreateIpmaCoordinateSnapshotRequest(38.76, -9.13, forecastDate);
+    void createSnapshotForCoordinatesStoresDailyAndCurrentOpenMeteoData() {
+        LocalDate forecastDate = LocalDate.of(2026, 8, 6);
+        CreateWeatherCoordinateSnapshotRequest request = new CreateWeatherCoordinateSnapshotRequest(38.76, -9.13, forecastDate);
 
-        when(ipmaClient.getLocations()).thenReturn(List.of(
-                new IpmaClient.IpmaLocation(1110600, "Lisboa", "38.766", "-9.1286"),
-                new IpmaClient.IpmaLocation(1080500, "Faro", "37.0144", "-7.9659")
-        ));
-        when(ipmaClient.getDailyForecast(1110600)).thenReturn(new IpmaClient.IpmaForecastResponse(
-                1110600,
-                "2026-07-24T13:31:02Z",
-                List.of(new IpmaClient.IpmaForecastDay(
-                        "0",
-                        null,
-                        "19.2",
-                        "26.7",
-                        "NW",
-                        2,
-                        2,
-                        "-9.1286",
-                        "38.766",
-                        forecastDate
-                ))
+        when(openMeteoClient.getForecast(38.76, -9.13)).thenReturn(new OpenMeteoClient.ForecastResponse(
+                38.76,
+                -9.13,
+                40.0,
+                "Europe/Lisbon",
+                new OpenMeteoClient.CurrentWeather(
+                        "2026-08-06T12:00",
+                        27.5,
+                        52.0,
+                        28.1,
+                        0.0,
+                        1,
+                        20,
+                        1015.0,
+                        12.0,
+                        315,
+                        20.0
+                ),
+                new OpenMeteoClient.HourlyWeather(
+                        List.of("2026-08-06T12:00"),
+                        List.of(27.5),
+                        List.of(52.0),
+                        List.of(5.0),
+                        List.of(0.0),
+                        List.of(1),
+                        List.of(12.0),
+                        List.of(315),
+                        List.of(20.0)
+                ),
+                new OpenMeteoClient.DailyWeather(
+                        List.of(forecastDate.toString()),
+                        List.of(18.0),
+                        List.of(29.0),
+                        List.of(10.0),
+                        List.of(0.0),
+                        List.of(1),
+                        List.of(315),
+                        List.of(18.0),
+                        List.of(30.0),
+                        List.of("2026-08-06T06:30"),
+                        List.of("2026-08-06T20:45")
+                )
         ));
         when(weatherSnapshotRepository.save(any(WeatherSnapshot.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        WeatherSnapshotResponse response = weatherSnapshotService.createIpmaSnapshotForCoordinates(request);
+        WeatherSnapshotResponse response = weatherSnapshotService.createSnapshotForCoordinates(request);
 
-        assertThat(response.source()).isEqualTo("IPMA");
-        assertThat(response.sourceGlobalIdLocal()).isEqualTo(1110600);
-        assertThat(response.sourceLocationName()).isEqualTo("Lisboa");
+        assertThat(response.source()).isEqualTo("OPEN_METEO");
+        assertThat(response.sourceLocationId()).isNull();
+        assertThat(response.sourceLocationName()).isEqualTo("Coordenadas selecionadas");
         assertThat(response.forecastDate()).isEqualTo(forecastDate);
-        assertThat(response.temperatureMin()).isEqualTo(19.2);
-        assertThat(response.temperatureMax()).isEqualTo(26.7);
-        assertThat(response.precipitationProbability()).isZero();
-        assertThat(response.notes()).contains("Custom coordinates");
+        assertThat(response.currentTemperature()).isEqualTo(27.5);
+        assertThat(response.temperatureMin()).isEqualTo(18.0);
+        assertThat(response.temperatureMax()).isEqualTo(29.0);
+        assertThat(response.precipitationProbability()).isEqualTo(10.0);
+        assertThat(response.windDirection()).isEqualTo("NW");
+        assertThat(response.windSpeedKmh()).isEqualTo(12.0);
+        assertThat(response.hourlyForecast()).hasSize(1);
     }
 }

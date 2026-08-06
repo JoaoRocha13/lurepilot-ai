@@ -14,6 +14,11 @@ public record DashboardWeatherSnapshotResponse(
         Double precipitationProbability,
         String windDirection,
         Integer windSpeedClass,
+        Double currentTemperature,
+        Double relativeHumidity,
+        Double windSpeedKmh,
+        Double windGustsKmh,
+        Double pressureMsl,
         Instant capturedAt
 ) {
 }

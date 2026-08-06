@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, catch gallery, AI recommendations, insights, frontend options and IPMA weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, catch gallery, AI recommendations, insights, frontend options and Open-Meteo weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -36,10 +36,6 @@
     {
       "key": "recommendationId",
       "value": "1"
-    },
-    {
-      "key": "ipmaGlobalIdLocal",
-      "value": "1110600"
     },
     {
       "key": "planLureId",
@@ -2576,12 +2572,12 @@
       "name": "Weather Snapshots",
       "item": [
         {
-          "name": "Create IPMA Snapshot For Plan",
+          "name": "Create Weather Snapshot For Plan",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/weather-snapshots/plans/{{planId}}/ipma",
+              "raw": "{{baseUrl}}/api/weather-snapshots/plans/{{planId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2589,20 +2585,19 @@
                 "api",
                 "weather-snapshots",
                 "plans",
-                "{{planId}}",
-                "ipma"
+                "{{planId}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Create IPMA Snapshot For Session",
+          "name": "Create Weather Snapshot For Session",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/weather-snapshots/sessions/{{sessionId}}/ipma",
+              "raw": "{{baseUrl}}/api/weather-snapshots/sessions/{{sessionId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2610,8 +2605,7 @@
                 "api",
                 "weather-snapshots",
                 "sessions",
-                "{{sessionId}}",
-                "ipma"
+                "{{sessionId}}"
               ]
             }
           },
@@ -2700,7 +2694,7 @@
           "response": []
         },
         {
-          "name": "Create IPMA Snapshot By Coordinates",
+          "name": "Create Weather Snapshot By Coordinates",
           "request": {
             "method": "POST",
             "header": [
@@ -2710,26 +2704,25 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/weather-snapshots/ipma/coordinates",
+              "raw": "{{baseUrl}}/api/weather-snapshots/coordinates",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "weather-snapshots",
-                "ipma",
                 "coordinates"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"latitude\": 39.6321,\n  \"longitude\": -8.6713,\n  \"forecastDate\": \"2026-07-24\"\n}"
+              "raw": "{\n  \"latitude\": 39.6321,\n  \"longitude\": -8.6713,\n  \"forecastDate\": \"2026-08-06\"\n}"
             }
           },
           "response": []
         },
         {
-          "name": "Create IPMA Snapshot By Location",
+          "name": "Create Weather Snapshot By Location",
           "request": {
             "method": "POST",
             "header": [
@@ -2739,20 +2732,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/weather-snapshots/ipma/location",
+              "raw": "{{baseUrl}}/api/weather-snapshots/location",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "weather-snapshots",
-                "ipma",
                 "location"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"globalIdLocal\": 1110600,\n  \"forecastDate\": \"2026-07-24\"\n}"
+              "raw": "{\n  \"locationId\": 1110600,\n  \"name\": \"Lisboa\",\n  \"latitude\": 38.766,\n  \"longitude\": -9.1286,\n  \"forecastDate\": \"2026-08-06\"\n}"
             }
           },
           "response": []
@@ -2763,44 +2755,88 @@
       "name": "Weather Locations",
       "item": [
         {
-          "name": "List IPMA Locations",
+          "name": "Search Weather Locations",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/weather-locations/ipma",
+              "raw": "{{baseUrl}}/api/weather-locations/search?query=Lisboa&countryCode=PT",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "weather-locations",
-                "ipma"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Search IPMA Locations",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/weather-locations/ipma/search?query=Lisboa",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "weather-locations",
-                "ipma",
                 "search"
               ],
               "query": [
                 {
                   "key": "query",
                   "value": "Lisboa"
+                },
+                {
+                  "key": "countryCode",
+                  "value": "PT"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Weather Locations - Porto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/weather-locations/search?query=Porto&countryCode=PT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "weather-locations",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Porto"
+                },
+                {
+                  "key": "countryCode",
+                  "value": "PT"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Solunar Forecast",
+      "item": [
+        {
+          "name": "Get Solunar Forecast For Spot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solunar/spots/{{spotId}}?date=2026-08-06",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solunar",
+                "spots",
+                "{{spotId}}"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-08-06"
                 }
               ]
             }

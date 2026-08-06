@@ -1,7 +1,7 @@
 package com.lurepilot.backend.controller;
 
-import com.lurepilot.backend.dto.CreateIpmaCoordinateSnapshotRequest;
-import com.lurepilot.backend.dto.CreateIpmaLocationSnapshotRequest;
+import com.lurepilot.backend.dto.CreateWeatherCoordinateSnapshotRequest;
+import com.lurepilot.backend.dto.CreateWeatherLocationSnapshotRequest;
 import com.lurepilot.backend.dto.WeatherSnapshotResponse;
 import com.lurepilot.backend.service.WeatherSnapshotService;
 import jakarta.validation.Valid;
@@ -26,28 +26,28 @@ public class WeatherSnapshotController {
         this.weatherSnapshotService = weatherSnapshotService;
     }
 
-    @PostMapping("/plans/{planId}/ipma")
+    @PostMapping("/plans/{planId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public WeatherSnapshotResponse createIpmaSnapshotForPlan(@PathVariable Long planId) {
-        return weatherSnapshotService.createIpmaSnapshotForPlan(planId);
+    public WeatherSnapshotResponse createSnapshotForPlan(@PathVariable Long planId) {
+        return weatherSnapshotService.createSnapshotForPlan(planId);
     }
 
-    @PostMapping("/sessions/{sessionId}/ipma")
+    @PostMapping("/sessions/{sessionId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public WeatherSnapshotResponse createIpmaSnapshotForSession(@PathVariable Long sessionId) {
-        return weatherSnapshotService.createIpmaSnapshotForSession(sessionId);
+    public WeatherSnapshotResponse createSnapshotForSession(@PathVariable Long sessionId) {
+        return weatherSnapshotService.createSnapshotForSession(sessionId);
     }
 
-    @PostMapping("/ipma/coordinates")
+    @PostMapping("/coordinates")
     @ResponseStatus(HttpStatus.CREATED)
-    public WeatherSnapshotResponse createIpmaSnapshotForCoordinates(@Valid @RequestBody CreateIpmaCoordinateSnapshotRequest request) {
-        return weatherSnapshotService.createIpmaSnapshotForCoordinates(request);
+    public WeatherSnapshotResponse createSnapshotForCoordinates(@Valid @RequestBody CreateWeatherCoordinateSnapshotRequest request) {
+        return weatherSnapshotService.createSnapshotForCoordinates(request);
     }
 
-    @PostMapping("/ipma/location")
+    @PostMapping("/location")
     @ResponseStatus(HttpStatus.CREATED)
-    public WeatherSnapshotResponse createIpmaSnapshotForLocation(@Valid @RequestBody CreateIpmaLocationSnapshotRequest request) {
-        return weatherSnapshotService.createIpmaSnapshotForLocation(request);
+    public WeatherSnapshotResponse createSnapshotForLocation(@Valid @RequestBody CreateWeatherLocationSnapshotRequest request) {
+        return weatherSnapshotService.createSnapshotForLocation(request);
     }
 
     @GetMapping("/plans/{planId}")

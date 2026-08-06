@@ -146,7 +146,7 @@ class AiRecommendationServiceTest {
         assertThat(response.planA()).isEqualTo("Comecar pela lure melhor classificada e pescar de forma controlada durante 20 minutos.");
         assertThat(response.warnings()).anySatisfy(warning -> assertThat(warning).contains("Spinnerbait inventado"));
         assertThat(response.warnings()).anySatisfy(warning -> assertThat(warning).contains("planA"));
-        verify(weatherSnapshotService).createIpmaSnapshotForPlan(1L);
+        verify(weatherSnapshotService).createSnapshotForPlan(1L);
     }
 
     @Test
@@ -159,7 +159,7 @@ class AiRecommendationServiceTest {
         PlannerContextResponse context = new PlannerContextResponse(
                 new PlannerContextResponse.PlannerContextPlan(1L, LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), "BASS", "CLEAR", "LOW", null),
                 new PlannerContextResponse.PlannerContextSpot(10L, "Barragem Norte", null, 38.7, -9.1, "DAM", "BASS"),
-                new PlannerContextResponse.PlannerContextWeather(1L, "IPMA", "Lisboa", LocalDate.of(2026, 7, 24), 18.0, 27.0, 0.0, "NW", 2, null),
+                new PlannerContextResponse.PlannerContextWeather(1L, "OPEN_METEO", "Lisboa", LocalDate.of(2026, 7, 24), 18.0, 27.0, 0.0, "NW", 2, null),
                 List.of(
                         new PlannerContextResponse.PlannerContextLure(100L, "Vinil verde natural", "SOFT_BAIT", "GREEN", "10cm", 7.0, "Generic", "BASS", "DAM", null, null),
                         new PlannerContextResponse.PlannerContextLure(101L, "Crankbait pequeno natural", "CRANKBAIT", "NATURAL", "5cm", 9.0, "Generic", "BASS", "DAM", null, null),

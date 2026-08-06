@@ -8,6 +8,7 @@ public record PlannerContextResponse(
         PlannerContextPlan plan,
         PlannerContextSpot spot,
         PlannerContextWeather weather,
+        PlannerContextSolunar solunar,
         List<PlannerContextLure> selectedLures,
         List<PlannerContextSession> recentSpotSessions,
         List<PlannerContextSession> recentSpeciesSessions,
@@ -30,6 +31,7 @@ public record PlannerContextResponse(
                 plan,
                 spot,
                 weather,
+                null,
                 selectedLures,
                 recentSpotSessions,
                 recentSpeciesSessions,
@@ -113,7 +115,80 @@ public record PlannerContextResponse(
             Double precipitationProbability,
             String windDirection,
             Integer windSpeedClass,
-            String notes
+            String notes,
+            Double currentTemperature,
+            Double apparentTemperature,
+            Double relativeHumidity,
+            Double precipitation,
+            Double pressureMsl,
+            Integer cloudCover,
+            Double windSpeedKmh,
+            Double windGustsKmh,
+            String sunrise,
+            String sunset,
+            List<WeatherHourlyResponse> hourlyForecast
+    ) {
+        public PlannerContextWeather(
+                Long id,
+                String source,
+                String sourceLocationName,
+                LocalDate forecastDate,
+                Double temperatureMin,
+                Double temperatureMax,
+                Double precipitationProbability,
+                String windDirection,
+                Integer windSpeedClass,
+                String notes
+        ) {
+            this(
+                    id,
+                    source,
+                    sourceLocationName,
+                    forecastDate,
+                    temperatureMin,
+                    temperatureMax,
+                    precipitationProbability,
+                    windDirection,
+                    windSpeedClass,
+                    notes,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    List.of()
+            );
+        }
+    }
+
+    public record PlannerContextSolunar(
+            Long spotId,
+            LocalDate date,
+            String timezone,
+            String sunrise,
+            String sunset,
+            String moonrise,
+            String moonset,
+            String moonPhase,
+            Double moonIlluminationPercent,
+            String activityLevel,
+            List<PlannerContextSolunarPeriod> majorPeriods,
+            List<PlannerContextSolunarPeriod> minorPeriods,
+            String note
+    ) {
+    }
+
+    public record PlannerContextSolunarPeriod(
+            String type,
+            String title,
+            String peakAt,
+            String startsAt,
+            String endsAt
     ) {
     }
 

@@ -322,7 +322,8 @@ public class AiRecommendationService {
                 Responde sempre em portugues de Portugal.
                 Usa apenas o contexto fornecido e conhecimento geral seguro.
                 Nao inventes dados factuais, meteorologicos, legais ou historicos.
-                Usa a hora e data planeadas, o spot, as zonas do spot, o weather snapshot e os perfis das especies para adaptar a estrategia.
+                Usa a hora e data planeadas, o spot, as zonas do spot, as condicoes atuais e a previsao horaria do weather snapshot, o solunar forecast e os perfis das especies para adaptar a estrategia.
+                Usa o solunar para considerar fase e iluminacao da Lua, nascer/por do Sol, nascer/por da Lua e janelas major/minor. Trata-o como indicador tradicional, nunca como garantia de captura.
                 Usa targetSpeciesProfiles para considerar habitat, horas ativas, zona de ataque, zonas comuns e lures favoritas.
                 Usa availableLibraryLures para conhecer tecnicas, dificuldade, eficacia, acao e condicoes ideais.
                 Usa history para considerar sessoes anteriores e taxas de sucesso por spot e especie.
@@ -685,6 +686,14 @@ public class AiRecommendationService {
         } else {
             score += 12;
             reasons.add("Weather snapshot incluido.");
+        }
+
+        if (context.solunar() == null) {
+            score -= 6;
+            warnings.add("Sem solunar forecast no contexto do plano.");
+        } else {
+            score += 6;
+            reasons.add("Solunar forecast incluido.");
         }
 
         List<PlannerContextResponse.PlannerContextLure> selectedLures = nullToEmpty(context.selectedLures());
@@ -1538,9 +1547,9 @@ public class AiRecommendationService {
         }
 
         try {
-            weatherSnapshotService.createIpmaSnapshotForPlan(plan.getId());
+            weatherSnapshotService.createSnapshotForPlan(plan.getId());
         } catch (RuntimeException ignored) {
-            // Weather improves the recommendation, but the AI planner should still work without IPMA.
+            // Weather improves the recommendation, but the AI planner should still work without an external provider.
         }
     }
 

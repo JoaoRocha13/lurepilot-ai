@@ -137,7 +137,7 @@ class DashboardServiceTest {
         WeatherSnapshot weatherSnapshot = new WeatherSnapshot(
                 null,
                 nextSession,
-                "IPMA",
+                "OPEN_METEO",
                 1110600,
                 "Lisboa",
                 38.766,
@@ -150,7 +150,18 @@ class DashboardServiceTest {
                 0.0,
                 "NW",
                 2,
-                null
+                22.0,
+                22.5,
+                60.0,
+                0.0,
+                1015.0,
+                10,
+                12.0,
+                20.0,
+                "06:30",
+                "20:50",
+                "[]",
+                "Open-Meteo fixture."
         );
         ReflectionTestUtils.setField(weatherSnapshot, "id", 40L);
 

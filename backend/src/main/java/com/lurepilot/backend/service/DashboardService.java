@@ -323,6 +323,11 @@ public class DashboardService {
                 weatherSnapshot.getPrecipitationProbability(),
                 weatherSnapshot.getWindDirection(),
                 weatherSnapshot.getWindSpeedClass(),
+                weatherSnapshot.getCurrentTemperature(),
+                weatherSnapshot.getRelativeHumidity(),
+                weatherSnapshot.getWindSpeedKmh(),
+                weatherSnapshot.getWindGustsKmh(),
+                weatherSnapshot.getPressureMsl(),
                 weatherSnapshot.getCapturedAt()
         );
     }

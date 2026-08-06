@@ -4,7 +4,7 @@
 
 # LurePilot AI
 
-Local AI fishing copilot built with a Spring Boot backend, PostgreSQL, IPMA weather data and a local LLM through LM Studio.
+Local AI fishing copilot built with a Spring Boot backend, PostgreSQL, Open-Meteo weather data and a local LLM through LM Studio.
 
 The product direction is a practical fishing copilot, not just a diary. It helps plan sessions, manage spots and lures, generate AI plan A/B/C recommendations, adapt during a live session, record results and learn from historical data.
 
@@ -26,7 +26,7 @@ Implemented backend areas:
 - Session lures
 - Catches with optional photo metadata and optional lure-library association
 - Catch gallery endpoint for photo-based history navigation, including the lure name/image when recorded
-- IPMA weather snapshots
+- Open-Meteo weather snapshots with current, daily and hourly forecast data
 - AI plan recommendations through LM Studio
 - AI session adjustment
 - AI session review
@@ -42,7 +42,7 @@ Implemented backend areas:
 Initial frontend area:
 
 - React Native Web app shell with main menu, dashboard preview and backend status.
-- Main menu entries: Dashboard, Gallery, Spots, Plans, Session, Lure Box, Library and Profile.
+- Main menu entries: Dashboard, Gallery, Spots, Weather, Plans, Session, Lure Box, Library and Profile.
 - Menu uses static UI icons from `frontend/assets/images/ui`.
 - The first screen consumes `GET /api/health` and `GET /api/dashboard`, with a sample fallback when the backend is unavailable.
 - A working `PT / EN` language switch exists in the sidebar for the initial UI shell.
@@ -54,9 +54,10 @@ Initial frontend area:
 - Spots use a zoomable and draggable OpenStreetMap picker, Freshwater/Saltwater and fish-library multi-select comboboxes, and image-based location-type selection (reservoir, river, lake, coast or other).
 - Spot cards present favorite species as individual image chips, and the create/detail views keep the focus on the location, water type, spot type, coordinates and species instead of showing description or created-at metadata.
 - The Spots header follows the visual language of Gallery and Lure Box, with clearer spacing, counters and a primary create action; the Spots screen no longer uses a search bar.
-- The Spots tab refreshes the latest IPMA weather snapshot for the selected spot and allows a manual refresh; the weather context shows the nearest supported IPMA forecast location selected from the coordinates.
+- The Spots tab stays focused on spot discovery and details; weather and solunar data live in the dedicated Weather tab and remain available to the AI Planner context.
 - The Plans screen uses date/time selectors, fish-library multi-select targets including "Any species", optional selected lures or the full Lure Box, and a compact A/B/C workspace header.
-- The frontend AI Planner calls the local LM Studio backend, displays the validated recommendation and confidence, allows saving the recommendation, and highlights the feature as Powered by AI.
+- The frontend AI Planner calls the local LM Studio backend, displays the validated recommendation and confidence, allows saving the recommendation, and highlights the feature as Powered by AI. Its structured context includes the latest weather snapshot, solunar phase/illumination and major/minor activity windows when the spot has coordinates.
+- Plan detail separates trip context, AI situation read, confidence, A/B/C strategy, recommended lures and warnings for easier scanning.
 
 ## Stack
 
@@ -159,9 +160,9 @@ Planning and fishing data:
 - `/api/spots` (including `spotType`: `RESERVOIR`, `RIVER`, `LAKE`, `ESTUARY`, `COAST` or `HARBOR`)
 - `favoriteSpecies` remains a comma-separated backend field for compatibility; the frontend exposes it as a fish-library multi-select and renders each species as an individual chip with its image.
 - The Spots screen uses a draggable OpenStreetMap picker with zoom from `Z4` to `Z18`.
-- The current weather card shows daily minimum/maximum temperature, rain probability, wind direction/class, forecast date, update time, capture time and forecast coordinates. Its visual icon uses the rain asset when precipitation is above 20% and the clear-sky asset otherwise.
-- The Dashboard weather panel can switch between every location returned by `GET /api/weather-locations/ipma` and loads a fresh snapshot with `POST /api/weather-snapshots/ipma/location`.
-- IPMA coordinates are resolved to the nearest supported forecast location; this is a forecast locality, not an exact administrative-district reverse geocoding result.
+- The Weather tab shows current and apparent temperature, humidity, daily minimum/maximum temperature, rain probability, precipitation, pressure, cloud cover, wind speed/direction/gusts, sunrise/sunset, hourly forecast data, forecast date and forecast coordinates. Its visual icon dynamically uses the clear-sky, cloudy, rain, fog or wind asset according to the Open-Meteo weather code and available conditions.
+- The Dashboard weather panel uses a single district combobox inside the weather card. Selecting a district searches Portuguese forecast locations through `GET /api/weather-locations/search`, and the first matching location loads a fresh snapshot with `POST /api/weather-snapshots/location`.
+- Weather snapshots use the selected coordinates directly, so they are not limited to districts or a fixed list of administrative locations. The API also returns the nearest matching forecast date when a requested date is outside the available forecast window.
 - `/api/fish`
 - `/api/lure-library`
 - `/api/lures`
@@ -198,16 +199,19 @@ Tracking:
 
 Weather:
 
-- `GET /api/weather-locations/ipma`
-- `GET /api/weather-locations/ipma/search`
-- `POST /api/weather-snapshots/plans/{planId}/ipma`
-- `POST /api/weather-snapshots/sessions/{sessionId}/ipma`
-- `POST /api/weather-snapshots/ipma/coordinates`
-- `POST /api/weather-snapshots/ipma/location`
+- `GET /api/weather-locations/search?query=Lisboa&countryCode=PT`
+- The Weather menu presents current conditions, daily extremes, hourly forecast, sunrise/sunset and a solunar forecast for a saved spot and selected date.
+- Weather icons are selected from the local clear-sky, cloudy, rain, fog and wind assets using the Open-Meteo weather code and available conditions.
+- `POST /api/weather-snapshots/plans/{planId}`
+- `POST /api/weather-snapshots/sessions/{sessionId}`
+- `POST /api/weather-snapshots/coordinates`
+- `POST /api/weather-snapshots/location`
 - `GET /api/weather-snapshots/plans/{planId}`
 - `GET /api/weather-snapshots/sessions/{sessionId}`
 - `GET /api/weather-snapshots/plans/{planId}/latest`
 - `GET /api/weather-snapshots/sessions/{sessionId}/latest`
+- `GET /api/solunar/spots/{spotId}?date=YYYY-MM-DD`
+- Solunar responses include moon phase, illumination, moonrise/moonset and major/minor activity windows calculated from the spot coordinates.
 
 Analytics and insights:
 

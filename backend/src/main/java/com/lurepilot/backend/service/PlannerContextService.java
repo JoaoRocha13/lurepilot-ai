@@ -1,6 +1,11 @@
 package com.lurepilot.backend.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lurepilot.backend.dto.PlannerContextResponse;
+import com.lurepilot.backend.dto.SolunarForecastResponse;
+import com.lurepilot.backend.dto.SolunarPeriodResponse;
+import com.lurepilot.backend.dto.WeatherHourlyResponse;
 import com.lurepilot.backend.model.FishSpecies;
 import com.lurepilot.backend.model.FishingPlan;
 import com.lurepilot.backend.model.FishingPlanLure;
@@ -36,14 +41,17 @@ public class PlannerContextService {
     private final FishingPlanLureRepository fishingPlanLureRepository;
     private final FishingSessionRepository fishingSessionRepository;
     private final WeatherSnapshotRepository weatherSnapshotRepository;
+    private final SolunarService solunarService;
     private final FishSpeciesRepository fishSpeciesRepository;
     private final LureLibraryItemRepository lureLibraryItemRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public PlannerContextService(
             FishingPlanRepository fishingPlanRepository,
             FishingPlanLureRepository fishingPlanLureRepository,
             FishingSessionRepository fishingSessionRepository,
             WeatherSnapshotRepository weatherSnapshotRepository,
+            SolunarService solunarService,
             FishSpeciesRepository fishSpeciesRepository,
             LureLibraryItemRepository lureLibraryItemRepository
     ) {
@@ -51,6 +59,7 @@ public class PlannerContextService {
         this.fishingPlanLureRepository = fishingPlanLureRepository;
         this.fishingSessionRepository = fishingSessionRepository;
         this.weatherSnapshotRepository = weatherSnapshotRepository;
+        this.solunarService = solunarService;
         this.fishSpeciesRepository = fishSpeciesRepository;
         this.lureLibraryItemRepository = lureLibraryItemRepository;
     }
@@ -78,6 +87,7 @@ public class PlannerContextService {
         PlannerContextResponse.PlannerContextWeather weather = weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(planId)
                 .map(this::toWeatherContext)
                 .orElse(null);
+        PlannerContextResponse.PlannerContextSolunar solunar = buildSolunarContext(plan, spot);
 
         List<PlannerContextResponse.PlannerContextFish> targetSpeciesProfiles = findTargetSpeciesProfiles(plan.getTargetSpecies(), spot);
         List<PlannerContextResponse.PlannerContextLibraryLure> availableLibraryLures = findAvailableLibraryLures(selectedLures);
@@ -86,10 +96,11 @@ public class PlannerContextService {
                 toPlanContext(plan),
                 toSpotContext(spot),
                 weather,
+                solunar,
                 selectedLures,
                 recentSpotSessions,
                 recentSpeciesSessions,
-                buildDataQuality(weather, selectedLures, recentSpotSessions, recentSpeciesSessions, targetSpeciesProfiles, availableLibraryLures),
+                buildDataQuality(weather, solunar, selectedLures, recentSpotSessions, recentSpeciesSessions, targetSpeciesProfiles, availableLibraryLures),
                 targetSpeciesProfiles,
                 availableLibraryLures,
                 buildHistory(recentSpotSessions, recentSpeciesSessions)
@@ -243,8 +254,75 @@ public class PlannerContextService {
                 weatherSnapshot.getPrecipitationProbability(),
                 weatherSnapshot.getWindDirection(),
                 weatherSnapshot.getWindSpeedClass(),
-                weatherSnapshot.getNotes()
+                weatherSnapshot.getNotes(),
+                weatherSnapshot.getCurrentTemperature(),
+                weatherSnapshot.getApparentTemperature(),
+                weatherSnapshot.getRelativeHumidity(),
+                weatherSnapshot.getPrecipitation(),
+                weatherSnapshot.getPressureMsl(),
+                weatherSnapshot.getCloudCover(),
+                weatherSnapshot.getWindSpeedKmh(),
+                weatherSnapshot.getWindGustsKmh(),
+                weatherSnapshot.getSunrise(),
+                weatherSnapshot.getSunset(),
+                parseHourlyForecast(weatherSnapshot.getHourlyForecastJson())
         );
+    }
+
+    private List<WeatherHourlyResponse> parseHourlyForecast(String json) {
+        if (json == null || json.isBlank()) {
+            return List.of();
+        }
+
+        try {
+            return objectMapper.readValue(json, new TypeReference<>() {
+            });
+        } catch (Exception exception) {
+            return List.of();
+        }
+    }
+
+    private PlannerContextResponse.PlannerContextSolunar buildSolunarContext(FishingPlan plan, FishingSpot spot) {
+        if (spot == null || spot.getId() == null || spot.getLatitude() == null || spot.getLongitude() == null) {
+            return null;
+        }
+
+        try {
+            SolunarForecastResponse forecast = solunarService.getForecast(spot.getId(), plan.getPlannedDate());
+            return new PlannerContextResponse.PlannerContextSolunar(
+                    forecast.spotId(),
+                    forecast.date(),
+                    forecast.timezone(),
+                    forecast.sunrise(),
+                    forecast.sunset(),
+                    forecast.moonrise(),
+                    forecast.moonset(),
+                    forecast.moonPhase(),
+                    forecast.moonIlluminationPercent(),
+                    forecast.activityLevel(),
+                    toSolunarPeriods(forecast.majorPeriods()),
+                    toSolunarPeriods(forecast.minorPeriods()),
+                    forecast.note()
+            );
+        } catch (RuntimeException exception) {
+            return null;
+        }
+    }
+
+    private List<PlannerContextResponse.PlannerContextSolunarPeriod> toSolunarPeriods(List<SolunarPeriodResponse> periods) {
+        if (periods == null) {
+            return List.of();
+        }
+
+        return periods.stream()
+                .map(period -> new PlannerContextResponse.PlannerContextSolunarPeriod(
+                        period.type(),
+                        period.title(),
+                        period.peakAt(),
+                        period.startsAt(),
+                        period.endsAt()
+                ))
+                .toList();
     }
 
     private PlannerContextResponse.PlannerContextSession toSessionContext(FishingSession session) {
@@ -287,6 +365,7 @@ public class PlannerContextService {
 
     private PlannerContextResponse.PlannerContextDataQuality buildDataQuality(
             PlannerContextResponse.PlannerContextWeather weather,
+            PlannerContextResponse.PlannerContextSolunar solunar,
             List<PlannerContextResponse.PlannerContextLure> selectedLures,
             List<PlannerContextResponse.PlannerContextSession> recentSpotSessions,
             List<PlannerContextResponse.PlannerContextSession> recentSpeciesSessions,
@@ -301,6 +380,10 @@ public class PlannerContextService {
 
         if (weather == null) {
             warnings.add("No weather snapshot found for this fishing plan.");
+        }
+
+        if (solunar == null) {
+            warnings.add("No solunar forecast available for this fishing plan.");
         }
 
         if (recentSpotSessions.isEmpty()) {
