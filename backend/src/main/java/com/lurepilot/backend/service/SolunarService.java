@@ -41,41 +41,59 @@ public class SolunarService {
         FishingSpot spot = fishingSpotRepository.findById(spotId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing spot not found"));
 
-        if (spot.getLatitude() == null || spot.getLongitude() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solunar forecasts require spot coordinates");
-        }
+        return getForecast(spot.getId(), spot.getName(), spot.getLatitude(), spot.getLongitude(), requestedDate);
+    }
+
+    public SolunarForecastResponse getForecast(
+            Double latitude,
+            Double longitude,
+            String locationName,
+            LocalDate requestedDate
+    ) {
+        validateCoordinates(latitude, longitude);
+        return getForecast(null, locationName, latitude, longitude, requestedDate);
+    }
+
+    private SolunarForecastResponse getForecast(
+            Long spotId,
+            String locationName,
+            Double latitude,
+            Double longitude,
+            LocalDate requestedDate
+    ) {
+        validateCoordinates(latitude, longitude);
 
         LocalDate date = requestedDate == null ? LocalDate.now() : requestedDate;
-        ZoneId timezone = timezoneFor(spot.getLatitude(), spot.getLongitude());
+        ZoneId timezone = timezoneFor(latitude, longitude);
         ZonedDateTime startOfDay = date.atStartOfDay(timezone);
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
 
         SunTimes sunTimes = SunTimes.compute()
                 .on(startOfDay)
-                .at(spot.getLatitude(), spot.getLongitude())
+                .at(latitude, longitude)
                 .timezone(timezone)
                 .oneDay()
                 .execute();
         MoonTimes moonTimes = MoonTimes.compute()
                 .on(startOfDay)
-                .at(spot.getLatitude(), spot.getLongitude())
+                .at(latitude, longitude)
                 .timezone(timezone)
                 .oneDay()
                 .execute();
         MoonIllumination moonIllumination = MoonIllumination.compute()
                 .on(startOfDay.plusHours(12))
-                .at(spot.getLatitude(), spot.getLongitude())
+                .at(latitude, longitude)
                 .timezone(timezone)
                 .execute();
 
         ZonedDateTime moonrise = normalizeEvent(moonTimes.getRise(), startOfDay, endOfDay);
         ZonedDateTime moonset = normalizeEvent(moonTimes.getSet(), startOfDay, endOfDay);
-        List<SolunarPeriodResponse> majorPeriods = findMajorPeriods(startOfDay, endOfDay, spot, timezone);
+        List<SolunarPeriodResponse> majorPeriods = findMajorPeriods(startOfDay, endOfDay, latitude, longitude, timezone);
         List<SolunarPeriodResponse> minorPeriods = buildMinorPeriods(moonrise, moonset, startOfDay, endOfDay);
 
         return new SolunarForecastResponse(
-                spot.getId(),
-                spot.getName(),
+                spotId,
+                locationName,
                 date,
                 timezone.getId(),
                 format(sunTimes.getRise()),
@@ -91,17 +109,24 @@ public class SolunarService {
         );
     }
 
+    private void validateCoordinates(Double latitude, Double longitude) {
+        if (latitude == null || longitude == null || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solunar forecasts require valid coordinates");
+        }
+    }
+
     private List<SolunarPeriodResponse> findMajorPeriods(
             ZonedDateTime startOfDay,
             ZonedDateTime endOfDay,
-            FishingSpot spot,
+            Double latitude,
+            Double longitude,
             ZoneId timezone
     ) {
         List<MoonSample> samples = new ArrayList<>();
         for (ZonedDateTime time = startOfDay; time.isBefore(endOfDay); time = time.plusMinutes(30)) {
             MoonPosition position = MoonPosition.compute()
                     .on(time)
-                    .at(spot.getLatitude(), spot.getLongitude())
+                    .at(latitude, longitude)
                     .timezone(timezone)
                     .execute();
             samples.add(new MoonSample(time, position.getAltitude()));

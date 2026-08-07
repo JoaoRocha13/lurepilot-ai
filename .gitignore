@@ -30,3 +30,7 @@ replay_pid*
 # Maven
 target/
 backend/target/
+
+# Local user-uploaded images
+uploads/
+backend/uploads/

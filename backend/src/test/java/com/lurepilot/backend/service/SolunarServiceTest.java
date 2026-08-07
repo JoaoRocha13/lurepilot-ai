@@ -23,4 +23,15 @@ class SolunarServiceTest {
 
         assertNotNull(service.getForecast(1L, LocalDate.of(2026, 8, 6)));
     }
+
+    @Test
+    void calculatesSolunarForecastForCoordinates() {
+        SolunarService service = new SolunarService(mock(FishingSpotRepository.class));
+
+        var forecast = service.getForecast(38.2, -7.5, "Alqueva", LocalDate.of(2026, 8, 6));
+
+        assertNotNull(forecast);
+        assertNotNull(forecast.sunrise());
+        org.junit.jupiter.api.Assertions.assertEquals("Alqueva", forecast.spotName());
+    }
 }

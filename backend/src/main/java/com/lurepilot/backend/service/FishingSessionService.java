@@ -170,7 +170,10 @@ public class FishingSessionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Fishing session is already finished");
         }
 
-        LocalTime startTime = request != null && request.startTime() != null ? request.startTime() : LocalTime.now();
+        LocalTime startTime = session.getStartTime();
+        if (startTime == null) {
+            startTime = request != null && request.startTime() != null ? request.startTime() : LocalTime.now();
+        }
         session.setStartTime(startTime);
         session.setStatus(FishingSessionStatus.ACTIVE);
 

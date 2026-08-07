@@ -25,6 +25,7 @@ Implemented backend areas:
 - Session events
 - Session lures
 - Catches with optional photo metadata and optional lure-library association
+- Local image upload endpoint for catch photos, served from backend-managed `/uploads/**` paths
 - Catch gallery endpoint for photo-based history navigation, including the lure name/image when recorded
 - Open-Meteo weather snapshots with current, daily and hourly forecast data
 - AI plan recommendations through LM Studio
@@ -58,6 +59,10 @@ Initial frontend area:
 - The Plans screen uses date/time selectors, fish-library multi-select targets including "Any species", optional selected lures or the full Lure Box, and a compact A/B/C workspace header.
 - The frontend AI Planner calls the local LM Studio backend, displays the validated recommendation and confidence, allows saving the recommendation, and highlights the feature as Powered by AI. Its structured context includes the latest weather snapshot, solunar phase/illumination and major/minor activity windows when the spot has coordinates.
 - Plan detail separates trip context, AI situation read, confidence, A/B/C strategy, recommended lures and warnings for easier scanning.
+- The Dashboard also loads the practical insights endpoints and presents compact cards for top lures, best spots, best conditions and recommendation performance, with a clear empty state when history is still limited.
+- Sessions have a dedicated workflow for creating/editing outings, starting and finishing them, recording results and rating the session.
+- A session detail shows its catches and supports creating, editing and deleting captures without leaving the session.
+- Catch photos are previewed in the browser and uploaded as multipart files only when the capture is saved; the database stores the returned URL instead of a base64 image.
 
 ## Stack
 
@@ -141,6 +146,14 @@ Health check:
 curl http://localhost:8080/api/health
 ```
 
+Upload a catch photo manually:
+
+```bash
+curl -X POST http://localhost:8080/api/uploads/images -F "file=@C:/path/to/catch.jpg"
+```
+
+The response contains a relative `url`, for example `/uploads/uuid.jpg`. Use that URL as `photoUrl` and `photoThumbnailUrl` when testing `POST /api/sessions/{sessionId}/catches` in Postman.
+
 ## Main API Areas
 
 Base URL:
@@ -162,6 +175,7 @@ Planning and fishing data:
 - The Spots screen uses a draggable OpenStreetMap picker with zoom from `Z4` to `Z18`.
 - The Weather tab shows current and apparent temperature, humidity, daily minimum/maximum temperature, rain probability, precipitation, pressure, cloud cover, wind speed/direction/gusts, sunrise/sunset, hourly forecast data, forecast date and forecast coordinates. Its visual icon dynamically uses the clear-sky, cloudy, rain, fog or wind asset according to the Open-Meteo weather code and available conditions.
 - The Dashboard weather panel uses a single district combobox inside the weather card. Selecting a district searches Portuguese forecast locations through `GET /api/weather-locations/search`, and the first matching location loads a fresh snapshot with `POST /api/weather-snapshots/location`.
+- The Dashboard latest-catch panel gives the catch photo visual priority and keeps the complete image visible inside its wider image area.
 - Weather snapshots use the selected coordinates directly, so they are not limited to districts or a fixed list of administrative locations. The API also returns the nearest matching forecast date when a requested date is outside the available forecast window.
 - `/api/fish`
 - `/api/lure-library`
@@ -171,10 +185,13 @@ Planning and fishing data:
 - `/api/plans/{planId}/lures`
 - `/api/plans/{id}/context`
 - `/api/sessions`
+- `/api/sessions/{id}/start` and `/api/sessions/{id}/finish`
 - `/api/sessions/{sessionId}/events`
 - `/api/sessions/{sessionId}/lures`
 - `/api/sessions/{sessionId}/catches`
 - `GET /api/gallery/catches`
+- `POST /api/uploads/images` (multipart field `file`, image files up to 10 MB)
+- `GET /uploads/{fileName}` (served uploaded image)
 
 AI:
 
@@ -211,7 +228,9 @@ Weather:
 - `GET /api/weather-snapshots/plans/{planId}/latest`
 - `GET /api/weather-snapshots/sessions/{sessionId}/latest`
 - `GET /api/solunar/spots/{spotId}?date=YYYY-MM-DD`
+- `GET /api/solunar/coordinates?latitude=38.7223&longitude=-9.1393&locationName=Lisboa&date=YYYY-MM-DD`
 - Solunar responses include moon phase, illumination, moonrise/moonset and major/minor activity windows calculated from the spot coordinates.
+- The Dashboard keeps the relevant weather and solunar forecast synchronized with the selected forecast location and uses the latest catch image when available.
 
 Analytics and insights:
 

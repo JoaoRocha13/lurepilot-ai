@@ -94,6 +94,31 @@ class FishingSessionServiceTest {
     }
 
     @Test
+    void startSessionKeepsTheStartTimeEnteredWhenCreatingTheSession() {
+        FishingSpot spot = new FishingSpot("Barragem Norte", null, 38.7, -9.1, "DAM", "BASS");
+        FishingSession session = new FishingSession(
+                spot,
+                null,
+                LocalDate.of(2026, 7, 23),
+                LocalTime.of(19, 0),
+                null,
+                "BASS",
+                "CLEAR",
+                "LOW",
+                null,
+                null
+        );
+        session.setStatus(FishingSessionStatus.ACTIVE);
+
+        when(fishingSessionRepository.findById(1L)).thenReturn(Optional.of(session));
+        when(fishingSessionRepository.save(any(FishingSession.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        FishingSessionResponse response = fishingSessionService.startSession(1L, new StartFishingSessionRequest(null, null));
+
+        assertThat(response.startTime()).isEqualTo(LocalTime.of(19, 0));
+    }
+
+    @Test
     void finishSessionStoresResultAndCalculatesDuration() {
         FishingSpot spot = new FishingSpot("Barragem Norte", null, 38.7, -9.1, "DAM", "BASS");
         FishingSession session = new FishingSession(

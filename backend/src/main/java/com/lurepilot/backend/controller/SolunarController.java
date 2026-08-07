@@ -28,4 +28,14 @@ public class SolunarController {
     ) {
         return solunarService.getForecast(spotId, date);
     }
+
+    @GetMapping("/coordinates")
+    public SolunarForecastResponse getForecastForCoordinates(
+            @RequestParam Double latitude,
+            @RequestParam Double longitude,
+            @RequestParam(required = false) String locationName,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return solunarService.getForecast(latitude, longitude, locationName, date);
+    }
 }

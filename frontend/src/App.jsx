@@ -283,6 +283,33 @@ const translations = {
       inWord: 'em',
       unnamedSpot: 'spot sem nome',
       catchFallback: 'A galeria ganha vida quando adicionares fotos.',
+      solunarLabel: 'Solunar relevante',
+      solunarNoData: 'Cria um plano para calcular esta janela.',
+      solunarLoading: 'A calcular janela solunar...',
+      solunarActivity: 'Atividade',
+      solunarWindow: 'Janela principal',
+      solunarNoWindow: 'Sem janela calculada',
+      solunarMoon: 'Lua',
+      solunarSunrise: 'Nascer do sol',
+      fishingRadarEyebrow: 'RADAR DE PESCA',
+      fishingRadarTitle: 'O que preparar agora',
+      fishingRadarSubtitle: 'Uma leitura rápida para decidires o próximo passo.',
+      radarSession: 'Próxima sessão',
+      radarConditions: 'Condições',
+      radarLure: 'Lure a preparar',
+      radarNoSession: 'Sem sessão planeada',
+      radarNoWeather: 'Sem weather selecionado',
+      radarNoLure: 'Ainda sem padrão',
+      insightsEyebrow: 'INSIGHTS PRÁTICOS',
+      insightsTitle: 'O que vale a pena repetir',
+      insightsSubtitle: 'Padrões simples retirados do teu histórico.',
+      topLures: 'Top lures',
+      bestSpots: 'Melhores spots',
+      bestConditions: 'Melhores condições',
+      recommendationPerformance: 'IA que resultou',
+      noInsights: 'Ainda não há histórico suficiente.',
+      sessionsCount: 'sessão(ões)',
+      followRate: 'seguidas',
     },
     weather: {
       eyebrow: 'WEATHER / SOLUNAR',
@@ -623,6 +650,47 @@ const translations = {
         'top-water': { label: 'Acao de superficie', description: 'Trabalha a lure no topo com toques curtos e pausas para provocar ataques visuais.' },
       },
       openSession: 'Abrir sessao',
+      newSession: 'Nova sessao',
+      editSession: 'Editar sessao',
+      saveSession: 'Guardar sessao',
+      sessionSaved: 'Sessao guardada com sucesso.',
+      sessionSaveError: 'Nao foi possivel guardar a sessao.',
+      sessionDeleted: 'Sessao apagada com sucesso.',
+      sessionDeleteError: 'Nao foi possivel apagar a sessao.',
+      sessionDeleteConfirm: 'Queres mesmo apagar esta sessao?',
+      chooseSessionSpot: 'Escolher spot para a sessao',
+      chooseSessionPlan: 'Ligar a um plano (opcional)',
+      noPlansAvailable: 'Ainda nao existem planos para ligar.',
+      sessionEditorHint: 'Prepara a saida e abre a sessao quando chegares a agua.',
+      sessionRequiredFields: 'Escolhe um spot, data, especie alvo, claridade e nivel da agua.',
+      sessionDate: 'Data da sessao',
+      sessionStartTime: 'Hora de inicio',
+      sessionTargetSpecies: 'Especie alvo',
+      sessionStarted: 'Sessao iniciada.',
+      sessionFinished: 'Sessao terminada.',
+      sessionActionError: 'Nao foi possivel atualizar o estado da sessao.',
+      startSession: 'Comecar sessao',
+      finishSession: 'Terminar sessao',
+      finishSessionHint: 'Regista o resultado antes de fechares esta saida.',
+      finishResult: 'Resultado',
+      finishResultRequired: 'Escolhe Sucesso ou Insucesso.',
+      successResult: 'Sucesso',
+      failureResult: 'Insucesso',
+      finishResultSummary: 'Resumo do resultado',
+      finishFinalNotes: 'Notas finais',
+      finishRating: 'Avaliacao (1 a 5)',
+      sessionCatches: 'Capturas desta sessao',
+      newSessionCatch: 'Registar captura',
+      noCatchesYet: 'Ainda nao existem capturas nesta sessao.',
+      sessionStatusPlanned: 'Planeada',
+      sessionStatusActive: 'Ativa',
+      sessionStatusFinished: 'Terminada',
+      activeSessionSection: 'Sessao ativa',
+      finishedSessionsSection: 'Sessoes terminadas',
+      plannedSessionsSection: 'Sessoes planeadas',
+      noActiveSession: 'Nao existe nenhuma sessao ativa neste momento.',
+      noFinishedSessions: 'Ainda nao existem sessoes terminadas.',
+      noPlannedSessions: 'Ainda nao existem sessoes planeadas.',
       status: 'Estado',
       active: 'Ativo',
       inactive: 'Inativo',
@@ -793,6 +861,33 @@ const translations = {
       inWord: 'at',
       unnamedSpot: 'unnamed spot',
       catchFallback: 'The gallery comes alive when you add photos.',
+      solunarLabel: 'Relevant solunar',
+      solunarNoData: 'Create a plan to calculate this window.',
+      solunarLoading: 'Calculating solunar window...',
+      solunarActivity: 'Activity',
+      solunarWindow: 'Main window',
+      solunarNoWindow: 'No window calculated',
+      solunarMoon: 'Moon',
+      solunarSunrise: 'Sunrise',
+      fishingRadarEyebrow: 'FISHING RADAR',
+      fishingRadarTitle: 'What to prepare now',
+      fishingRadarSubtitle: 'A quick read to choose your next move.',
+      radarSession: 'Next session',
+      radarConditions: 'Conditions',
+      radarLure: 'Lure to prepare',
+      radarNoSession: 'No planned session',
+      radarNoWeather: 'No weather selected',
+      radarNoLure: 'No pattern yet',
+      insightsEyebrow: 'PRACTICAL INSIGHTS',
+      insightsTitle: 'What is worth repeating',
+      insightsSubtitle: 'Simple patterns from your fishing history.',
+      topLures: 'Top lures',
+      bestSpots: 'Best spots',
+      bestConditions: 'Best conditions',
+      recommendationPerformance: 'AI that worked',
+      noInsights: 'There is not enough history yet.',
+      sessionsCount: 'session(s)',
+      followRate: 'followed',
     },
     weather: {
       eyebrow: 'WEATHER / SOLUNAR',
@@ -1133,6 +1228,47 @@ const translations = {
         'top-water': { label: 'Topwater action', description: 'Work the lure on the surface with short taps and pauses to trigger visual strikes.' },
       },
       openSession: 'Open session',
+      newSession: 'New session',
+      editSession: 'Edit session',
+      saveSession: 'Save session',
+      sessionSaved: 'Session saved successfully.',
+      sessionSaveError: 'The session could not be saved.',
+      sessionDeleted: 'Session deleted successfully.',
+      sessionDeleteError: 'The session could not be deleted.',
+      sessionDeleteConfirm: 'Do you really want to delete this session?',
+      chooseSessionSpot: 'Choose a spot for the session',
+      chooseSessionPlan: 'Link to a plan (optional)',
+      noPlansAvailable: 'There are no plans to link yet.',
+      sessionEditorHint: 'Prepare the outing and start the session when you reach the water.',
+      sessionRequiredFields: 'Choose a spot, date, target species, water clarity and water level.',
+      sessionDate: 'Session date',
+      sessionStartTime: 'Start time',
+      sessionTargetSpecies: 'Target species',
+      sessionStarted: 'Session started.',
+      sessionFinished: 'Session finished.',
+      sessionActionError: 'The session status could not be updated.',
+      startSession: 'Start session',
+      finishSession: 'Finish session',
+      finishSessionHint: 'Record the result before closing this outing.',
+      finishResult: 'Result',
+      finishResultRequired: 'Choose Success or Unsuccessful.',
+      successResult: 'Success',
+      failureResult: 'Unsuccessful',
+      finishResultSummary: 'Result summary',
+      finishFinalNotes: 'Final notes',
+      finishRating: 'Rating (1 to 5)',
+      sessionCatches: 'Catches in this session',
+      newSessionCatch: 'Register catch',
+      noCatchesYet: 'There are no catches in this session yet.',
+      sessionStatusPlanned: 'Planned',
+      sessionStatusActive: 'Active',
+      sessionStatusFinished: 'Finished',
+      activeSessionSection: 'Active session',
+      finishedSessionsSection: 'Finished sessions',
+      plannedSessionsSection: 'Planned sessions',
+      noActiveSession: 'There is no active session right now.',
+      noFinishedSessions: 'There are no finished sessions yet.',
+      noPlannedSessions: 'There are no planned sessions yet.',
       status: 'Status',
       active: 'Active',
       inactive: 'Inactive',
@@ -1675,8 +1811,9 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   const dashboardCopy = copy.dashboard
   const nextSession = dashboard.nextPlannedSession
   const bestLure = dashboard.bestRecentLure
-  const recentResult = dashboard.recentResults?.[0]
   const recentCatch = dashboard.recentCatches?.[0]
+  const solunarReference = nextSession || dashboard.upcomingPlans?.[0] || dashboard.recentSessions?.[0]
+  const solunarReferenceDate = solunarReference?.date || solunarReference?.plannedDate
   const [weatherLocations, setWeatherLocations] = useState([])
   const [weatherLocationQuery, setWeatherLocationQuery] = useState(dashboard.relevantWeatherSnapshot?.sourceLocationName || 'Lisboa')
   const [selectedWeatherDistrict, setSelectedWeatherDistrict] = useState('')
@@ -1685,6 +1822,8 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   const [weather, setWeather] = useState(dashboard.relevantWeatherSnapshot)
   const [weatherLoading, setWeatherLoading] = useState(false)
   const [weatherError, setWeatherError] = useState(false)
+  const [solunar, setSolunar] = useState(null)
+  const [solunarLoading, setSolunarLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -1787,6 +1926,55 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     }
   }, [selectedWeatherLocationId, weatherLocations])
 
+  useEffect(() => {
+    const selectedLocation = weatherLocations.find((location) => String(location.id) === String(selectedWeatherLocationId))
+    const forecastDate = solunarReferenceDate || new Date().toISOString().slice(0, 10)
+
+    if (!selectedLocation?.latitude || !selectedLocation?.longitude) {
+      setSolunar(null)
+      setSolunarLoading(false)
+      return undefined
+    }
+
+    let cancelled = false
+    setSolunarLoading(true)
+
+    const params = new URLSearchParams({
+      latitude: String(selectedLocation.latitude),
+      longitude: String(selectedLocation.longitude),
+      locationName: selectedLocation.name || selectedWeatherDistrict || 'Weather',
+      date: forecastDate,
+    })
+
+    fetch(`/api/solunar/coordinates?${params.toString()}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Solunar request failed')
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        if (!cancelled) {
+          setSolunar(data)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSolunar(null)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setSolunarLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedWeatherDistrict, selectedWeatherLocationId, weatherLocations, solunarReferenceDate])
+
   function handleWeatherDistrictChange(district) {
     setSelectedWeatherDistrict(district)
     setWeatherLocationQuery(district)
@@ -1877,19 +2065,6 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
 
       <View style={styles.panelGrid}>
         <ListPanel
-          label={dashboardCopy.latestResult}
-          title={recentResult?.spotName || dashboardCopy.noResults}
-          body={
-            recentResult
-              ? `${recentResult.targetSpecies || dashboardCopy.speciesFallback} - ${
-                  recentResult.totalFishCaught || 0
-                } ${dashboardCopy.fishCount}`
-              : dashboardCopy.resultFallback
-          }
-          image={barbel}
-          compact={compact}
-        />
-        <ListPanel
           label={dashboardCopy.latestCatch}
           title={recentCatch?.species || dashboardCopy.emptyGallery}
           body={
@@ -1897,9 +2072,21 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
               ? `${recentCatch.quantity || 1} ${dashboardCopy.inWord} ${
                   recentCatch.spotName || dashboardCopy.unnamedSpot
                 }`
-              : dashboardCopy.catchFallback
+            : dashboardCopy.catchFallback
           }
-          image={galleryIcon}
+          image={getImageSource(
+            recentCatch?.photoThumbnailUrl || recentCatch?.photoUrl,
+            getFishImage(recentCatch?.species),
+          )}
+          compact={compact}
+        />
+        <DashboardSolunarPanel
+          solunar={solunar}
+          loading={solunarLoading}
+          reference={solunarReference}
+          dashboardCopy={dashboardCopy}
+          weatherCopy={copy.weather}
+          copy={copy}
           compact={compact}
         />
       </View>
@@ -1908,6 +2095,188 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
         <View style={styles.loadingLine}>
           <ActivityIndicator color="#11c5b7" />
           <Text style={styles.loadingText}>{copy.loading}</Text>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function DashboardSolunarPanel({ solunar, loading, reference, dashboardCopy, weatherCopy, copy, compact }) {
+  const referenceDate = reference?.date || reference?.plannedDate
+  const forecastDate = solunar?.date || referenceDate
+  const activityKey = String(solunar?.activityLevel || '').toLowerCase()
+  const activityLabel = solunar
+    ? weatherCopy[activityKey] || solunar.activityLevel || dashboardCopy.solunarNoData
+    : dashboardCopy.solunarNoData
+  const featuredPeriod = solunar?.majorPeriods?.[0] || solunar?.minorPeriods?.[0]
+  const windowValue = loading
+    ? dashboardCopy.solunarLoading
+    : featuredPeriod
+      ? `${formatWeatherClock(featuredPeriod.startsAt)} - ${formatWeatherClock(featuredPeriod.endsAt)}`
+      : solunar
+        ? dashboardCopy.solunarNoWindow
+        : dashboardCopy.solunarNoData
+  const moonPhase = solunar ? weatherCopy.moonPhases[solunar.moonPhase] || solunar.moonPhase || '--' : '--'
+  const moonValue = solunar ? `${moonPhase} · ${solunar.moonIlluminationPercent ?? '--'}%` : '--'
+
+  return (
+    <View style={[styles.dashboardSolunarPanel, compact && styles.panelFull]}>
+      <View style={styles.dashboardSolunarHeader}>
+        <View style={styles.dashboardSolunarHeading}>
+          <Text style={styles.dashboardSolunarLabel}>{dashboardCopy.solunarLabel}</Text>
+          <Text style={styles.dashboardSolunarTitle}>{solunar?.spotName || reference?.spotName || dashboardCopy.solunarNoData}</Text>
+          <Text style={styles.dashboardSolunarDate}>
+            {forecastDate ? formatSchedule(forecastDate, null, copy) : dashboardCopy.solunarNoData}
+          </Text>
+        </View>
+        <View style={styles.dashboardSolunarBadge}>
+          <View style={styles.dashboardSolunarBadgeDot} />
+          <Text style={styles.dashboardSolunarBadgeText}>{activityLabel}</Text>
+        </View>
+      </View>
+      <View style={styles.dashboardSolunarStats}>
+        <DashboardSolunarStat label={dashboardCopy.solunarActivity} value={activityLabel} tone="teal" />
+        <DashboardSolunarStat label={dashboardCopy.solunarWindow} value={windowValue} tone="gold" />
+        <DashboardSolunarStat label={dashboardCopy.solunarMoon} value={moonValue} tone="blue" />
+        <DashboardSolunarStat label={dashboardCopy.solunarSunrise} value={solunar ? formatWeatherClock(solunar.sunrise) : '--'} tone="teal" />
+      </View>
+      {featuredPeriod && <Text style={styles.dashboardSolunarHint}>{featuredPeriod.title}</Text>}
+    </View>
+  )
+}
+
+function DashboardSolunarStat({ label, value, tone }) {
+  return (
+    <View style={[styles.dashboardSolunarStat, tone === 'gold' && styles.dashboardSolunarStatGold, tone === 'blue' && styles.dashboardSolunarStatBlue]}>
+      <Text style={styles.dashboardSolunarStatLabel}>{label}</Text>
+      <Text style={styles.dashboardSolunarStatValue} numberOfLines={2}>{value}</Text>
+    </View>
+  )
+}
+
+function DashboardFishingRadar({ reference, weather, bestLure, dashboardCopy, copy }) {
+  const referenceDate = reference?.date || reference?.plannedDate
+  const referenceTime = reference?.time || reference?.plannedTime
+  const sessionDetail = reference
+    ? formatSchedule(referenceDate, referenceTime, copy)
+    : dashboardCopy.radarNoSession
+  const conditions = weather
+    ? `${weather.precipitationProbability ?? '--'}% ${dashboardCopy.weatherRain.toLowerCase()} · ${weather.windDirection || '--'} ${dashboardCopy.wind}`
+    : dashboardCopy.radarNoWeather
+  const lureDetail = bestLure
+    ? `${Math.round(bestLure.successRate || 0)}% ${dashboardCopy.successChip} · ${bestLure.uses || 0} ${dashboardCopy.uses}`
+    : dashboardCopy.radarNoLure
+
+  return (
+    <View style={styles.dashboardRadarPanel}>
+      <View style={styles.dashboardRadarHeader}>
+        <View style={styles.dashboardRadarHeading}>
+          <Text style={styles.dashboardRadarEyebrow}>{dashboardCopy.fishingRadarEyebrow}</Text>
+          <Text style={styles.dashboardRadarTitle}>{dashboardCopy.fishingRadarTitle}</Text>
+          <Text style={styles.dashboardRadarSubtitle}>{dashboardCopy.fishingRadarSubtitle}</Text>
+        </View>
+        <View style={styles.dashboardRadarMarker} />
+      </View>
+      <View style={styles.dashboardRadarGrid}>
+        <DashboardRadarCard label={dashboardCopy.radarSession} title={reference?.spotName || dashboardCopy.radarNoSession} detail={sessionDetail} tone="teal" />
+        <DashboardRadarCard label={dashboardCopy.radarConditions} title={weather ? dashboardCopy.weather : dashboardCopy.radarNoWeather} detail={conditions} tone="blue" />
+        <DashboardRadarCard label={dashboardCopy.radarLure} title={bestLure?.lureName || dashboardCopy.radarNoLure} detail={lureDetail} tone="gold" />
+      </View>
+    </View>
+  )
+}
+
+function DashboardRadarCard({ label, title, detail, tone }) {
+  return (
+    <View style={[styles.dashboardRadarCard, tone === 'blue' && styles.dashboardRadarCardBlue, tone === 'gold' && styles.dashboardRadarCardGold]}>
+      <View style={styles.dashboardRadarCardHeader}>
+        <Text style={styles.dashboardRadarCardLabel}>{label}</Text>
+        <View style={[styles.dashboardRadarDot, tone === 'blue' && styles.dashboardRadarDotBlue, tone === 'gold' && styles.dashboardRadarDotGold]} />
+      </View>
+      <Text style={styles.dashboardRadarCardTitle} numberOfLines={1}>{title}</Text>
+      <Text style={styles.dashboardRadarCardDetail} numberOfLines={2}>{detail}</Text>
+    </View>
+  )
+}
+
+function DashboardInsightsPanel({ insights, loading, dashboardCopy }) {
+  const insightCards = [
+    {
+      key: 'topLures',
+      title: dashboardCopy.topLures,
+      cardStyle: styles.dashboardInsightCardTeal,
+      dotStyle: styles.dashboardInsightDotTeal,
+      items: insights.topLures,
+      getTitle: (item) => item.lureName,
+      getMeta: (item) => `${item.timesUsed || 0} ${dashboardCopy.uses} · ${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip}`,
+      getDetail: (item) => `${item.totalFishCaught || 0} ${dashboardCopy.fishCount}`,
+    },
+    {
+      key: 'bestSpots',
+      title: dashboardCopy.bestSpots,
+      cardStyle: styles.dashboardInsightCardBlue,
+      dotStyle: styles.dashboardInsightDotBlue,
+      items: insights.bestSpots,
+      getTitle: (item) => item.spotName,
+      getMeta: (item) => `${item.totalSessions || 0} ${dashboardCopy.sessionsCount} · ${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip}`,
+      getDetail: (item) => `${item.totalFishCaught || 0} ${dashboardCopy.fishCount}`,
+    },
+    {
+      key: 'bestConditions',
+      title: dashboardCopy.bestConditions,
+      cardStyle: styles.dashboardInsightCardGold,
+      dotStyle: styles.dashboardInsightDotGold,
+      items: insights.bestConditions,
+      getTitle: (item) => [item.waterClarity, item.waterLevel].filter(Boolean).join(' · ') || dashboardCopy.noPattern,
+      getMeta: (item) => `${item.windDirection || '--'} · ${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip}`,
+      getDetail: (item) => `${item.totalSessions || 0} ${dashboardCopy.sessionsCount}`,
+    },
+    {
+      key: 'recommendationPerformance',
+      title: dashboardCopy.recommendationPerformance,
+      cardStyle: styles.dashboardInsightCardViolet,
+      dotStyle: styles.dashboardInsightDotViolet,
+      items: insights.recommendationPerformance,
+      getTitle: (item) => item.recommendationStep || item.recommendationType || dashboardCopy.noPattern,
+      getMeta: (item) => `${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip} · ${Math.round(item.followRate || 0)}% ${dashboardCopy.followRate}`,
+      getDetail: (item) => `${item.totalExecutions || 0} ${dashboardCopy.sessionsCount}`,
+    },
+  ]
+
+  return (
+    <View style={styles.dashboardInsightsPanel}>
+      <View style={styles.dashboardInsightsHeader}>
+        <View style={styles.dashboardInsightsHeading}>
+          <Text style={styles.dashboardInsightsEyebrow}>{dashboardCopy.insightsEyebrow}</Text>
+          <Text style={styles.dashboardInsightsTitle}>{dashboardCopy.insightsTitle}</Text>
+          <Text style={styles.dashboardInsightsSubtitle}>{dashboardCopy.insightsSubtitle}</Text>
+        </View>
+        <View style={styles.dashboardInsightsMarker} />
+      </View>
+      {loading ? (
+        <View style={styles.dashboardInsightsEmpty}><ActivityIndicator color="#1f8a82" /></View>
+      ) : (
+        <View style={styles.dashboardInsightsGrid}>
+          {insightCards.map((card) => (
+            <View key={card.key} style={[styles.dashboardInsightCard, card.cardStyle]}>
+              <View style={styles.dashboardInsightCardHeader}>
+                <Text style={styles.dashboardInsightCardTitle}>{card.title}</Text>
+                <View style={[styles.dashboardInsightDot, card.dotStyle]} />
+              </View>
+              {card.items.length ? card.items.map((item, index) => (
+                <View key={`${card.key}-${index}`} style={styles.dashboardInsightRow}>
+                  <Text style={styles.dashboardInsightRank}>{String(index + 1).padStart(2, '0')}</Text>
+                  <View style={styles.dashboardInsightCopy}>
+                    <Text style={styles.dashboardInsightName} numberOfLines={1}>{card.getTitle(item)}</Text>
+                    <Text style={styles.dashboardInsightMeta} numberOfLines={1}>{card.getMeta(item)}</Text>
+                    <Text style={styles.dashboardInsightDetail} numberOfLines={1}>{card.getDetail(item)}</Text>
+                  </View>
+                </View>
+              )) : (
+                <Text style={styles.dashboardInsightsEmptyText}>{dashboardCopy.noInsights}</Text>
+              )}
+            </View>
+          ))}
         </View>
       )}
     </View>
@@ -2447,7 +2816,7 @@ function MetricPanel({ label, title, value, image, compact }) {
 function ListPanel({ label, title, body, image, compact }) {
   return (
     <View style={[styles.commandListPanel, compact && styles.panelFull]}>
-      <Image source={{ uri: image }} style={styles.commandListImage} resizeMode="cover" />
+      <Image source={{ uri: image }} style={styles.commandListImage} resizeMode="contain" />
       <View style={styles.commandListCopy}>
         <Text style={styles.commandListLabel}>{label}</Text>
         <Text style={styles.commandListTitle}>{title}</Text>
@@ -2804,7 +3173,7 @@ function LiveWorkspaceHeader({ section, groups, compact, copy }) {
   const total = groups[0]?.totalItems || 0
 
   return (
-    <ImageBackground source={{ uri: riverSpot }} style={[styles.liveWorkspace, compact && styles.workspaceCompact]} imageStyle={styles.liveWorkspaceImage}>
+    <ImageBackground source={{ uri: seaSideSpot }} resizeMode="cover" style={[styles.liveWorkspace, compact && styles.workspaceCompact]} imageStyle={styles.liveWorkspaceImage}>
       <View style={styles.liveWorkspaceOverlay}>
         <View style={styles.liveWorkspaceTop}>
           <View style={styles.liveSignal}>
@@ -3043,10 +3412,10 @@ function GalleryShowcase({
   )
 }
 
-function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
+function GalleryCatchForm({ item, fixedSessionId = null, copy, compact, onSaved, onCancel }) {
   const fields = copy.resources.fields
   const [form, setForm] = useState(() => ({
-    sessionId: item?.sessionId ? String(item.sessionId) : '',
+    sessionId: item?.sessionId ? String(item.sessionId) : fixedSessionId ? String(fixedSessionId) : '',
     species: item?.species || '',
     lureLibraryItemId: item?.lureLibraryItemId ? String(item.lureLibraryItemId) : '',
     sizeCm: item?.sizeCm ?? '',
@@ -3109,7 +3478,7 @@ function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
 
   async function submit() {
     const selectedFish = fishOptions.find((option) => option.name?.toLowerCase() === form.species.toLowerCase())
-    const selectedSession = sessionOptions.find((option) => String(option.id) === String(form.sessionId))
+    const selectedSession = sessionOptions.find((option) => String(option.id) === String(form.sessionId)) || (fixedSessionId ? { id: fixedSessionId } : null)
 
     if (!selectedFish || !selectedSession) {
       setFeedback({
@@ -3122,6 +3491,16 @@ function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
     setSaving(true)
     setFeedback(null)
 
+    let photoUrl = toNullableText(form.photoUrl)
+
+    try {
+      photoUrl = await uploadImageDataUrl(photoUrl)
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.catchSaveError })
+      setSaving(false)
+      return
+    }
+
     const payload = {
       species: selectedFish.name,
       lureLibraryItemId: form.lureLibraryItemId ? Number(form.lureLibraryItemId) : null,
@@ -3129,8 +3508,8 @@ function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
       sizeCm: toNullableNumber(form.sizeCm),
       weightKg: toNullableNumber(form.weightKg),
       released: true,
-      photoUrl: toNullableText(form.photoUrl),
-      photoThumbnailUrl: toNullableText(form.photoUrl),
+      photoUrl,
+      photoThumbnailUrl: photoUrl,
       photoCaption: toNullableText(form.photoCaption),
     }
 
@@ -3202,13 +3581,15 @@ function GalleryCatchForm({ item, copy, compact, onSaved, onCancel }) {
       </View>
 
       <View style={styles.galleryFormGrid}>
-        <GallerySelect
-          label={copy.resources.chooseSession}
-          value={form.sessionId}
-          options={sessionSelectOptions}
-          onChange={(value) => updateField('sessionId', value)}
-          placeholder={loadingOptions ? copy.loading : copy.resources.chooseSession}
-        />
+        {!fixedSessionId && (
+          <GallerySelect
+            label={copy.resources.chooseSession}
+            value={form.sessionId}
+            options={sessionSelectOptions}
+            onChange={(value) => updateField('sessionId', value)}
+            placeholder={loadingOptions ? copy.loading : copy.resources.chooseSession}
+          />
+        )}
         <GallerySelect
           label={copy.resources.chooseSpecies}
           value={form.species}
@@ -4216,6 +4597,30 @@ function readImageFromDevice(capture = false) {
   })
 }
 
+async function uploadImageDataUrl(dataUrl) {
+  if (!dataUrl || !dataUrl.startsWith('data:')) {
+    return dataUrl
+  }
+
+  const imageResponse = await fetch(dataUrl)
+  const blob = await imageResponse.blob()
+  const formData = new FormData()
+  const extension = blob.type?.split('/')[1] || 'jpg'
+  formData.append('file', blob, `capture-${Date.now()}.${extension}`)
+
+  const response = await fetch('/api/uploads/images', {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error('Image upload failed')
+  }
+
+  const payload = await response.json()
+  return payload.url
+}
+
 function ResourceScreen({
   section,
   groups,
@@ -4255,6 +4660,24 @@ function ResourceScreen({
         compact={compact}
         search={search}
         onCreated={onCreated}
+        copy={copy}
+      />
+    )
+  }
+
+  if (section.id === 'session') {
+    return (
+      <SessionShowcase
+        section={section}
+        groups={groups}
+        loading={loading}
+        error={error}
+        detail={detail}
+        onOpenDetail={onOpenDetail}
+        onCloseDetail={onCloseDetail}
+        onCreated={onCreated}
+        onPageChange={onPageChange}
+        compact={compact}
         copy={copy}
       />
     )
@@ -4486,6 +4909,327 @@ function ResourceScreen({
           )}
         </View>
       ))}
+    </View>
+  )
+}
+
+function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail, onCloseDetail, onPageChange, compact, onCreated, copy }) {
+  const group = groups.find((candidate) => candidate.key === 'sessions') || groups[0]
+  const items = group?.items || []
+  const activeItems = items.filter((item) => String(item.status || '').toLowerCase() !== 'finished')
+  const finishedItems = items.filter((item) => String(item.status || '').toLowerCase() === 'finished')
+  const [editorState, setEditorState] = useState(null)
+  const [feedback, setFeedback] = useState(null)
+
+  function openCreateForm() {
+    setFeedback(null)
+    setEditorState({ item: null })
+    onCloseDetail()
+  }
+
+  function openEditForm(item) {
+    setFeedback(null)
+    setEditorState({ item })
+    onCloseDetail()
+  }
+
+  async function deleteSession(item) {
+    if (!item?.id) {
+      return
+    }
+
+    if (typeof window !== 'undefined' && !window.confirm(copy.resources.sessionDeleteConfirm)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/sessions/${item.id}`, { method: 'DELETE' })
+
+      if (!response.ok) {
+        throw new Error('Delete session failed')
+      }
+
+      setFeedback({ type: 'success', text: copy.resources.sessionDeleted })
+      onCloseDetail()
+      onCreated()
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.sessionDeleteError })
+    }
+  }
+
+  return (
+    <View style={[styles.sessionScreen, compact && styles.sessionScreenCompact]}>
+      <WorkspaceHeader section={section} groups={groups} compact={compact} copy={copy} />
+
+      <View style={styles.sessionToolbar}>
+        <View style={styles.sessionToolbarCopy}>
+          <Text style={styles.sessionToolbarEyebrow}>{copy.resources.workspace.liveConsole}</Text>
+          <Text style={styles.sessionToolbarHint}>{copy.resources.workspace.liveConsoleText}</Text>
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newSession} onPress={openCreateForm} style={styles.sessionCreateButton}>
+          <Text style={styles.sessionCreateButtonMark}>+</Text>
+          <Text style={styles.sessionCreateButtonText}>{copy.resources.newSession}</Text>
+        </Pressable>
+      </View>
+
+      {feedback && (
+        <View style={[styles.formFeedback, feedback.type === 'success' && styles.formFeedbackSuccess]}>
+          <Text style={[styles.formFeedbackText, feedback.type === 'success' && styles.formFeedbackTextSuccess]}>{feedback.text}</Text>
+        </View>
+      )}
+
+      {editorState && (
+        <SessionForm
+          key={editorState.item?.id || 'new-session'}
+          item={editorState.item}
+          copy={copy}
+          compact={compact}
+          onSaved={() => {
+            setEditorState(null)
+            setFeedback({ type: 'success', text: copy.resources.sessionSaved })
+            onCreated()
+          }}
+          onCancel={() => setEditorState(null)}
+        />
+      )}
+
+      {loading && (
+        <View style={styles.loadingLine}>
+          <ActivityIndicator color="#11c5b7" />
+          <Text style={styles.loadingText}>{copy.loading}</Text>
+        </View>
+      )}
+
+      {error && (
+        <View style={styles.notice}>
+          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
+        </View>
+      )}
+
+      {detail?.item && (
+        <DetailPanel
+          detail={detail}
+          onClose={onCloseDetail}
+          onEditItem={() => openEditForm(detail.item)}
+          onDeleteItem={() => deleteSession(detail.item)}
+          copy={copy}
+          compact={compact}
+        />
+      )}
+
+      <View style={styles.sessionListHeader}>
+        <View>
+          <Text style={styles.sessionListTitle}>{copy.resources.groups.sessions}</Text>
+          <Text style={styles.sessionListHint}>{group?.totalItems || items.length} {copy.resources.total}</Text>
+        </View>
+        {group && <PaginationControls group={group} onPageChange={onPageChange} copy={copy} />}
+      </View>
+
+      <>
+      <SessionStatusSection
+        title={copy.resources.activeSessionSection}
+        hint={copy.resources.noActiveSession}
+        status="active"
+        items={activeItems}
+        copy={copy}
+        group={group}
+        onOpenDetail={onOpenDetail}
+      />
+      <SessionStatusSection
+        title={copy.resources.finishedSessionsSection}
+        hint={copy.resources.noFinishedSessions}
+        status="finished"
+        items={finishedItems}
+        copy={copy}
+        group={group}
+        onOpenDetail={onOpenDetail}
+      />
+      </>
+    </View>
+  )
+}
+
+function SessionStatusSection({ title, hint, status, items, copy, group, onOpenDetail }) {
+  const statusStyle = status === 'active' ? styles.sessionStatusActive : status === 'finished' ? styles.sessionStatusFinished : styles.sessionStatusPlanned
+  const statusDotStyle = status === 'active' ? styles.sessionStatusDotActive : status === 'finished' ? styles.sessionStatusDotFinished : styles.sessionStatusDotPlanned
+  const statusTextStyle = status === 'active' ? styles.sessionStatusTextActive : status === 'finished' ? styles.sessionStatusTextFinished : styles.sessionStatusTextPlanned
+  const sectionStyle = status === 'active' ? styles.sessionStatusSectionActive : status === 'finished' ? styles.sessionStatusSectionFinished : styles.sessionStatusSectionPlanned
+
+  return (
+    <View style={[styles.sessionStatusSection, sectionStyle]}>
+      <View style={styles.sessionStatusSectionHeader}>
+        <View style={styles.sessionStatusSectionHeaderCopy}>
+          <View style={[styles.sessionStatusPill, statusStyle]}>
+            <View style={[styles.sessionStatusPillDot, statusDotStyle]} />
+            <Text style={[styles.sessionStatusPillText, statusTextStyle]}>{title}</Text>
+          </View>
+          <Text style={styles.sessionStatusSectionHint}>{hint}</Text>
+        </View>
+        <Text style={styles.sessionStatusSectionCount}>{items.length}</Text>
+      </View>
+      {items.length > 0 ? (
+        <View style={styles.sessionGrid}>
+          {items.map((item) => (
+            <SessionCard key={`session-${item.id}`} item={item} copy={copy} onPress={() => onOpenDetail(item, group)} />
+          ))}
+        </View>
+      ) : (
+        <View style={styles.sessionStatusEmpty}>
+          <Text style={styles.sessionStatusEmptyText}>{hint}</Text>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function SessionCard({ item, copy, onPress }) {
+  const status = String(item.status || '').toLowerCase() === 'finished' ? 'finished' : 'active'
+  const statusLabel = status === 'active' ? copy.resources.sessionStatusActive : copy.resources.sessionStatusFinished
+  const statusStyle = status === 'active' ? styles.sessionStatusActive : styles.sessionStatusFinished
+  const statusDotStyle = status === 'active' ? styles.sessionStatusDotActive : styles.sessionStatusDotFinished
+  const statusTextStyle = status === 'active' ? styles.sessionStatusTextActive : styles.sessionStatusTextFinished
+  const cardStatusStyle = status === 'active' ? styles.sessionCardActive : styles.sessionCardFinished
+
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${copy.resources.viewDetails}: ${item.spotName || copy.dashboard.unnamedSpot}`} onPress={onPress} style={[styles.sessionCard, cardStatusStyle]}>
+      <View style={styles.sessionCardTopline}>
+        <View style={[styles.sessionStatusPill, statusStyle]}>
+          <View style={[styles.sessionStatusPillDot, statusDotStyle]} />
+          <Text style={[styles.sessionStatusPillText, statusTextStyle]}>{statusLabel}</Text>
+        </View>
+        <Text style={styles.sessionCardDate}>{item.date || copy.undefinedDate}</Text>
+      </View>
+      <Text style={styles.sessionCardSpot}>{item.spotName || copy.dashboard.unnamedSpot}</Text>
+      <Text style={styles.sessionCardSpecies}>{item.targetSpecies || copy.dashboard.speciesFallback}</Text>
+      <View style={styles.sessionCardFooter}>
+        <Text style={styles.sessionCardTime}>{item.startTime || '--:--'}</Text>
+        <Text style={styles.sessionCardResult}>{item.success === true ? copy.resources.yes : item.success === false ? copy.resources.no : copy.resources.status}</Text>
+        <Text style={styles.sessionCardArrow}>&gt;</Text>
+      </View>
+    </Pressable>
+  )
+}
+
+function SessionForm({ item, copy, compact, onSaved, onCancel }) {
+  const fields = copy.resources.fields
+  const [form, setForm] = useState(() => ({
+    spotId: item?.spotId || '',
+    planId: item?.planId || '',
+    date: item?.date || new Date().toISOString().slice(0, 10),
+    startTime: item?.startTime || '',
+    targetSpecies: item?.targetSpecies || copy.resources.anySpecies,
+    waterClarity: item?.waterClarity || 'CLEAR',
+    waterLevel: item?.waterLevel || 'NORMAL',
+  }))
+  const [spots, setSpots] = useState([])
+  const [plans, setPlans] = useState([])
+  const [fish, setFish] = useState([])
+  const [loadingOptions, setLoadingOptions] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [feedback, setFeedback] = useState(null)
+  const clarityOptions = [
+    { value: 'CLEAR', label: copy.resources.waterClarityOptions.clear },
+    { value: 'STAINED', label: copy.resources.waterClarityOptions.stained },
+    { value: 'MUDDY', label: copy.resources.waterClarityOptions.muddy },
+  ]
+  const levelOptions = [
+    { value: 'LOW', label: copy.resources.waterLevelOptions.low },
+    { value: 'NORMAL', label: copy.resources.waterLevelOptions.normal },
+    { value: 'HIGH', label: copy.resources.waterLevelOptions.high },
+  ]
+
+  useEffect(() => {
+    let ignore = false
+    Promise.all([
+      fetch('/api/spots?page=0&size=100&sortBy=name&sortDirection=asc').then((response) => response.json()),
+      fetch('/api/plans?page=0&size=100&sortBy=plannedDate&sortDirection=desc').then((response) => response.json()),
+      fetch('/api/fish?page=0&size=100&sortBy=name&sortDirection=asc').then((response) => response.json()),
+    ])
+      .then(([spotPage, planPage, fishPage]) => {
+        if (ignore) return
+        setSpots(spotPage.items || [])
+        setPlans(planPage.items || [])
+        setFish(fishPage.items || [])
+      })
+      .catch(() => {
+        if (!ignore) setFeedback({ type: 'error', text: copy.resources.sessionSaveError })
+      })
+      .finally(() => {
+        if (!ignore) setLoadingOptions(false)
+      })
+    return () => { ignore = true }
+  }, [copy.resources.sessionSaveError])
+
+  function updateField(field, value) {
+    setFeedback(null)
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  async function submit() {
+    if (!form.spotId || !form.date || !form.targetSpecies || !form.waterClarity || !form.waterLevel) {
+      setFeedback({ type: 'error', text: copy.resources.sessionRequiredFields })
+      return
+    }
+
+    setSaving(true)
+    setFeedback(null)
+    const payload = {
+      spotId: Number(form.spotId),
+      planId: form.planId ? Number(form.planId) : null,
+      date: form.date,
+      startTime: form.startTime || null,
+      endTime: item?.endTime || null,
+      targetSpecies: form.targetSpecies,
+      waterClarity: form.waterClarity,
+      waterLevel: form.waterLevel,
+      notes: item?.notes || null,
+      success: item?.success ?? null,
+    }
+
+    try {
+      const response = await fetch(item?.id ? `/api/sessions/${item.id}` : '/api/sessions', {
+        method: item?.id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Save session failed')
+      onSaved()
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.sessionSaveError })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const spotOptions = spots.map((spot) => ({ value: String(spot.id), label: spot.name, image: getSpotImage(spot) }))
+  const planOptions = plans.map((plan) => ({ value: String(plan.id), label: `${plan.targetSpecies || copy.resources.anySpecies} · ${plan.plannedDate || copy.undefinedDate}` }))
+  const fishOptions = [{ value: copy.resources.anySpecies, label: copy.resources.anySpecies }, ...fish.map((entry) => ({ value: entry.name, label: entry.name, image: getImageSource(entry.imageUrl, getFishImage(entry.name)) }))]
+
+  return (
+    <View style={[styles.sessionEditor, compact && styles.sessionEditorCompact]}>
+      <View style={styles.sessionEditorHeader}>
+        <View>
+          <Text style={styles.sessionEditorEyebrow}>{copy.resources.groups.sessions}</Text>
+          <Text style={styles.sessionEditorTitle}>{item?.id ? copy.resources.editSession : copy.resources.newSession}</Text>
+          <Text style={styles.sessionEditorHint}>{copy.resources.sessionEditorHint}</Text>
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={styles.sessionCancelButton}>
+          <Text style={styles.sessionCancelButtonText}>{copy.resources.cancel}</Text>
+        </Pressable>
+      </View>
+      <View style={styles.sessionFormGrid}>
+        <GallerySelect label={copy.resources.chooseSessionSpot} value={String(form.spotId || '')} options={spotOptions} onChange={(value) => updateField('spotId', value)} placeholder={loadingOptions ? copy.loading : copy.resources.chooseSessionSpot} />
+        <GallerySelect label={copy.resources.chooseSessionPlan} value={String(form.planId || '')} options={planOptions} onChange={(value) => updateField('planId', value)} placeholder={loadingOptions ? copy.loading : copy.resources.noPlansAvailable} allowEmpty />
+        <DateTimeField label={copy.resources.sessionDate} value={form.date} onChangeText={(value) => updateField('date', value)} type="date" placeholder={copy.resources.plannedDateHint} />
+        <DateTimeField label={copy.resources.sessionStartTime} value={form.startTime} onChangeText={(value) => updateField('startTime', value)} type="time" placeholder={copy.resources.plannedTimeHint} />
+        <GallerySelect label={copy.resources.sessionTargetSpecies} value={form.targetSpecies} options={fishOptions} onChange={(value) => updateField('targetSpecies', value)} placeholder={copy.resources.anySpecies} />
+        <ChoiceGroup label={fields.waterClarity} value={form.waterClarity} options={clarityOptions} onChange={(value) => updateField('waterClarity', value)} />
+        <ChoiceGroup label={fields.waterLevel} value={form.waterLevel} options={levelOptions} onChange={(value) => updateField('waterLevel', value)} />
+      </View>
+      {feedback && <View style={styles.formFeedback}><Text style={styles.formFeedbackText}>{feedback.text}</Text></View>}
+      <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.saveSession} disabled={saving} onPress={submit} style={[styles.submitButton, saving && styles.submitButtonDisabled]}>
+        <Text style={styles.submitButtonText}>{saving ? copy.resources.saving : copy.resources.saveSession}</Text>
+      </Pressable>
     </View>
   )
 }
@@ -6390,35 +7134,193 @@ function RecommendationList({ title, items, tone }) {
 }
 
 function SessionDetail({ detail, copy, tone }) {
-  const source = detail.data || detail.item
   const fields = copy.resources.fields
-  const isFinished = String(source.status || '').toLowerCase() === 'finished'
-  const status = source.status || copy.resources.status
+  const initialSource = detail.data || detail.item
+  const [session, setSession] = useState(initialSource)
+  const [catches, setCatches] = useState([])
+  const [catchesLoading, setCatchesLoading] = useState(true)
+  const [showCatchForm, setShowCatchForm] = useState(false)
+  const [editingCatch, setEditingCatch] = useState(null)
+  const [finishOpen, setFinishOpen] = useState(false)
+  const [finishForm, setFinishForm] = useState({ success: '', resultSummary: '', rating: '' })
+  const [actionLoading, setActionLoading] = useState(false)
+  const [feedback, setFeedback] = useState(null)
+
+  useEffect(() => {
+    setSession(initialSource)
+  }, [initialSource?.id, detail.data])
+
+  async function loadCatches() {
+    if (!session?.id) return
+    setCatchesLoading(true)
+    try {
+      const response = await fetch(`/api/sessions/${session.id}/catches`)
+      if (!response.ok) throw new Error('Catches unavailable')
+      setCatches(await response.json())
+    } catch {
+      setCatches([])
+    } finally {
+      setCatchesLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadCatches()
+  }, [session?.id])
+
+  function updateFinishField(field, value) {
+    setFeedback(null)
+    setFinishForm((current) => ({ ...current, [field]: value }))
+  }
+
+  async function startSession() {
+    setActionLoading(true)
+    setFeedback(null)
+    try {
+      const response = await fetch(`/api/sessions/${session.id}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+      if (!response.ok) throw new Error('Start session failed')
+      setSession(await response.json())
+      setFeedback({ type: 'success', text: copy.resources.sessionStarted })
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.sessionActionError })
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function finishSession() {
+    if (!finishForm.success) {
+      setFeedback({ type: 'error', text: copy.resources.finishResultRequired })
+      return
+    }
+
+    setActionLoading(true)
+    setFeedback(null)
+    try {
+      const response = await fetch(`/api/sessions/${session.id}/finish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: finishForm.success === 'true',
+          resultSummary: toNullableText(finishForm.resultSummary),
+          rating: finishForm.rating ? Number(finishForm.rating) : null,
+        }),
+      })
+      if (!response.ok) throw new Error('Finish session failed')
+      setSession(await response.json())
+      setFinishOpen(false)
+      setFeedback({ type: 'success', text: copy.resources.sessionFinished })
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.sessionActionError })
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function deleteCatch(catchItem) {
+    if (!catchItem?.id || !session?.id) return
+    if (typeof window !== 'undefined' && !window.confirm(copy.resources.catchDeleteConfirm)) return
+    try {
+      const response = await fetch(`/api/sessions/${session.id}/catches/${catchItem.id}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('Delete catch failed')
+      setFeedback({ type: 'success', text: copy.resources.catchDeleted })
+      loadCatches()
+    } catch {
+      setFeedback({ type: 'error', text: copy.resources.catchDeleteError })
+    }
+  }
+
+  const status = String(session?.status || '').toLowerCase()
+  const isFinished = status === 'finished'
+  const isActive = !isFinished
+  const statusLabel = isActive ? copy.resources.sessionStatusActive : copy.resources.sessionStatusFinished
+  const statusStyle = isActive ? styles.sessionStatusActive : styles.sessionStatusFinished
+  const resultLabel = session?.success === true
+    ? copy.resources.successResult
+    : session?.success === false
+      ? copy.resources.failureResult
+      : '--'
+  const catchItems = catches || []
 
   return (
     <View style={styles.detailContent}>
       <View style={[styles.sessionStatusHeader, { backgroundColor: tone.imageBackground }]}>
-        <View>
+        <View style={styles.sessionStatusHeaderCopy}>
           <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{fields.status}</Text>
-          <Text style={styles.detailFeatureTitle}>{status}</Text>
+          <View style={styles.sessionStatusTitleRow}>
+            <Text style={styles.detailFeatureTitle}>{statusLabel}</Text>
+            <View style={[styles.sessionStatusPill, statusStyle]}><View style={styles.sessionStatusPillDot} /><Text style={styles.sessionStatusPillText}>{statusLabel}</Text></View>
+          </View>
+          <Text style={styles.sessionStatusSubline}>{session?.spotName || copy.dashboard.unnamedSpot} · {session?.targetSpecies || copy.dashboard.speciesFallback}</Text>
         </View>
         <View style={[styles.sessionStatusOrb, { backgroundColor: tone.accent }]}>
-          <Text style={styles.sessionStatusOrbText}>{isFinished ? 'OK' : 'LIVE'}</Text>
+          <Text style={styles.sessionStatusOrbText}>{isFinished ? 'DONE' : isActive ? 'LIVE' : 'READY'}</Text>
         </View>
       </View>
+
       <View style={styles.sessionTimeline}>
-        <TimelinePoint label={fields.session} value={formatSchedule(source.date, source.startTime, copy)} tone={tone.accent} />
+        <TimelinePoint label={fields.session} value={formatSchedule(session?.date, session?.startTime, copy)} tone={tone.accent} />
         <View style={[styles.timelineLine, { backgroundColor: tone.accent }]} />
-        <TimelinePoint label={fields.duration} value={formatDuration(source.durationMinutes) || '--'} tone={tone.accent} />
+        <TimelinePoint label={fields.duration} value={formatDuration(session?.durationMinutes) || '--'} tone={tone.accent} />
         <View style={[styles.timelineLine, { backgroundColor: tone.accent }]} />
-        <TimelinePoint label={fields.result} value={formatBoolean(source.success, copy) || '--'} tone={tone.accent} />
+        <TimelinePoint label={fields.result} value={resultLabel} tone={tone.accent} />
       </View>
-      <DetailSection title={fields.notes} tone={tone.accent}>
-        <DetailLine label={fields.spot} value={source.spotName} />
-        <DetailLine label={fields.targetSpecies} value={source.targetSpecies} />
-        <DetailLine label={fields.finalNotes} value={source.finalNotes || source.notes} />
-        <DetailLine label={fields.rating} value={formatRating(source.rating)} />
+
+      {feedback && <View style={[styles.formFeedback, feedback.type === 'success' && styles.formFeedbackSuccess]}><Text style={[styles.formFeedbackText, feedback.type === 'success' && styles.formFeedbackTextSuccess]}>{feedback.text}</Text></View>}
+
+      {!isFinished && !finishOpen && (
+        <View style={styles.sessionActionBar}>
+          {!isActive && <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.startSession} disabled={actionLoading} onPress={startSession} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }]}><Text style={styles.sessionPrimaryActionText}>{copy.resources.startSession}</Text></Pressable>}
+          {isActive && <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.finishSession} onPress={() => setFinishOpen(true)} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }]}><Text style={styles.sessionPrimaryActionText}>{copy.resources.finishSession}</Text></Pressable>}
+          <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newSessionCatch} onPress={() => { setEditingCatch(null); setShowCatchForm(true) }} style={styles.sessionSecondaryAction}><Text style={styles.sessionSecondaryActionText}>{copy.resources.newSessionCatch}</Text></Pressable>
+        </View>
+      )}
+
+      {isFinished && <View style={styles.sessionActionBar}><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newSessionCatch} onPress={() => { setEditingCatch(null); setShowCatchForm(true) }} style={styles.sessionSecondaryAction}><Text style={styles.sessionSecondaryActionText}>{copy.resources.newSessionCatch}</Text></Pressable></View>}
+
+      {finishOpen && (
+        <View style={styles.sessionFinishPanel}>
+          <View style={styles.sessionFinishHeader}><View><Text style={styles.sessionFinishEyebrow}>{copy.resources.finishSession}</Text><Text style={styles.sessionFinishHint}>{copy.resources.finishSessionHint}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={() => setFinishOpen(false)} style={styles.sessionFinishCancel}><Text style={styles.sessionFinishCancelText}>{copy.resources.cancel}</Text></Pressable></View>
+          <ChoiceGroup label={copy.resources.finishResult} value={finishForm.success} options={[{ value: 'true', label: copy.resources.successResult }, { value: 'false', label: copy.resources.failureResult }]} onChange={(value) => updateFinishField('success', value)} />
+          <View style={styles.sessionFinishGrid}>
+            <FormField label={copy.resources.finishResultSummary} value={finishForm.resultSummary} onChangeText={(value) => updateFinishField('resultSummary', value)} multiline />
+            <FormField label={copy.resources.finishRating} value={finishForm.rating} onChangeText={(value) => updateFinishField('rating', value)} keyboardType="number-pad" placeholder="1-5" />
+          </View>
+          <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.finishSession} disabled={actionLoading} onPress={finishSession} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }, actionLoading && styles.submitButtonDisabled]}><Text style={styles.sessionPrimaryActionText}>{actionLoading ? copy.resources.saving : copy.resources.finishSession}</Text></Pressable>
+        </View>
+      )}
+
+      <DetailSection title={fields.session} tone={tone.accent}>
+        <DetailLine label={fields.spot} value={session?.spotName} />
+        <DetailLine label={fields.targetSpecies} value={session?.targetSpecies} />
+        <DetailLine label={fields.waterClarity} value={session?.waterClarity} />
+        <DetailLine label={fields.waterLevel} value={session?.waterLevel} />
+        <DetailLine label={fields.result} value={resultLabel} />
+        {session?.resultSummary && <DetailLine label={copy.resources.finishResultSummary} value={session.resultSummary} />}
+        <DetailLine label={fields.rating} value={formatRating(session?.rating)} />
       </DetailSection>
+
+      {showCatchForm && <GalleryCatchForm key={editingCatch?.id || 'session-new-catch'} item={editingCatch ? { catchId: editingCatch.id, sessionId: session.id, species: editingCatch.species, lureLibraryItemId: editingCatch.lureLibraryItemId, sizeCm: editingCatch.sizeCm, weightKg: editingCatch.weightKg, photoUrl: editingCatch.photoUrl, photoCaption: editingCatch.photoCaption } : null} fixedSessionId={session.id} copy={copy} compact={false} onSaved={() => { setShowCatchForm(false); setEditingCatch(null); setFeedback({ type: 'success', text: copy.resources.catchSaved }); loadCatches() }} onCancel={() => { setShowCatchForm(false); setEditingCatch(null) }} />}
+
+      <View style={styles.sessionCatchesSection}>
+        <View style={styles.sessionCatchesHeader}><View><Text style={styles.sessionCatchesTitle}>{copy.resources.sessionCatches}</Text><Text style={styles.sessionCatchesHint}>{catchItems.length} {copy.resources.total}</Text></View><Text style={styles.sessionCatchesAccent}>{copy.resources.galleryImages}</Text></View>
+        {catchesLoading ? <View style={styles.loadingLine}><ActivityIndicator color={tone.accent} /><Text style={styles.loadingText}>{copy.loading}</Text></View> : catchItems.length === 0 ? <Text style={styles.sessionCatchesEmpty}>{copy.resources.noCatchesYet}</Text> : <View style={styles.sessionCatchList}>{catchItems.map((catchItem) => <SessionCatchRow key={catchItem.id} item={catchItem} copy={copy} onEdit={() => { setEditingCatch(catchItem); setShowCatchForm(true) }} onDelete={() => deleteCatch(catchItem)} />)}</View>}
+      </View>
+    </View>
+  )
+}
+
+function SessionCatchRow({ item, copy, onEdit, onDelete }) {
+  const image = item.photoUrl || galleryIcon
+  return (
+    <View style={styles.sessionCatchRow}>
+      <Image source={{ uri: image }} style={styles.sessionCatchImage} resizeMode="cover" />
+      <View style={styles.sessionCatchCopy}><Text style={styles.sessionCatchSpecies}>{item.species || copy.dashboard.speciesFallback}</Text><Text style={styles.sessionCatchMeta}>{compactLine(formatCatchSize(item), formatCatchWeight(item))}</Text>{item.lureName && <Text style={styles.sessionCatchLure}>{item.lureName}</Text>}</View>
+      <View style={styles.sessionCatchActions}><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editCatch} onPress={onEdit} style={styles.sessionCatchAction}><Text style={styles.sessionCatchActionText}>{copy.resources.editEntry}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.deleteEntry} onPress={onDelete} style={styles.sessionCatchDelete}><Text style={styles.sessionCatchDeleteText}>{copy.resources.deleteEntry}</Text></Pressable></View>
     </View>
   )
 }
@@ -8020,6 +8922,7 @@ const styles = StyleSheet.create({
   },
   commandHeroImage: {
     opacity: 0.78,
+    transform: [{ scale: 1.16 }],
   },
   commandHeroOverlay: {
     flex: 1,
@@ -8107,21 +9010,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#d9f7f0',
+    backgroundColor: '#e9f5f1',
     borderWidth: 1,
-    borderColor: '#aee4d8',
+    borderColor: '#c6dfd6',
   },
   commandStatGold: {
-    backgroundColor: '#fff3cc',
-    borderColor: '#ead28a',
+    backgroundColor: '#edf5f1',
+    borderColor: '#c9ded6',
   },
   commandStatViolet: {
-    backgroundColor: '#eee7ff',
-    borderColor: '#d2c2f0',
+    backgroundColor: '#edf4f5',
+    borderColor: '#c8dde0',
   },
   commandStatPink: {
-    backgroundColor: '#ffe8ef',
-    borderColor: '#efc1d0',
+    backgroundColor: '#f0f5f2',
+    borderColor: '#cdded8',
   },
   commandStatValue: {
     color: '#082f3f',
@@ -8394,6 +9297,383 @@ const styles = StyleSheet.create({
     color: '#58737a',
     fontSize: 13,
     lineHeight: 18,
+    fontWeight: '700',
+  },
+  dashboardSolunarPanel: {
+    flexGrow: 1,
+    flexBasis: 320,
+    minHeight: 162,
+    gap: 12,
+    padding: 15,
+    borderRadius: 18,
+    backgroundColor: '#f6faf7',
+    borderWidth: 1,
+    borderColor: '#c9ddd6',
+  },
+  dashboardSolunarHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  dashboardSolunarHeading: {
+    flex: 1,
+    minWidth: 0,
+  },
+  dashboardSolunarLabel: {
+    color: '#1f7d76',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  dashboardSolunarTitle: {
+    marginTop: 5,
+    color: '#102f3a',
+    fontSize: 22,
+    lineHeight: 26,
+    fontWeight: '900',
+  },
+  dashboardSolunarDate: {
+    marginTop: 3,
+    color: '#66817b',
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '800',
+  },
+  dashboardSolunarBadge: {
+    maxWidth: 132,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: '#e4f2ed',
+    borderWidth: 1,
+    borderColor: '#c0ddd2',
+  },
+  dashboardSolunarBadgeDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 7,
+    backgroundColor: '#1f8a82',
+  },
+  dashboardSolunarBadgeText: {
+    color: '#1f706a',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  dashboardSolunarStats: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  dashboardSolunarStat: {
+    flexGrow: 1,
+    flexBasis: 88,
+    minHeight: 58,
+    justifyContent: 'space-between',
+    padding: 9,
+    borderRadius: 10,
+    backgroundColor: '#e5f3ed',
+    borderWidth: 1,
+    borderColor: '#c6dfd4',
+  },
+  dashboardSolunarStatGold: {
+    backgroundColor: '#f3f5e9',
+    borderColor: '#d8dfc5',
+  },
+  dashboardSolunarStatBlue: {
+    backgroundColor: '#e9f3f5',
+    borderColor: '#c9dfe2',
+  },
+  dashboardSolunarStatLabel: {
+    color: '#66817b',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  dashboardSolunarStatValue: {
+    marginTop: 5,
+    color: '#123f4a',
+    fontSize: 14,
+    lineHeight: 17,
+    fontWeight: '900',
+  },
+  dashboardSolunarHint: {
+    color: '#58737a',
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '800',
+  },
+  dashboardRadarPanel: {
+    width: '100%',
+    gap: 14,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: '#f5faf8',
+    borderWidth: 1,
+    borderColor: '#c9ddd6',
+  },
+  dashboardRadarHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  dashboardRadarHeading: {
+    flex: 1,
+    minWidth: 0,
+  },
+  dashboardRadarEyebrow: {
+    color: '#1f8a82',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  dashboardRadarTitle: {
+    marginTop: 4,
+    color: '#102f3a',
+    fontSize: 23,
+    lineHeight: 28,
+    fontWeight: '900',
+  },
+  dashboardRadarSubtitle: {
+    marginTop: 3,
+    color: '#617777',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  dashboardRadarMarker: {
+    width: 42,
+    height: 8,
+    marginTop: 4,
+    borderRadius: 8,
+    backgroundColor: '#1f8a82',
+  },
+  dashboardRadarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  dashboardRadarCard: {
+    flexGrow: 1,
+    flexBasis: 220,
+    minHeight: 112,
+    gap: 7,
+    padding: 13,
+    borderRadius: 12,
+    backgroundColor: '#eaf5f0',
+    borderWidth: 1,
+    borderColor: '#c7dfd5',
+  },
+  dashboardRadarCardBlue: {
+    backgroundColor: '#edf5f6',
+    borderColor: '#c9dfe2',
+  },
+  dashboardRadarCardGold: {
+    backgroundColor: '#f2f6ec',
+    borderColor: '#d5dfc7',
+  },
+  dashboardRadarCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  dashboardRadarCardLabel: {
+    color: '#54756f',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  dashboardRadarDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    backgroundColor: '#1f8a82',
+  },
+  dashboardRadarDotBlue: {
+    backgroundColor: '#2d86a5',
+  },
+  dashboardRadarDotGold: {
+    backgroundColor: '#7c9b63',
+  },
+  dashboardRadarCardTitle: {
+    color: '#123f4a',
+    fontSize: 15,
+    lineHeight: 19,
+    fontWeight: '900',
+  },
+  dashboardRadarCardDetail: {
+    color: '#66817b',
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '800',
+  },
+  dashboardInsightsPanel: {
+    width: '100%',
+    gap: 16,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#cfe0da',
+  },
+  dashboardInsightsHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  dashboardInsightsHeading: {
+    flex: 1,
+    minWidth: 0,
+  },
+  dashboardInsightsEyebrow: {
+    color: '#1f8a82',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  dashboardInsightsTitle: {
+    marginTop: 4,
+    color: '#102f3a',
+    fontSize: 23,
+    lineHeight: 28,
+    fontWeight: '900',
+  },
+  dashboardInsightsSubtitle: {
+    marginTop: 3,
+    color: '#617777',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  dashboardInsightsMarker: {
+    width: 42,
+    height: 8,
+    marginTop: 4,
+    borderRadius: 8,
+    backgroundColor: '#c58a2b',
+  },
+  dashboardInsightsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  dashboardInsightCard: {
+    flexGrow: 1,
+    flexBasis: 220,
+    minHeight: 148,
+    gap: 8,
+    padding: 13,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  dashboardInsightCardTeal: {
+    backgroundColor: '#f0faf7',
+    borderColor: '#c5e5d9',
+  },
+  dashboardInsightCardBlue: {
+    backgroundColor: '#f1f8fc',
+    borderColor: '#c8dfeb',
+  },
+  dashboardInsightCardGold: {
+    backgroundColor: '#fffaf0',
+    borderColor: '#ead9ae',
+  },
+  dashboardInsightCardViolet: {
+    backgroundColor: '#f7f3fd',
+    borderColor: '#dfd1f0',
+  },
+  dashboardInsightCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  dashboardInsightCardTitle: {
+    color: '#486664',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  dashboardInsightDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+  },
+  dashboardInsightDotTeal: {
+    backgroundColor: '#1f8a82',
+  },
+  dashboardInsightDotBlue: {
+    backgroundColor: '#2d86a5',
+  },
+  dashboardInsightDotGold: {
+    backgroundColor: '#c58a2b',
+  },
+  dashboardInsightDotViolet: {
+    backgroundColor: '#8862bd',
+  },
+  dashboardInsightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    paddingTop: 7,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(30, 74, 74, 0.12)',
+  },
+  dashboardInsightRank: {
+    width: 22,
+    color: '#1f8a82',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '900',
+  },
+  dashboardInsightCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  dashboardInsightName: {
+    color: '#123f4a',
+    fontSize: 13,
+    lineHeight: 17,
+    fontWeight: '900',
+  },
+  dashboardInsightMeta: {
+    marginTop: 2,
+    color: '#58737a',
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '800',
+  },
+  dashboardInsightDetail: {
+    marginTop: 1,
+    color: '#78908e',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '700',
+  },
+  dashboardInsightsEmpty: {
+    minHeight: 76,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dashboardInsightsEmptyText: {
+    marginTop: 14,
+    color: '#6e8580',
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: '700',
   },
   weatherWorkspace: {
@@ -9005,8 +10285,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#e6ece4',
   },
   commandListImage: {
-    width: 102,
-    minHeight: 102,
+    width: 148,
+    height: 132,
     borderRadius: 14,
     backgroundColor: '#285765',
   },
@@ -9249,15 +10529,16 @@ const styles = StyleSheet.create({
     minHeight: 222,
     overflow: 'hidden',
     borderRadius: 20,
-    backgroundColor: '#082f3f',
+    backgroundColor: '#063b4a',
   },
   liveWorkspaceImage: {
-    opacity: 0.72,
+    opacity: 0.64,
+    transform: [{ scale: 1.16 }],
   },
   liveWorkspaceOverlay: {
     flex: 1,
     padding: 24,
-    backgroundColor: 'rgba(3, 24, 34, 0.58)',
+    backgroundColor: 'rgba(3, 30, 43, 0.68)',
   },
   liveWorkspaceTop: {
     flexDirection: 'row',
@@ -10141,12 +11422,13 @@ const styles = StyleSheet.create({
   panelGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: 14,
   },
   dashboardTopPanelGrid: {
     position: 'relative',
     zIndex: 60,
+    alignItems: 'stretch',
     overflow: 'visible',
   },
   metricPanel: {
@@ -13574,6 +14856,545 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderRadius: 12,
+  },
+  sessionScreen: {
+    gap: 18,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    backgroundColor: '#f3f8f6',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#cfe1da',
+  },
+  sessionScreenCompact: {
+    paddingHorizontal: 10,
+    gap: 14,
+  },
+  sessionToolbar: {
+    minHeight: 76,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 14,
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#cfe1da',
+  },
+  sessionToolbarCopy: {
+    flex: 1,
+  },
+  sessionToolbarEyebrow: {
+    color: '#147f79',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  sessionToolbarHint: {
+    marginTop: 4,
+    color: '#5d7068',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sessionCreateButton: {
+    minHeight: 46,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 15,
+    borderRadius: 6,
+    backgroundColor: '#147f79',
+  },
+  sessionCreateButtonMark: {
+    color: '#ffffff',
+    fontSize: 22,
+    lineHeight: 22,
+    fontWeight: '400',
+  },
+  sessionCreateButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionListHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingHorizontal: 3,
+  },
+  sessionListTitle: {
+    color: '#102421',
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  sessionListHint: {
+    marginTop: 3,
+    color: '#687a72',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  sessionStatusSection: {
+    gap: 14,
+    padding: 15,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  sessionStatusSectionActive: {
+    backgroundColor: '#eaf8f2',
+    borderColor: '#8bcdb7',
+  },
+  sessionStatusSectionFinished: {
+    backgroundColor: '#edf4fc',
+    borderColor: '#a9c3e6',
+  },
+  sessionStatusSectionPlanned: {
+    backgroundColor: '#fffaf0',
+    borderColor: '#ecd18e',
+  },
+  sessionStatusSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sessionStatusSectionHeaderCopy: {
+    flex: 1,
+    gap: 7,
+  },
+  sessionStatusSectionHint: {
+    color: '#61746c',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  sessionStatusSectionCount: {
+    minWidth: 36,
+    height: 36,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    paddingTop: 8,
+    borderRadius: 18,
+    backgroundColor: '#ffffff',
+    color: '#102421',
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  sessionStatusEmpty: {
+    minHeight: 58,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(150,170,160,0.35)',
+  },
+  sessionStatusEmptyText: {
+    color: '#71817a',
+    fontSize: 12,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  sessionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 14,
+  },
+  sessionCard: {
+    flexGrow: 1,
+    flexBasis: 290,
+    minHeight: 176,
+    justifyContent: 'space-between',
+    padding: 17,
+    borderRadius: 13,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#cfe1da',
+  },
+  sessionCardPlanned: {
+    borderColor: '#e7bd64',
+  },
+  sessionCardActive: {
+    backgroundColor: '#f0fbf7',
+    borderColor: '#51b79e',
+    borderLeftWidth: 5,
+  },
+  sessionCardFinished: {
+    backgroundColor: '#f3f7fd',
+    borderColor: '#6e96cf',
+    borderLeftWidth: 5,
+  },
+  sessionCardTopline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  sessionStatusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  sessionStatusPlanned: {
+    backgroundColor: '#fff5d9',
+    borderColor: '#e7bd64',
+  },
+  sessionStatusActive: {
+    backgroundColor: '#147f79',
+    borderColor: '#0d635e',
+  },
+  sessionStatusFinished: {
+    backgroundColor: '#3569ad',
+    borderColor: '#254d83',
+  },
+  sessionStatusPillDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 7,
+    backgroundColor: '#147f79',
+  },
+  sessionStatusDotPlanned: {
+    backgroundColor: '#c88918',
+  },
+  sessionStatusDotActive: {
+    backgroundColor: '#baf5d4',
+  },
+  sessionStatusDotFinished: {
+    backgroundColor: '#dbeaff',
+  },
+  sessionStatusPillText: {
+    color: '#17413b',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionStatusTextPlanned: {
+    color: '#744d08',
+  },
+  sessionStatusTextActive: {
+    color: '#ffffff',
+  },
+  sessionStatusTextFinished: {
+    color: '#ffffff',
+  },
+  sessionCardDate: {
+    color: '#718079',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  sessionCardSpot: {
+    marginTop: 18,
+    color: '#102421',
+    fontSize: 20,
+    lineHeight: 24,
+    fontWeight: '900',
+  },
+  sessionCardSpecies: {
+    marginTop: 4,
+    color: '#507069',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  sessionCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 18,
+    paddingTop: 11,
+    borderTopWidth: 1,
+    borderTopColor: '#e2ebe7',
+  },
+  sessionCardTime: {
+    color: '#147f79',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  sessionCardResult: {
+    flex: 1,
+    color: '#6b7c74',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  sessionCardArrow: {
+    color: '#147f79',
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  sessionEditor: {
+    gap: 17,
+    padding: 18,
+    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#a9d3c4',
+  },
+  sessionEditorCompact: {
+    padding: 12,
+  },
+  sessionEditorHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#deebe5',
+  },
+  sessionEditorEyebrow: {
+    color: '#147f79',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  sessionEditorTitle: {
+    marginTop: 5,
+    color: '#102421',
+    fontSize: 25,
+    fontWeight: '900',
+  },
+  sessionEditorHint: {
+    marginTop: 5,
+    color: '#687a72',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sessionCancelButton: {
+    minHeight: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    backgroundColor: '#eef4f1',
+    borderWidth: 1,
+    borderColor: '#cfddd7',
+  },
+  sessionCancelButtonText: {
+    color: '#294a42',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionFormGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    gap: 14,
+  },
+  sessionNotesField: {
+    flexBasis: '100%',
+  },
+  sessionStatusHeaderCopy: {
+    flex: 1,
+  },
+  sessionStatusTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 3,
+  },
+  sessionStatusSubline: {
+    marginTop: 7,
+    color: '#557068',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  sessionActionBar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#f2f8f5',
+    borderWidth: 1,
+    borderColor: '#d2e4dc',
+  },
+  sessionPrimaryAction: {
+    minHeight: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  sessionPrimaryActionText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionSecondaryAction: {
+    minHeight: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#a9d3c4',
+  },
+  sessionSecondaryActionText: {
+    color: '#147f79',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionFinishPanel: {
+    gap: 13,
+    padding: 15,
+    borderRadius: 11,
+    backgroundColor: '#fffaf0',
+    borderWidth: 1,
+    borderColor: '#e8cd91',
+  },
+  sessionFinishHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sessionFinishEyebrow: {
+    color: '#a16b16',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  sessionFinishHint: {
+    marginTop: 4,
+    color: '#6f6653',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sessionFinishCancel: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+  },
+  sessionFinishCancelText: {
+    color: '#8d6b2a',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionFinishGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  sessionCatchesSection: {
+    gap: 12,
+    padding: 15,
+    borderRadius: 11,
+    backgroundColor: '#f7fbf9',
+    borderWidth: 1,
+    borderColor: '#d3e6dd',
+  },
+  sessionCatchesHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  sessionCatchesTitle: {
+    color: '#102421',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  sessionCatchesHint: {
+    marginTop: 3,
+    color: '#6d7d76',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  sessionCatchesAccent: {
+    color: '#147f79',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  sessionCatchesEmpty: {
+    paddingVertical: 9,
+    color: '#64766d',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sessionCatchList: {
+    gap: 9,
+  },
+  sessionCatchRow: {
+    minHeight: 74,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 11,
+    padding: 9,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d9e7e0',
+  },
+  sessionCatchImage: {
+    width: 58,
+    height: 58,
+    borderRadius: 6,
+    backgroundColor: '#e7f0ec',
+  },
+  sessionCatchCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  sessionCatchSpecies: {
+    color: '#102421',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  sessionCatchMeta: {
+    marginTop: 3,
+    color: '#60736a',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  sessionCatchLure: {
+    marginTop: 3,
+    color: '#147f79',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  sessionCatchActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  sessionCatchAction: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 4,
+    backgroundColor: '#e9f4ef',
+  },
+  sessionCatchActionText: {
+    color: '#147f79',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  sessionCatchDelete: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 4,
+    backgroundColor: '#fff0ed',
+  },
+  sessionCatchDeleteText: {
+    color: '#b75a49',
+    fontSize: 10,
+    fontWeight: '900',
   },
   sessionStatusOrb: {
     width: 64,

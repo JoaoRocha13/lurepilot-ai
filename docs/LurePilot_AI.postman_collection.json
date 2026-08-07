@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, catch gallery, AI recommendations, insights, frontend options and Open-Meteo weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, session lifecycle, catch gallery, catch photo uploads, AI recommendations, insights, frontend options and Open-Meteo weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -56,6 +56,10 @@
     {
       "key": "recommendationExecutionId",
       "value": "1"
+    },
+    {
+      "key": "catchPhotoPath",
+      "value": "C:/path/to/catch.jpg"
     }
   ],
   "item": [
@@ -87,7 +91,7 @@
         {
           "name": "Get Dashboard",
           "request": {
-            "description": "Returns dashboard counters plus next planned session, active sessions, recent results, best recent lure, success rate, relevant weather snapshot and pending recommendation evaluations.",
+            "description": "Returns dashboard counters plus next planned session, active sessions, recent results, best recent lure, latest catch image reference, success rate, relevant weather snapshot and pending recommendation evaluations.",
             "method": "GET",
             "header": [],
             "url": {
@@ -2842,6 +2846,95 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Solunar Forecast For Coordinates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solunar/coordinates?latitude=38.7223&longitude=-9.1393&locationName=Lisboa&date=2026-08-06",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solunar",
+                "coordinates"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "38.7223"
+                },
+                {
+                  "key": "longitude",
+                  "value": "-9.1393"
+                },
+                {
+                  "key": "locationName",
+                  "value": "Lisboa"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-08-06"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Uploads",
+      "item": [
+        {
+          "name": "Upload Catch Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "{{catchPhotoPath}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/images",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "uploads",
+                "images"
+              ]
+            },
+            "description": "Upload a real catch photo. Copy the returned url into photoUrl and photoThumbnailUrl when creating or updating a catch."
+          }
+        },
+        {
+          "name": "Open Uploaded Image",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/uploads/{{uploadedFileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "uploads",
+                "{{uploadedFileName}}"
+              ]
+            },
+            "description": "Replace uploadedFileName with the fileName returned by Upload Catch Image."
+          }
         }
       ]
     }
