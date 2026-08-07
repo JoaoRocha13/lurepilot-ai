@@ -39,11 +39,12 @@ Implemented backend areas:
 - Global API error payloads with stable error codes
 - Flyway database migrations
 - Postman collection
+- End-to-end AI planning flow verified with LM Studio, including plan generation, session adjustment, session review and recommendation execution feedback
 
 Initial frontend area:
 
 - React Native Web app shell with main menu, dashboard preview and backend status.
-- Main menu entries: Dashboard, Gallery, Spots, Weather, Plans, Session, Lure Box, Library and Profile.
+- Main menu entries: Dashboard, Gallery, Spots, Weather, Plans, Session, Lure Box and Library. The MVP is intentionally single-user, so there is no profile area or authentication flow yet.
 - Menu uses static UI icons from `frontend/assets/images/ui`.
 - The first screen consumes `GET /api/health` and `GET /api/dashboard`, with a sample fallback when the backend is unavailable.
 - A working `PT / EN` language switch exists in the sidebar for the initial UI shell.
@@ -61,8 +62,10 @@ Initial frontend area:
 - Plan detail separates trip context, AI situation read, confidence, A/B/C strategy, recommended lures and warnings for easier scanning.
 - The Dashboard also loads the practical insights endpoints and presents compact cards for top lures, best spots, best conditions and recommendation performance, with a clear empty state when history is still limited.
 - Sessions have a dedicated workflow for creating/editing outings, starting and finishing them, recording results and rating the session.
+- Sessions linked to a plan inherit spot, planned date/time, target species, water clarity and water level into one context block instead of repeating the plan fields; the session detail focuses on execution, result and catches, with an option to adjust the context when reality differs.
+- A plan can start the session workflow directly, with its context preselected in the new session form. Session details also provide a direct link back to the associated plan.
 - A session detail shows its catches and supports creating, editing and deleting captures without leaving the session.
-- Catch photos are previewed in the browser and uploaded as multipart files only when the capture is saved; the database stores the returned URL instead of a base64 image.
+- Catch photos are previewed in the browser and uploaded as multipart files only when the capture is saved; the database stores the returned URL instead of a base64 image. The complete Plan -> Fish -> Register -> Learn path has been exercised locally with real backend data.
 
 ## Stack
 
@@ -95,8 +98,10 @@ Media direction:
 - Static image filenames should use `lowercase-kebab-case`, for example `black-bass.png`, `sea-bass.png`, `clear-sky.png` and `app-icon.png`.
 - Current frontend asset folders are `brand`, `fish/freshwater`, `fish/saltwater`, `lures`, `lure-actions`, `lure-action-icons`, `placeholders`, `spots`, `ui` and `weather`.
 - UI navigation icons live in `frontend/assets/images/ui` and are imported directly by the React Native Web shell.
-- User-generated photos, such as fish photos taken during a session, should be handled as uploads later and stored through backend-managed paths/URLs instead of being committed as frontend assets.
-- The backend now exposes a catch gallery endpoint. Each gallery item includes `catchId` and `sessionId`, so the future frontend menu icon can open the gallery and each photo can navigate back to its fishing session.
+- User-generated photos, such as fish photos taken during a session, are handled through backend-managed upload paths/URLs instead of being committed as frontend assets.
+- For local development, uploads use the `uploads` directory. For deployment, set `LUREPILOT_UPLOADS_DIRECTORY` to a mounted persistent volume and set `LUREPILOT_UPLOADS_PUBLIC_BASE_URL` when a reverse proxy or CDN serves the files from another public path.
+- Uploads are written with generated names, restricted to JPEG/PNG/WEBP/GIF and limited to 10 MB. The database stores the returned public URL, while the image bytes remain in the configured persistent storage.
+- The backend exposes a catch gallery endpoint. Each gallery item includes `catchId` and `sessionId`, so the Gallery menu entry opens the history and each photo can navigate back to its fishing session.
 
 ## Architecture
 
@@ -139,6 +144,15 @@ cd frontend
 npm install
 npm run dev
 ```
+
+Frontend checks:
+
+```bash
+npm run lint
+npm run build
+```
+
+The local verification flow also uses a real LM Studio server with the configured `qwen2.5-7b-instruct` model. The backend test suite passes through Maven; on Windows, use the repository Maven wrapper or the bundled Maven executable if the wrapper script cannot resolve its distribution path.
 
 Health check:
 
@@ -192,6 +206,15 @@ Planning and fishing data:
 - `GET /api/gallery/catches`
 - `POST /api/uploads/images` (multipart field `file`, image files up to 10 MB)
 - `GET /uploads/{fileName}` (served uploaded image)
+
+Photo storage configuration:
+
+```text
+LUREPILOT_UPLOADS_DIRECTORY=/persistent/lurepilot/uploads
+LUREPILOT_UPLOADS_PUBLIC_BASE_URL=/uploads
+```
+
+The deployment must mount the directory configured by `LUREPILOT_UPLOADS_DIRECTORY`; otherwise uploaded photos are local to the container or host and can be lost when it is recreated.
 
 AI:
 

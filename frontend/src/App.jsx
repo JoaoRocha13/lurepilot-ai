@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -33,7 +33,6 @@ import fishingPlanIcon from '../assets/images/ui/fishingplan-icon.png'
 import galleryIcon from '../assets/images/ui/gallery-icon.png'
 import libraryIcon from '../assets/images/ui/library-icon.png'
 import lureBoxIcon from '../assets/images/ui/lurebox-icon.png'
-import profileIcon from '../assets/images/ui/profile-icon.png'
 import sessionIcon from '../assets/images/ui/session-icon.png'
 import weatherMenuIcon from '../assets/images/ui/weather-icon.png'
 import damSpot from '../assets/images/spots/dam.png'
@@ -89,7 +88,6 @@ const menuItems = [
   { id: 'session', image: sessionIcon, iconScale: 1.55 },
   { id: 'lureBox', image: lureBoxIcon, iconScale: 1.55 },
   { id: 'library', image: libraryIcon, iconScale: 1.45 },
-  { id: 'profile', image: profileIcon, iconScale: 1.7 },
 ]
 
 const ANY_SPECIES = '__ANY_SPECIES__'
@@ -118,7 +116,6 @@ const featureImages = {
   session: riverSpot,
   lureBox: spinnerbait,
   library: pike,
-  profile: profileIcon,
   weather: cloudySky,
 }
 
@@ -364,6 +361,7 @@ const translations = {
     },
     resources: {
       loadError: 'Nao foi possivel carregar os dados deste ecra.',
+      retry: 'Tentar novamente',
       empty: 'Sem dados para mostrar.',
       total: 'total',
       searchPlaceholder: 'Pesquisar por nome, especie, spot ou lure',
@@ -446,8 +444,43 @@ const translations = {
       saveAiPlan: 'Guardar recomendacao',
       savingAiPlan: 'A guardar recomendacao...',
       aiPlanSaved: 'Recomendacao guardada',
-      aiPlanSaveError: 'Nao foi possivel guardar a recomendacao.',
-      planContext: 'Contexto da saida',
+       aiPlanSaveError: 'Nao foi possivel guardar a recomendacao.',
+       sessionAiTools: 'Aprender com IA',
+       sessionAiToolsHint: 'Ajusta a estrategia durante a pesca e regista o que resultou no final.',
+       sessionAdjustmentSituation: 'O que esta a acontecer?',
+       sessionAdjustmentConditions: 'Condicoes atuais',
+       sessionAdjustmentPlaceholder: 'Ex.: sem toques ha 30 min, agua ficou turva...',
+       generateSessionAdjustment: 'Ajustar estrategia',
+       sessionAdjustmentLoading: 'A preparar ajuste...',
+       sessionAdjustmentError: 'Nao foi possivel gerar o ajuste.',
+       sessionAdjustmentSummary: 'Leitura atual',
+       sessionAdjustmentAction: 'Acao imediata',
+       sessionAdjustmentNext: 'Proxima tecnica',
+       sessionAdjustmentFallback: 'Alternativa',
+       sessionReview: 'Review da sessao',
+       generateSessionReview: 'Gerar review',
+       sessionReviewLoading: 'A aprender com a sessao...',
+       sessionReviewError: 'Nao foi possivel gerar o review.',
+       sessionReviewSummary: 'O que aprendemos',
+       sessionReviewWorked: 'O que funcionou',
+       sessionReviewFailed: 'O que falhou',
+       sessionReviewNext: 'Proxima sessao',
+       evaluateRecommendation: 'Avaliar recomendacao',
+       recommendationStep: 'Passo seguido',
+       recommendationFollowed: 'Segui a recomendacao',
+       recommendationResult: 'Resultado observado',
+       recommendationResultPlaceholder: 'Ex.: dois toques junto a estrutura...',
+       recommendationRating: 'Avaliacao (1 a 5)',
+       saveEvaluation: 'Guardar avaliacao',
+       evaluationSaved: 'Avaliacao guardada',
+       evaluationError: 'Nao foi possivel guardar a avaliacao.',
+       createSessionFromPlan: 'Criar sessao a partir deste plano',
+       openLinkedPlan: 'Abrir plano associado',
+       planContext: 'Contexto da saida',
+       linkedPlan: 'Contexto herdado do plano associado',
+       sessionContext: 'Contexto da sessao',
+       sessionExecution: 'Execucao da sessao',
+       actualConditions: 'Condicoes reais',
       planStrategy: 'Estrategia de pesca',
       planWatchouts: 'Pontos de atencao',
       aiPlanSummary: 'Leitura da situacao',
@@ -541,6 +574,7 @@ const translations = {
         },
       },
       galleryImages: 'Imagens',
+      viewGallery: 'Ver na galeria',
       newCatch: 'Nova captura',
       editCatch: 'Editar captura',
       saveCatch: 'Guardar captura',
@@ -556,7 +590,7 @@ const translations = {
       noFishAvailable: 'Adiciona primeiro especies na biblioteca.',
       noLureSelected: 'Sem lure registada',
       chooseCatchPhoto: 'Adicionar foto do peixe',
-      catchPhotoHint: 'Usa uma imagem do computador para dar vida a esta captura.',
+      catchPhotoHint: 'Tira uma foto ou importa uma imagem para dar vida a esta captura.',
       catchImageSelected: 'Foto selecionada',
       catchEditorHint: 'Liga a captura a uma especie, lure e sessao que ja existem na app.',
       lureUsed: 'Lure usada',
@@ -661,7 +695,9 @@ const translations = {
       chooseSessionSpot: 'Escolher spot para a sessao',
       chooseSessionPlan: 'Ligar a um plano (opcional)',
       noPlansAvailable: 'Ainda nao existem planos para ligar.',
-      sessionEditorHint: 'Prepara a saida e abre a sessao quando chegares a agua.',
+       sessionEditorHint: 'Prepara a saida e abre a sessao quando chegares a agua.',
+       sessionInheritedHint: 'Spot, horario e condicoes herdados do plano. Ajusta apenas se a sessao for diferente.',
+       adjustSessionContext: 'Ajustar dados da sessao',
       sessionRequiredFields: 'Escolhe um spot, data, especie alvo, claridade e nivel da agua.',
       sessionDate: 'Data da sessao',
       sessionStartTime: 'Hora de inicio',
@@ -942,6 +978,7 @@ const translations = {
     },
     resources: {
       loadError: 'Could not load data for this screen.',
+      retry: 'Try again',
       empty: 'No data to show.',
       total: 'total',
       searchPlaceholder: 'Search by name, species, spot or lure',
@@ -1024,8 +1061,43 @@ const translations = {
       saveAiPlan: 'Save recommendation',
       savingAiPlan: 'Saving recommendation...',
       aiPlanSaved: 'Recommendation saved',
-      aiPlanSaveError: 'Could not save the recommendation.',
-      planContext: 'Trip context',
+       aiPlanSaveError: 'Could not save the recommendation.',
+       sessionAiTools: 'Learn with AI',
+       sessionAiToolsHint: 'Adjust the strategy during the session and record what worked at the end.',
+       sessionAdjustmentSituation: 'What is happening?',
+       sessionAdjustmentConditions: 'Current conditions',
+       sessionAdjustmentPlaceholder: 'E.g. no bites for 30 min, water became cloudy...',
+       generateSessionAdjustment: 'Adjust strategy',
+       sessionAdjustmentLoading: 'Preparing adjustment...',
+       sessionAdjustmentError: 'Could not generate the adjustment.',
+       sessionAdjustmentSummary: 'Current read',
+       sessionAdjustmentAction: 'Immediate action',
+       sessionAdjustmentNext: 'Next technique',
+       sessionAdjustmentFallback: 'Fallback',
+       sessionReview: 'Session review',
+       generateSessionReview: 'Generate review',
+       sessionReviewLoading: 'Learning from the session...',
+       sessionReviewError: 'Could not generate the review.',
+       sessionReviewSummary: 'What we learned',
+       sessionReviewWorked: 'What worked',
+       sessionReviewFailed: 'What failed',
+       sessionReviewNext: 'Next session',
+       evaluateRecommendation: 'Evaluate recommendation',
+       recommendationStep: 'Step followed',
+       recommendationFollowed: 'I followed the recommendation',
+       recommendationResult: 'Observed result',
+       recommendationResultPlaceholder: 'E.g. two bites near structure...',
+       recommendationRating: 'Rating (1 to 5)',
+       saveEvaluation: 'Save evaluation',
+       evaluationSaved: 'Evaluation saved',
+       evaluationError: 'Could not save the evaluation.',
+       createSessionFromPlan: 'Create session from this plan',
+       openLinkedPlan: 'Open linked plan',
+       planContext: 'Trip context',
+       linkedPlan: 'Context inherited from the linked plan',
+       sessionContext: 'Session context',
+       sessionExecution: 'Session execution',
+       actualConditions: 'Actual conditions',
       planStrategy: 'Fishing strategy',
       planWatchouts: 'Points to watch',
       aiPlanSummary: 'Situation read',
@@ -1119,6 +1191,7 @@ const translations = {
         },
       },
       galleryImages: 'Images',
+      viewGallery: 'View in gallery',
       newCatch: 'New catch',
       editCatch: 'Edit catch',
       saveCatch: 'Save catch',
@@ -1134,7 +1207,7 @@ const translations = {
       noFishAvailable: 'Add species to the library first.',
       noLureSelected: 'No lure recorded',
       chooseCatchPhoto: 'Add fish photo',
-      catchPhotoHint: 'Use an image from your computer to bring this catch to life.',
+      catchPhotoHint: 'Take a photo or import an image to bring this catch to life.',
       catchImageSelected: 'Photo selected',
       catchEditorHint: 'Connect the catch to a species, lure and session already in the app.',
       lureUsed: 'Lure used',
@@ -1239,7 +1312,9 @@ const translations = {
       chooseSessionSpot: 'Choose a spot for the session',
       chooseSessionPlan: 'Link to a plan (optional)',
       noPlansAvailable: 'There are no plans to link yet.',
-      sessionEditorHint: 'Prepare the outing and start the session when you reach the water.',
+       sessionEditorHint: 'Prepare the outing and start the session when you reach the water.',
+       sessionInheritedHint: 'Spot, timing and conditions inherited from the plan. Adjust them only if the session is different.',
+       adjustSessionContext: 'Adjust session details',
       sessionRequiredFields: 'Choose a spot, date, target species, water clarity and water level.',
       sessionDate: 'Session date',
       sessionStartTime: 'Start time',
@@ -1428,6 +1503,19 @@ const emptyDetailState = {
   error: false,
 }
 
+function RetryNotice({ message, actionLabel, onRetry }) {
+  return (
+    <View style={styles.notice}>
+      <Text style={styles.noticeText}>{message}</Text>
+      {onRetry && (
+        <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} onPress={onRetry} style={styles.noticeAction}>
+          <Text style={styles.noticeActionText}>{actionLabel}</Text>
+        </Pressable>
+      )}
+    </View>
+  )
+}
+
 function App() {
   const { width } = useWindowDimensions()
   const compact = width < 940
@@ -1446,7 +1534,9 @@ function App() {
   const [sectionControls, setSectionControls] = useState({})
   const [detailState, setDetailState] = useState(emptyDetailState)
   const [libraryLureTarget, setLibraryLureTarget] = useState(null)
+  const [sessionPlanPrefill, setSessionPlanPrefill] = useState(null)
   const [sectionRefreshKey, setSectionRefreshKey] = useState(0)
+  const [dashboardRetryKey, setDashboardRetryKey] = useState(0)
   const copy = translations[language]
   const sectionSearch = sectionControls[activeSection]?.search ?? ''
   const sectionPage = sectionControls[activeSection]?.page ?? 0
@@ -1455,6 +1545,7 @@ function App() {
   function navigateToSection(sectionId) {
     setDetailState(emptyDetailState)
     setLibraryLureTarget(null)
+    setSessionPlanPrefill(null)
     setActiveSection(sectionId)
   }
 
@@ -1483,6 +1574,91 @@ function App() {
     setDetailState(emptyDetailState)
     setLibraryLureTarget(lureName)
     setActiveSection('library')
+  }
+
+  function createSessionFromPlan(plan) {
+    if (!plan?.id) {
+      return
+    }
+
+    setDetailState(emptyDetailState)
+    setLibraryLureTarget(null)
+    setSessionPlanPrefill(plan)
+    setActiveSection('session')
+  }
+
+  function openPlanById(planId) {
+    if (!planId) {
+      return
+    }
+
+    const item = { id: planId }
+    const group = { key: 'plans', items: [] }
+    setActiveSection('plans')
+    setDetailState({
+      sectionId: 'plans',
+      group,
+      item,
+      data: null,
+      loading: true,
+      error: false,
+    })
+
+    fetch(`/api/plans/${planId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Plan unavailable')
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        setDetailState((current) => current.sectionId === 'plans' && String(current.item?.id) === String(planId)
+          ? { ...current, data, loading: false, error: false }
+          : current)
+      })
+      .catch(() => {
+        setDetailState((current) => current.sectionId === 'plans' && String(current.item?.id) === String(planId)
+          ? { ...current, loading: false, error: true }
+          : current)
+      })
+  }
+
+  function openSessionById(sessionId) {
+    if (!sessionId) {
+      return
+    }
+
+    const item = { id: sessionId }
+    const group = { key: 'sessions', items: [] }
+    setActiveSection('session')
+    setDetailState({
+      sectionId: 'session',
+      group,
+      item,
+      data: null,
+      loading: true,
+      error: false,
+    })
+
+    fetch(`/api/sessions/${sessionId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Session unavailable')
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        setDetailState((current) => current.sectionId === 'session' && String(current.item?.id) === String(sessionId)
+          ? { ...current, data, loading: false, error: false }
+          : current)
+      })
+      .catch(() => {
+        setDetailState((current) => current.sectionId === 'session' && String(current.item?.id) === String(sessionId)
+          ? { ...current, loading: false, error: true }
+          : current)
+      })
   }
 
   async function openResourceDetail(item, group) {
@@ -1580,7 +1756,7 @@ function App() {
     return () => {
       ignore = true
     }
-  }, [])
+  }, [dashboardRetryKey])
 
   useEffect(() => {
     let ignore = false
@@ -1734,37 +1910,27 @@ function App() {
         </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.contentInner}>
-          <View
-            style={[
-              styles.topBar,
-              activeSection !== 'dashboard' && styles.pageTopBarCompact,
-              compact && styles.topBarCompact,
-            ]}
-          >
-            {activeSection === 'dashboard' ? (
-              <View>
-                <Text style={styles.kicker}>{copy.today}</Text>
-                <Text style={styles.screenTitle}>{activeCopy.title}</Text>
-                <Text style={styles.screenIntro}>{activeCopy.subtitle}</Text>
-              </View>
-            ) : null}
-
-            <View style={styles.topBarSide}>
-              <View style={styles.workspacePill}>
-                <View style={styles.workspacePillDot} />
-                <Text style={styles.workspacePillText}>{copy.menu[activeSection]}</Text>
-              </View>
-              <View style={styles.backendPill}>
-                <View style={[styles.statusDot, health ? styles.statusDotOk : styles.statusDotOff]} />
-                <Text style={styles.backendText}>{health ? copy.backendOnline : copy.backendOffline}</Text>
+          {activeSection !== 'dashboard' && (
+            <View style={[styles.topBar, styles.pageTopBarCompact, compact && styles.topBarCompact]}>
+              <View style={styles.topBarSide}>
+                <View style={styles.workspacePill}>
+                  <View style={styles.workspacePillDot} />
+                  <Text style={styles.workspacePillText}>{copy.menu[activeSection]}</Text>
+                </View>
+                <View style={styles.backendPill}>
+                  <View style={[styles.statusDot, health ? styles.statusDotOk : styles.statusDotOff]} />
+                  <Text style={styles.backendText}>{health ? copy.backendOnline : copy.backendOffline}</Text>
+                </View>
               </View>
             </View>
-          </View>
+          )}
 
           {error && (
-            <View style={styles.notice}>
-              <Text style={styles.noticeText}>{copy.backendUnavailable}</Text>
-            </View>
+            <RetryNotice
+              message={copy.backendUnavailable}
+              actionLabel={copy.resources.retry}
+              onRetry={() => setDashboardRetryKey((current) => current + 1)}
+            />
           )}
 
           {activeSection === 'dashboard' ? (
@@ -1773,12 +1939,13 @@ function App() {
               loading={loading}
               compact={compact}
               onNavigate={navigateToSection}
+              onOpenPlan={openPlanById}
+              onOpenSession={openSessionById}
+              onOpenGallery={() => navigateToSection('gallery')}
               copy={copy}
             />
           ) : activeSection === 'weather' ? (
             <WeatherView compact={compact} copy={copy} />
-          ) : activeSection === 'profile' ? (
-            <ProfileScreen compact={compact} copy={copy} />
           ) : (
             <ResourceScreen
               section={activeCopy}
@@ -1789,8 +1956,16 @@ function App() {
               onOpenDetail={openResourceDetail}
               onCloseDetail={() => setDetailState(emptyDetailState)}
               onCreated={refreshActiveSection}
-              onOpenLure={openLureLibraryFromFish}
-              libraryLureTarget={libraryLureTarget}
+              onRetry={refreshActiveSection}
+              onRetryDetail={() => openResourceDetail(detailState.item, detailState.group)}
+               onOpenLure={openLureLibraryFromFish}
+               onCreateSessionFromPlan={createSessionFromPlan}
+               onOpenPlan={openPlanById}
+               onOpenSession={openSessionById}
+               onOpenGallery={() => navigateToSection('gallery')}
+               sessionPlanPrefill={sessionPlanPrefill}
+               onSessionPrefillHandled={() => setSessionPlanPrefill(null)}
+               libraryLureTarget={libraryLureTarget}
               onLibraryLureTargetHandled={() => setLibraryLureTarget(null)}
               search={sectionSearch}
               onSearchChange={(value) => updateSectionControls({ search: value, page: 0 })}
@@ -1807,7 +1982,7 @@ function App() {
   )
 }
 
-function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
+function DashboardView({ dashboard, loading, compact, onNavigate, onOpenPlan, onOpenSession, onOpenGallery, copy }) {
   const dashboardCopy = copy.dashboard
   const nextSession = dashboard.nextPlannedSession
   const bestLure = dashboard.bestRecentLure
@@ -1822,6 +1997,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   const [weather, setWeather] = useState(dashboard.relevantWeatherSnapshot)
   const [weatherLoading, setWeatherLoading] = useState(false)
   const [weatherError, setWeatherError] = useState(false)
+  const [weatherRetryKey, setWeatherRetryKey] = useState(0)
   const [solunar, setSolunar] = useState(null)
   const [solunarLoading, setSolunarLoading] = useState(false)
 
@@ -1829,12 +2005,22 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     let cancelled = false
 
     if (weatherLocationQuery.trim().length < 2) {
-      setWeatherLocations([])
-      setWeatherLocationsLoading(false)
-      return undefined
+      Promise.resolve().then(() => {
+        if (!cancelled) {
+          setWeatherLocations([])
+          setWeatherLocationsLoading(false)
+        }
+      })
+      return () => {
+        cancelled = true
+      }
     }
 
-    setWeatherLocationsLoading(true)
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        setWeatherLocationsLoading(true)
+      }
+    })
     fetch(`/api/weather-locations/search?query=${encodeURIComponent(weatherLocationQuery.trim())}&countryCode=PT`)
       .then((response) => {
         if (!response.ok) {
@@ -1876,7 +2062,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     return () => {
       cancelled = true
     }
-  }, [weatherLocationQuery])
+  }, [dashboard.relevantWeatherSnapshot?.sourceLocationName, weatherLocationQuery])
 
   useEffect(() => {
     const selectedLocation = weatherLocations.find((location) => String(location.id) === String(selectedWeatherLocationId))
@@ -1885,8 +2071,12 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     }
 
     let cancelled = false
-    setWeatherLoading(true)
-    setWeatherError(false)
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        setWeatherLoading(true)
+        setWeatherError(false)
+      }
+    })
 
     fetch('/api/weather-snapshots/location', {
       method: 'POST',
@@ -1924,20 +2114,30 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     return () => {
       cancelled = true
     }
-  }, [selectedWeatherLocationId, weatherLocations])
+  }, [selectedWeatherLocationId, weatherLocations, weatherRetryKey])
 
   useEffect(() => {
+    let cancelled = false
     const selectedLocation = weatherLocations.find((location) => String(location.id) === String(selectedWeatherLocationId))
     const forecastDate = solunarReferenceDate || new Date().toISOString().slice(0, 10)
 
     if (!selectedLocation?.latitude || !selectedLocation?.longitude) {
-      setSolunar(null)
-      setSolunarLoading(false)
-      return undefined
+      Promise.resolve().then(() => {
+        if (!cancelled) {
+          setSolunar(null)
+          setSolunarLoading(false)
+        }
+      })
+      return () => {
+        cancelled = true
+      }
     }
 
-    let cancelled = false
-    setSolunarLoading(true)
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        setSolunarLoading(true)
+      }
+    })
 
     const params = new URLSearchParams({
       latitude: String(selectedLocation.latitude),
@@ -1973,7 +2173,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
     return () => {
       cancelled = true
     }
-  }, [selectedWeatherDistrict, selectedWeatherLocationId, weatherLocations, solunarReferenceDate])
+  }, [selectedWeatherDistrict, selectedWeatherLocationId, weatherLocations, solunarReferenceDate, weatherRetryKey])
 
   function handleWeatherDistrictChange(district) {
     setSelectedWeatherDistrict(district)
@@ -2019,30 +2219,31 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
           label={dashboardCopy.createPlan}
           detail={dashboardCopy.createPlanDetail}
           image={fishingPlanIcon}
-          onPress={() => onNavigate('plans')}
+          onPress={() => (nextSession?.planId ? onOpenPlan?.(nextSession.planId) : onNavigate('plans'))}
         />
         <MissionAction
           label={dashboardCopy.activeSession}
           detail={`${dashboard.activeSessions?.length || 0} ${dashboardCopy.activeSessionDetail}`}
           image={sessionIcon}
-          onPress={() => onNavigate('session')}
+          onPress={() => (dashboard.activeSessions?.[0]?.id ? onOpenSession?.(dashboard.activeSessions[0].id) : onNavigate('session'))}
         />
         <MissionAction
           label={dashboardCopy.registerCatch}
           detail={`${dashboard.totalFishCaught || 0} ${dashboardCopy.historyFish}`}
           image={galleryIcon}
-          onPress={() => onNavigate('gallery')}
+          onPress={onOpenGallery}
         />
       </View>
 
       <View style={styles.signalGrid}>
-        <SignalTile label={dashboardCopy.spots} value={dashboard.totalSpots || 0} tone="blue" />
-        <SignalTile label={dashboardCopy.plans} value={dashboard.totalPlans || 0} tone="gold" />
-        <SignalTile label={dashboardCopy.sessions} value={dashboard.totalSessions || 0} tone="violet" />
+        <SignalTile label={dashboardCopy.spots} value={dashboard.totalSpots || 0} tone="blue" onPress={() => onNavigate('spots')} />
+        <SignalTile label={dashboardCopy.plans} value={dashboard.totalPlans || 0} tone="gold" onPress={() => onNavigate('plans')} />
+        <SignalTile label={dashboardCopy.sessions} value={dashboard.totalSessions || 0} tone="violet" onPress={() => onNavigate('session')} />
         <SignalTile
           label={dashboardCopy.lures}
           value={dashboard.totalLures || dashboard.totalLureLibraryItems || 0}
           tone="pink"
+          onPress={() => onNavigate('lureBox')}
         />
       </View>
 
@@ -2060,6 +2261,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
           districtOptions={portugalWeatherDistricts}
           onDistrictChange={handleWeatherDistrictChange}
           districtLoading={weatherLocationsLoading}
+          onRetry={() => setWeatherRetryKey((current) => current + 1)}
         />
       </View>
 
@@ -2079,6 +2281,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
             getFishImage(recentCatch?.species),
           )}
           compact={compact}
+          onPress={onOpenGallery}
         />
         <DashboardSolunarPanel
           solunar={solunar}
@@ -2088,6 +2291,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
           weatherCopy={copy.weather}
           copy={copy}
           compact={compact}
+          onPress={() => onNavigate('weather')}
         />
       </View>
 
@@ -2101,7 +2305,7 @@ function DashboardView({ dashboard, loading, compact, onNavigate, copy }) {
   )
 }
 
-function DashboardSolunarPanel({ solunar, loading, reference, dashboardCopy, weatherCopy, copy, compact }) {
+function DashboardSolunarPanel({ solunar, loading, reference, dashboardCopy, weatherCopy, copy, compact, onPress }) {
   const referenceDate = reference?.date || reference?.plannedDate
   const forecastDate = solunar?.date || referenceDate
   const activityKey = String(solunar?.activityLevel || '').toLowerCase()
@@ -2120,7 +2324,7 @@ function DashboardSolunarPanel({ solunar, loading, reference, dashboardCopy, wea
   const moonValue = solunar ? `${moonPhase} · ${solunar.moonIlluminationPercent ?? '--'}%` : '--'
 
   return (
-    <View style={[styles.dashboardSolunarPanel, compact && styles.panelFull]}>
+    <Pressable accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} style={[styles.dashboardSolunarPanel, compact && styles.panelFull]}>
       <View style={styles.dashboardSolunarHeader}>
         <View style={styles.dashboardSolunarHeading}>
           <Text style={styles.dashboardSolunarLabel}>{dashboardCopy.solunarLabel}</Text>
@@ -2141,7 +2345,7 @@ function DashboardSolunarPanel({ solunar, loading, reference, dashboardCopy, wea
         <DashboardSolunarStat label={dashboardCopy.solunarSunrise} value={solunar ? formatWeatherClock(solunar.sunrise) : '--'} tone="teal" />
       </View>
       {featuredPeriod && <Text style={styles.dashboardSolunarHint}>{featuredPeriod.title}</Text>}
-    </View>
+    </Pressable>
   )
 }
 
@@ -2150,135 +2354,6 @@ function DashboardSolunarStat({ label, value, tone }) {
     <View style={[styles.dashboardSolunarStat, tone === 'gold' && styles.dashboardSolunarStatGold, tone === 'blue' && styles.dashboardSolunarStatBlue]}>
       <Text style={styles.dashboardSolunarStatLabel}>{label}</Text>
       <Text style={styles.dashboardSolunarStatValue} numberOfLines={2}>{value}</Text>
-    </View>
-  )
-}
-
-function DashboardFishingRadar({ reference, weather, bestLure, dashboardCopy, copy }) {
-  const referenceDate = reference?.date || reference?.plannedDate
-  const referenceTime = reference?.time || reference?.plannedTime
-  const sessionDetail = reference
-    ? formatSchedule(referenceDate, referenceTime, copy)
-    : dashboardCopy.radarNoSession
-  const conditions = weather
-    ? `${weather.precipitationProbability ?? '--'}% ${dashboardCopy.weatherRain.toLowerCase()} · ${weather.windDirection || '--'} ${dashboardCopy.wind}`
-    : dashboardCopy.radarNoWeather
-  const lureDetail = bestLure
-    ? `${Math.round(bestLure.successRate || 0)}% ${dashboardCopy.successChip} · ${bestLure.uses || 0} ${dashboardCopy.uses}`
-    : dashboardCopy.radarNoLure
-
-  return (
-    <View style={styles.dashboardRadarPanel}>
-      <View style={styles.dashboardRadarHeader}>
-        <View style={styles.dashboardRadarHeading}>
-          <Text style={styles.dashboardRadarEyebrow}>{dashboardCopy.fishingRadarEyebrow}</Text>
-          <Text style={styles.dashboardRadarTitle}>{dashboardCopy.fishingRadarTitle}</Text>
-          <Text style={styles.dashboardRadarSubtitle}>{dashboardCopy.fishingRadarSubtitle}</Text>
-        </View>
-        <View style={styles.dashboardRadarMarker} />
-      </View>
-      <View style={styles.dashboardRadarGrid}>
-        <DashboardRadarCard label={dashboardCopy.radarSession} title={reference?.spotName || dashboardCopy.radarNoSession} detail={sessionDetail} tone="teal" />
-        <DashboardRadarCard label={dashboardCopy.radarConditions} title={weather ? dashboardCopy.weather : dashboardCopy.radarNoWeather} detail={conditions} tone="blue" />
-        <DashboardRadarCard label={dashboardCopy.radarLure} title={bestLure?.lureName || dashboardCopy.radarNoLure} detail={lureDetail} tone="gold" />
-      </View>
-    </View>
-  )
-}
-
-function DashboardRadarCard({ label, title, detail, tone }) {
-  return (
-    <View style={[styles.dashboardRadarCard, tone === 'blue' && styles.dashboardRadarCardBlue, tone === 'gold' && styles.dashboardRadarCardGold]}>
-      <View style={styles.dashboardRadarCardHeader}>
-        <Text style={styles.dashboardRadarCardLabel}>{label}</Text>
-        <View style={[styles.dashboardRadarDot, tone === 'blue' && styles.dashboardRadarDotBlue, tone === 'gold' && styles.dashboardRadarDotGold]} />
-      </View>
-      <Text style={styles.dashboardRadarCardTitle} numberOfLines={1}>{title}</Text>
-      <Text style={styles.dashboardRadarCardDetail} numberOfLines={2}>{detail}</Text>
-    </View>
-  )
-}
-
-function DashboardInsightsPanel({ insights, loading, dashboardCopy }) {
-  const insightCards = [
-    {
-      key: 'topLures',
-      title: dashboardCopy.topLures,
-      cardStyle: styles.dashboardInsightCardTeal,
-      dotStyle: styles.dashboardInsightDotTeal,
-      items: insights.topLures,
-      getTitle: (item) => item.lureName,
-      getMeta: (item) => `${item.timesUsed || 0} ${dashboardCopy.uses} · ${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip}`,
-      getDetail: (item) => `${item.totalFishCaught || 0} ${dashboardCopy.fishCount}`,
-    },
-    {
-      key: 'bestSpots',
-      title: dashboardCopy.bestSpots,
-      cardStyle: styles.dashboardInsightCardBlue,
-      dotStyle: styles.dashboardInsightDotBlue,
-      items: insights.bestSpots,
-      getTitle: (item) => item.spotName,
-      getMeta: (item) => `${item.totalSessions || 0} ${dashboardCopy.sessionsCount} · ${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip}`,
-      getDetail: (item) => `${item.totalFishCaught || 0} ${dashboardCopy.fishCount}`,
-    },
-    {
-      key: 'bestConditions',
-      title: dashboardCopy.bestConditions,
-      cardStyle: styles.dashboardInsightCardGold,
-      dotStyle: styles.dashboardInsightDotGold,
-      items: insights.bestConditions,
-      getTitle: (item) => [item.waterClarity, item.waterLevel].filter(Boolean).join(' · ') || dashboardCopy.noPattern,
-      getMeta: (item) => `${item.windDirection || '--'} · ${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip}`,
-      getDetail: (item) => `${item.totalSessions || 0} ${dashboardCopy.sessionsCount}`,
-    },
-    {
-      key: 'recommendationPerformance',
-      title: dashboardCopy.recommendationPerformance,
-      cardStyle: styles.dashboardInsightCardViolet,
-      dotStyle: styles.dashboardInsightDotViolet,
-      items: insights.recommendationPerformance,
-      getTitle: (item) => item.recommendationStep || item.recommendationType || dashboardCopy.noPattern,
-      getMeta: (item) => `${Math.round(item.successRate || 0)}% ${dashboardCopy.successChip} · ${Math.round(item.followRate || 0)}% ${dashboardCopy.followRate}`,
-      getDetail: (item) => `${item.totalExecutions || 0} ${dashboardCopy.sessionsCount}`,
-    },
-  ]
-
-  return (
-    <View style={styles.dashboardInsightsPanel}>
-      <View style={styles.dashboardInsightsHeader}>
-        <View style={styles.dashboardInsightsHeading}>
-          <Text style={styles.dashboardInsightsEyebrow}>{dashboardCopy.insightsEyebrow}</Text>
-          <Text style={styles.dashboardInsightsTitle}>{dashboardCopy.insightsTitle}</Text>
-          <Text style={styles.dashboardInsightsSubtitle}>{dashboardCopy.insightsSubtitle}</Text>
-        </View>
-        <View style={styles.dashboardInsightsMarker} />
-      </View>
-      {loading ? (
-        <View style={styles.dashboardInsightsEmpty}><ActivityIndicator color="#1f8a82" /></View>
-      ) : (
-        <View style={styles.dashboardInsightsGrid}>
-          {insightCards.map((card) => (
-            <View key={card.key} style={[styles.dashboardInsightCard, card.cardStyle]}>
-              <View style={styles.dashboardInsightCardHeader}>
-                <Text style={styles.dashboardInsightCardTitle}>{card.title}</Text>
-                <View style={[styles.dashboardInsightDot, card.dotStyle]} />
-              </View>
-              {card.items.length ? card.items.map((item, index) => (
-                <View key={`${card.key}-${index}`} style={styles.dashboardInsightRow}>
-                  <Text style={styles.dashboardInsightRank}>{String(index + 1).padStart(2, '0')}</Text>
-                  <View style={styles.dashboardInsightCopy}>
-                    <Text style={styles.dashboardInsightName} numberOfLines={1}>{card.getTitle(item)}</Text>
-                    <Text style={styles.dashboardInsightMeta} numberOfLines={1}>{card.getMeta(item)}</Text>
-                    <Text style={styles.dashboardInsightDetail} numberOfLines={1}>{card.getDetail(item)}</Text>
-                  </View>
-                </View>
-              )) : (
-                <Text style={styles.dashboardInsightsEmptyText}>{dashboardCopy.noInsights}</Text>
-              )}
-            </View>
-          ))}
-        </View>
-      )}
     </View>
   )
 }
@@ -2329,6 +2404,7 @@ function DashboardWeatherShowcase({
   districtOptions,
   onDistrictChange,
   districtLoading,
+  onRetry,
 }) {
   return (
     <View style={[styles.dashboardWeatherPanel, compact && styles.panelFull]}>
@@ -2349,7 +2425,7 @@ function DashboardWeatherShowcase({
       {weatherLoading ? (
         <Text style={styles.dashboardWeatherMessage}>{copy.resources.weatherLoading}</Text>
       ) : weatherError ? (
-        <Text style={styles.dashboardWeatherMessage}>{dashboardCopy.weatherSelectionError}</Text>
+        <RetryNotice message={dashboardCopy.weatherSelectionError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       ) : weather ? (
         <View style={styles.dashboardWeatherContent}>
           <View style={styles.dashboardWeatherStats}>
@@ -2391,45 +2467,6 @@ function DashboardWeatherStat({ label, value, tone }) {
       <View style={styles.dashboardWeatherStatDot} />
       <Text style={styles.dashboardWeatherStatLabel}>{label}</Text>
       <Text style={styles.dashboardWeatherStatValue}>{value}</Text>
-    </View>
-  )
-}
-
-function DashboardWeatherPanel({
-  dashboardCopy,
-  copy,
-  compact,
-  weather,
-  weatherLoading,
-  weatherError,
-  weatherLocationOptions,
-  selectedWeatherLocationId,
-  onWeatherLocationChange,
-  loading,
-  weatherIcon,
-}) {
-  const fields = copy.resources
-  const summary = weather
-    ? `${weather.temperatureMin ?? '-'} °C / ${weather.temperatureMax ?? '-'} °C, ${fields.precipitation.toLowerCase()} ${weather.precipitationProbability ?? '-'}%, ${fields.wind.toLowerCase()} ${weather.windDirection || '-'}`
-    : dashboardCopy.weatherFallback
-
-  return (
-    <View style={[styles.commandMetricPanel, compact && styles.panelFull]}>
-      <View style={styles.commandMetricCopy}>
-        <Text style={styles.commandPanelLabel}>{dashboardCopy.weather}</Text>
-        <Text style={styles.commandPanelTitle}>{weather?.sourceLocationName || dashboardCopy.noSnapshot}</Text>
-        <GallerySelect
-          label={fields.weatherDistrict}
-          value={selectedWeatherLocationId}
-          options={weatherLocationOptions}
-          onChange={onWeatherLocationChange}
-          placeholder={loading ? dashboardCopy.weatherDistrictsLoading : fields.weatherDistrict}
-        />
-        <Text style={styles.commandPanelText}>
-          {weatherLoading ? fields.weatherLoading : weatherError ? dashboardCopy.weatherSelectionError : summary}
-        </Text>
-      </View>
-      <Image source={{ uri: weatherIcon }} style={styles.commandMetricImage} resizeMode="cover" />
     </View>
   )
 }
@@ -2531,9 +2568,15 @@ function WeatherView({ compact, copy }) {
     let cancelled = false
 
     if (!selectedSpot || !selectedDate) {
-      setWeather(null)
-      setSolunar(null)
-      return undefined
+      Promise.resolve().then(() => {
+        if (!cancelled) {
+          setWeather(null)
+          setSolunar(null)
+        }
+      })
+      return () => {
+        cancelled = true
+      }
     }
 
     async function loadForecast() {
@@ -2585,7 +2628,7 @@ function WeatherView({ compact, copy }) {
     return () => {
       cancelled = true
     }
-  }, [selectedDate, selectedSpot?.id, selectedSpot?.latitude, selectedSpot?.longitude])
+  }, [selectedDate, selectedSpot, selectedSpot?.id, selectedSpot?.latitude, selectedSpot?.longitude])
 
   const hourlyForecast = weather?.hourlyForecast || []
   const weatherIcon = getWeatherIcon(weather)
@@ -2791,30 +2834,23 @@ function MissionAction({ label, detail, image, onPress }) {
   )
 }
 
-function SignalTile({ label, value, tone }) {
-  return (
+function SignalTile({ label, value, tone, onPress }) {
+  const content = (
     <View style={[styles.commandStat, tone === 'gold' && styles.commandStatGold, tone === 'violet' && styles.commandStatViolet, tone === 'pink' && styles.commandStatPink]}>
       <Text style={styles.commandStatValue}>{value}</Text>
       <Text style={styles.commandStatLabel}>{label}</Text>
     </View>
   )
+
+  return onPress ? (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.dashboardSignalPressable}>
+      {content}
+    </Pressable>
+  ) : content
 }
 
-function MetricPanel({ label, title, value, image, compact }) {
-  return (
-    <View style={[styles.commandMetricPanel, compact && styles.panelFull]}>
-      <View style={styles.commandMetricCopy}>
-        <Text style={styles.commandPanelLabel}>{label}</Text>
-        <Text style={styles.commandPanelTitle}>{title}</Text>
-        <Text style={styles.commandPanelText}>{value}</Text>
-      </View>
-      <Image source={{ uri: image }} style={styles.commandMetricImage} resizeMode="cover" />
-    </View>
-  )
-}
-
-function ListPanel({ label, title, body, image, compact }) {
-  return (
+function ListPanel({ label, title, body, image, compact, onPress }) {
+  const content = (
     <View style={[styles.commandListPanel, compact && styles.panelFull]}>
       <Image source={{ uri: image }} style={styles.commandListImage} resizeMode="contain" />
       <View style={styles.commandListCopy}>
@@ -2824,6 +2860,12 @@ function ListPanel({ label, title, body, image, compact }) {
       </View>
     </View>
   )
+
+  return onPress ? (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${label}: ${title}`} onPress={onPress} style={styles.dashboardListPressable}>
+      {content}
+    </Pressable>
+  ) : content
 }
 
 function SectionFeature({ section, groups = [], compact, copy }) {
@@ -2895,6 +2937,8 @@ function SpotAtlasShowcase({
   onOpenDetail,
   onCloseDetail,
   onCreated,
+  onRetry,
+  onRetryDetail,
   onPageChange,
   compact,
   onOpenLure,
@@ -2987,9 +3031,7 @@ function SpotAtlasShowcase({
       )}
 
       {error && (
-        <View style={styles.notice}>
-          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
-        </View>
+        <RetryNotice message={copy.resources.loadError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       )}
 
       {detail?.item && (
@@ -2998,6 +3040,7 @@ function SpotAtlasShowcase({
           onClose={onCloseDetail}
           copy={copy}
           compact={compact}
+          onRetry={onRetryDetail}
           onOpenLure={onOpenLure}
           lureLibraryItems={lureLibraryItems}
         />
@@ -3227,31 +3270,6 @@ function GearShelfValue({ label, value }) {
   )
 }
 
-function ProfileWorkspaceHeader({ compact, copy }) {
-  return (
-    <View style={[styles.profileWorkspace, compact && styles.profileWorkspaceCompact]}>
-      <View style={styles.profileWorkspaceIdentity}>
-        <View style={styles.profileWorkspaceAvatarFrame}>
-          <Image source={{ uri: profileIcon }} style={styles.profileWorkspaceAvatar} resizeMode="cover" />
-        </View>
-        <View style={styles.profileWorkspaceCopy}>
-          <Text style={styles.profileWorkspaceOverline}>{copy.resources.profileReady}</Text>
-          <Text style={styles.profileWorkspaceTitle}>{copy.menu.profile}</Text>
-          <Text style={styles.profileWorkspaceText}>{copy.resources.profileBody}</Text>
-        </View>
-      </View>
-      <View style={styles.profileWorkspaceStatus}>
-        <View style={styles.profileStatusHeader}>
-          <Text style={styles.profileStatusLabel}>{copy.resources.noAuth}</Text>
-          <Text style={styles.profileStatusValue}>MVP</Text>
-        </View>
-        <View style={styles.profileStatusRule} />
-        <Text style={styles.profileStatusHint}>{copy.resources.profileReady}</Text>
-      </View>
-    </View>
-  )
-}
-
 function GalleryShowcase({
   groups,
   loading,
@@ -3259,11 +3277,12 @@ function GalleryShowcase({
   detail,
   onOpenDetail,
   onCloseDetail,
-  onSearchChange,
   onPageChange,
   compact,
-  search,
   onCreated,
+  onRetry,
+  onRetryDetail,
+  onOpenSession,
   copy,
 }) {
   const group = groups.find((candidate) => candidate.key === 'catches') || groups[0]
@@ -3352,9 +3371,7 @@ function GalleryShowcase({
       )}
 
       {error && (
-        <View style={styles.notice}>
-          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
-        </View>
+        <RetryNotice message={copy.resources.loadError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       )}
 
       {feedback && (
@@ -3386,6 +3403,8 @@ function GalleryShowcase({
           onDeleteItem={() => deleteCatch(detail.item)}
           copy={copy}
           compact={compact}
+          onRetry={onRetryDetail}
+          onOpenSession={onOpenSession}
         />
       )}
 
@@ -3468,8 +3487,8 @@ function GalleryCatchForm({ item, fixedSessionId = null, copy, compact, onSaved,
     setForm((current) => ({ ...current, [field]: value }))
   }
 
-  async function selectPhoto() {
-    const imageData = await readImageFromDevice()
+  async function selectPhoto(capture = false) {
+    const imageData = await readImageFromDevice(capture)
 
     if (imageData) {
       updateField('photoUrl', imageData)
@@ -3615,7 +3634,9 @@ function GalleryCatchForm({ item, fixedSessionId = null, copy, compact, onSaved,
         hint={form.photoUrl ? copy.resources.catchImageSelected : copy.resources.catchPhotoHint}
         value={form.photoUrl}
         preview={form.photoUrl || fishPreview}
-        onPress={selectPhoto}
+        onPress={() => selectPhoto(false)}
+        onCapture={() => selectPhoto(true)}
+        onImport={() => selectPhoto(false)}
         copy={copy}
         style={styles.galleryImagePicker}
       />
@@ -3748,10 +3769,10 @@ function LibraryShowcase({
   detail,
   onOpenDetail,
   onCloseDetail,
-  onPageChange,
-  compact,
-  onOpenLure,
-  libraryLureTarget,
+   onPageChange,
+   compact,
+   onOpenLure,
+   libraryLureTarget,
   onLibraryLureTargetHandled,
   waterEnvironment,
   onWaterEnvironmentChange,
@@ -3799,8 +3820,10 @@ function LibraryShowcase({
     }
 
     const lureItem = findMatchingLureItem(lureGroup.items, libraryLureTarget)
-    setLibraryType('lures')
-    onLibraryLureTargetHandled()
+    Promise.resolve().then(() => {
+      setLibraryType('lures')
+      onLibraryLureTargetHandled()
+    })
 
     if (lureItem) {
       onOpenDetail(lureItem, lureGroup)
@@ -4074,7 +4097,11 @@ function LibraryEditorForm({ groupKey, item, copy, compact, onSaved, onCancel })
     }
 
     let ignore = false
-    setLuresLoading(true)
+    Promise.resolve().then(() => {
+      if (!ignore) {
+        setLuresLoading(true)
+      }
+    })
 
     fetch('/api/lure-library?page=0&size=100&sortBy=name&sortDirection=asc')
       .then((response) => {
@@ -4336,15 +4363,40 @@ function LibraryEditorForm({ groupKey, item, copy, compact, onSaved, onCancel })
   )
 }
 
-function LibraryImagePicker({ label, hint, value, preview, onPress, copy, standalone = false, style }) {
+function LibraryImagePicker({ label, hint, value, preview, onPress, onCapture, onImport, copy, standalone = false, style }) {
+  const hasImageActions = Boolean(onCapture || onImport)
+
+  function renderImageActions() {
+    if (!hasImageActions) {
+      return (
+        <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.libraryImagePickerButton}>
+          <Text style={styles.libraryImagePickerButtonText}>{copy.resources.chooseImage}</Text>
+        </Pressable>
+      )
+    }
+
+    return (
+      <View style={styles.lureBoxImagePickerActions}>
+        {onCapture && (
+          <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.takePhoto} onPress={onCapture} style={styles.lureBoxImagePickerButton}>
+            <Text style={styles.lureBoxImagePickerButtonText}>{copy.resources.takePhoto}</Text>
+          </Pressable>
+        )}
+        {onImport && (
+          <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.importImage} onPress={onImport} style={styles.lureBoxImagePickerButtonSecondary}>
+            <Text style={styles.lureBoxImagePickerButtonSecondaryText}>{copy.resources.importImage}</Text>
+          </Pressable>
+        )}
+      </View>
+    )
+  }
+
   if (standalone) {
     return (
       <View style={styles.libraryImagePickerStandalone}>
         <Text style={styles.libraryImagePickerLabel}>{label}</Text>
         <Text style={styles.libraryImagePickerHint}>{value ? copy.resources.imageSelected : hint}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.libraryImagePickerButton}>
-          <Text style={styles.libraryImagePickerButtonText}>{copy.resources.chooseImage}</Text>
-        </Pressable>
+        {renderImageActions()}
       </View>
     )
   }
@@ -4357,9 +4409,7 @@ function LibraryImagePicker({ label, hint, value, preview, onPress, copy, standa
       <View style={styles.libraryImagePickerCopy}>
         <Text style={styles.libraryImagePickerLabel}>{label}</Text>
         <Text style={styles.libraryImagePickerHint}>{value ? copy.resources.imageSelected : hint}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.libraryImagePickerButton}>
-          <Text style={styles.libraryImagePickerButtonText}>{copy.resources.chooseImage}</Text>
-        </Pressable>
+        {renderImageActions()}
       </View>
     </View>
   )
@@ -4630,6 +4680,8 @@ function ResourceScreen({
   onOpenDetail,
   onCloseDetail,
   onCreated,
+  onRetry,
+  onRetryDetail,
   search,
   onSearchChange,
   onPageChange,
@@ -4637,6 +4689,12 @@ function ResourceScreen({
   waterEnvironment,
   onWaterEnvironmentChange,
   onOpenLure,
+  onCreateSessionFromPlan,
+  onOpenPlan,
+  onOpenSession,
+  onOpenGallery,
+  sessionPlanPrefill,
+  onSessionPrefillHandled,
   libraryLureTarget,
   onLibraryLureTargetHandled,
   copy,
@@ -4660,6 +4718,9 @@ function ResourceScreen({
         compact={compact}
         search={search}
         onCreated={onCreated}
+        onRetry={onRetry}
+        onRetryDetail={onRetryDetail}
+        onOpenSession={onOpenSession}
         copy={copy}
       />
     )
@@ -4675,11 +4736,17 @@ function ResourceScreen({
         detail={detail}
         onOpenDetail={onOpenDetail}
         onCloseDetail={onCloseDetail}
-        onCreated={onCreated}
-        onPageChange={onPageChange}
-        compact={compact}
-        copy={copy}
-      />
+         onCreated={onCreated}
+         onPageChange={onPageChange}
+         compact={compact}
+         copy={copy}
+         sessionPlanPrefill={sessionPlanPrefill}
+         onSessionPrefillHandled={onSessionPrefillHandled}
+         onOpenPlan={onOpenPlan}
+         onOpenGallery={onOpenGallery}
+         onRetry={onRetry}
+         onRetryDetail={onRetryDetail}
+       />
     )
   }
 
@@ -4715,6 +4782,8 @@ function ResourceScreen({
         onOpenDetail={onOpenDetail}
         onCloseDetail={onCloseDetail}
         onCreated={onCreated}
+        onRetry={onRetry}
+        onRetryDetail={onRetryDetail}
         onPageChange={onPageChange}
         compact={compact}
         onOpenLure={onOpenLure}
@@ -4736,6 +4805,9 @@ function ResourceScreen({
         compact={compact}
         onCreated={onCreated}
         onOpenLure={onOpenLure}
+        onRetry={onRetry}
+        onRetryDetail={onRetryDetail}
+        onOpenSession={onOpenSession}
         copy={copy}
       />
     )
@@ -4841,9 +4913,7 @@ function ResourceScreen({
       )}
 
       {error && (
-        <View style={styles.notice}>
-          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
-        </View>
+        <RetryNotice message={copy.resources.loadError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       )}
 
       {detail?.item && (
@@ -4852,7 +4922,12 @@ function ResourceScreen({
           onClose={onCloseDetail}
           copy={copy}
           compact={compact}
+          onRetry={onRetryDetail}
           onOpenLure={onOpenLure}
+          onCreateSessionFromPlan={onCreateSessionFromPlan}
+          onOpenPlan={onOpenPlan}
+          onOpenSession={onOpenSession}
+          onOpenGallery={onOpenGallery}
           lureLibraryItems={groups.find((group) => group.key === 'lureLibrary')?.items || []}
         />
       )}
@@ -4905,6 +4980,11 @@ function ResourceScreen({
           ) : (
             <View style={styles.emptyPanel}>
               <Text style={styles.emptyText}>{copy.resources.empty}</Text>
+              {section.id === 'plans' && (
+                <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.createPlan} onPress={() => setShowCreatePlan(true)} style={styles.emptyAction}>
+                  <Text style={styles.emptyActionText}>{copy.resources.createPlan}</Text>
+                </Pressable>
+              )}
             </View>
           )}
         </View>
@@ -4913,7 +4993,7 @@ function ResourceScreen({
   )
 }
 
-function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail, onCloseDetail, onPageChange, compact, onCreated, copy }) {
+function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail, onCloseDetail, onPageChange, compact, onCreated, copy, sessionPlanPrefill, onSessionPrefillHandled, onOpenPlan, onOpenGallery, onRetry, onRetryDetail }) {
   const group = groups.find((candidate) => candidate.key === 'sessions') || groups[0]
   const items = group?.items || []
   const activeItems = items.filter((item) => String(item.status || '').toLowerCase() !== 'finished')
@@ -4921,9 +5001,22 @@ function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail
   const [editorState, setEditorState] = useState(null)
   const [feedback, setFeedback] = useState(null)
 
+  useEffect(() => {
+    if (!sessionPlanPrefill?.id) {
+      return
+    }
+
+    Promise.resolve().then(() => {
+      setFeedback(null)
+      setEditorState({ item: null, preselectedPlan: sessionPlanPrefill })
+      onCloseDetail()
+      onSessionPrefillHandled?.()
+    })
+  }, [onCloseDetail, onSessionPrefillHandled, sessionPlanPrefill])
+
   function openCreateForm() {
     setFeedback(null)
-    setEditorState({ item: null })
+    setEditorState({ item: null, preselectedPlan: null })
     onCloseDetail()
   }
 
@@ -4981,8 +5074,9 @@ function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail
       {editorState && (
         <SessionForm
           key={editorState.item?.id || 'new-session'}
-          item={editorState.item}
-          copy={copy}
+           item={editorState.item}
+           initialPlan={editorState.preselectedPlan}
+           copy={copy}
           compact={compact}
           onSaved={() => {
             setEditorState(null)
@@ -5001,9 +5095,7 @@ function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail
       )}
 
       {error && (
-        <View style={styles.notice}>
-          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
-        </View>
+        <RetryNotice message={copy.resources.loadError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       )}
 
       {detail?.item && (
@@ -5012,9 +5104,12 @@ function SessionShowcase({ section, groups, loading, error, detail, onOpenDetail
           onClose={onCloseDetail}
           onEditItem={() => openEditForm(detail.item)}
           onDeleteItem={() => deleteSession(detail.item)}
-          copy={copy}
-          compact={compact}
-        />
+           copy={copy}
+           compact={compact}
+            onRetry={onRetryDetail}
+            onOpenPlan={onOpenPlan}
+            onOpenGallery={onOpenGallery}
+         />
       )}
 
       <View style={styles.sessionListHeader}>
@@ -5083,12 +5178,17 @@ function SessionStatusSection({ title, hint, status, items, copy, group, onOpenD
 }
 
 function SessionCard({ item, copy, onPress }) {
-  const status = String(item.status || '').toLowerCase() === 'finished' ? 'finished' : 'active'
-  const statusLabel = status === 'active' ? copy.resources.sessionStatusActive : copy.resources.sessionStatusFinished
-  const statusStyle = status === 'active' ? styles.sessionStatusActive : styles.sessionStatusFinished
-  const statusDotStyle = status === 'active' ? styles.sessionStatusDotActive : styles.sessionStatusDotFinished
-  const statusTextStyle = status === 'active' ? styles.sessionStatusTextActive : styles.sessionStatusTextFinished
-  const cardStatusStyle = status === 'active' ? styles.sessionCardActive : styles.sessionCardFinished
+  const rawStatus = String(item.status || '').toLowerCase()
+  const status = rawStatus === 'finished' ? 'finished' : rawStatus === 'active' ? 'active' : 'planned'
+  const statusLabel = status === 'active'
+    ? copy.resources.sessionStatusActive
+    : status === 'finished'
+      ? copy.resources.sessionStatusFinished
+      : copy.resources.sessionStatusPlanned
+  const statusStyle = status === 'active' ? styles.sessionStatusActive : status === 'finished' ? styles.sessionStatusFinished : styles.sessionStatusPlanned
+  const statusDotStyle = status === 'active' ? styles.sessionStatusDotActive : status === 'finished' ? styles.sessionStatusDotFinished : styles.sessionStatusDotPlanned
+  const statusTextStyle = status === 'active' ? styles.sessionStatusTextActive : status === 'finished' ? styles.sessionStatusTextFinished : styles.sessionStatusTextPlanned
+  const cardStatusStyle = status === 'finished' ? styles.sessionCardFinished : styles.sessionCardActive
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`${copy.resources.viewDetails}: ${item.spotName || copy.dashboard.unnamedSpot}`} onPress={onPress} style={[styles.sessionCard, cardStatusStyle]}>
@@ -5110,11 +5210,11 @@ function SessionCard({ item, copy, onPress }) {
   )
 }
 
-function SessionForm({ item, copy, compact, onSaved, onCancel }) {
+function SessionForm({ item, initialPlan, copy, compact, onSaved, onCancel }) {
   const fields = copy.resources.fields
   const [form, setForm] = useState(() => ({
     spotId: item?.spotId || '',
-    planId: item?.planId || '',
+    planId: item?.planId || initialPlan?.id || '',
     date: item?.date || new Date().toISOString().slice(0, 10),
     startTime: item?.startTime || '',
     targetSpecies: item?.targetSpecies || copy.resources.anySpecies,
@@ -5127,6 +5227,7 @@ function SessionForm({ item, copy, compact, onSaved, onCancel }) {
   const [loadingOptions, setLoadingOptions] = useState(true)
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [sessionContextEditable, setSessionContextEditable] = useState(!(item?.planId || initialPlan?.id))
   const clarityOptions = [
     { value: 'CLEAR', label: copy.resources.waterClarityOptions.clear },
     { value: 'STAINED', label: copy.resources.waterClarityOptions.stained },
@@ -5140,19 +5241,19 @@ function SessionForm({ item, copy, compact, onSaved, onCancel }) {
 
   useEffect(() => {
     let ignore = false
-    Promise.all([
+    Promise.allSettled([
       fetch('/api/spots?page=0&size=100&sortBy=name&sortDirection=asc').then((response) => response.json()),
       fetch('/api/plans?page=0&size=100&sortBy=plannedDate&sortDirection=desc').then((response) => response.json()),
       fetch('/api/fish?page=0&size=100&sortBy=name&sortDirection=asc').then((response) => response.json()),
     ])
-      .then(([spotPage, planPage, fishPage]) => {
+      .then(([spotResult, planResult, fishResult]) => {
         if (ignore) return
-        setSpots(spotPage.items || [])
-        setPlans(planPage.items || [])
-        setFish(fishPage.items || [])
-      })
-      .catch(() => {
-        if (!ignore) setFeedback({ type: 'error', text: copy.resources.sessionSaveError })
+        if (spotResult.status === 'fulfilled') setSpots(spotResult.value.items || [])
+        if (planResult.status === 'fulfilled') setPlans(planResult.value.items || [])
+        if (fishResult.status === 'fulfilled') setFish(fishResult.value.items || [])
+        if ([spotResult, planResult, fishResult].some((result) => result.status === 'rejected')) {
+          setFeedback({ type: 'error', text: copy.resources.sessionSaveError })
+        }
       })
       .finally(() => {
         if (!ignore) setLoadingOptions(false)
@@ -5160,8 +5261,31 @@ function SessionForm({ item, copy, compact, onSaved, onCancel }) {
     return () => { ignore = true }
   }, [copy.resources.sessionSaveError])
 
+  const selectedPlan = plans.find((plan) => String(plan.id) === String(form.planId))
+
+  useEffect(() => {
+    if (!selectedPlan || sessionContextEditable) {
+      return
+    }
+
+    Promise.resolve().then(() => {
+      setForm((current) => ({
+        ...current,
+        spotId: selectedPlan.spotId ? String(selectedPlan.spotId) : current.spotId,
+        date: selectedPlan.plannedDate || current.date,
+        startTime: selectedPlan.plannedTime || current.startTime,
+        targetSpecies: selectedPlan.targetSpecies || current.targetSpecies,
+        waterClarity: selectedPlan.waterClarity || current.waterClarity,
+        waterLevel: selectedPlan.waterLevel || current.waterLevel,
+      }))
+    })
+  }, [selectedPlan, sessionContextEditable])
+
   function updateField(field, value) {
     setFeedback(null)
+    if (field === 'planId') {
+      setSessionContextEditable(!value)
+    }
     setForm((current) => ({ ...current, [field]: value }))
   }
 
@@ -5218,13 +5342,36 @@ function SessionForm({ item, copy, compact, onSaved, onCancel }) {
         </Pressable>
       </View>
       <View style={styles.sessionFormGrid}>
-        <GallerySelect label={copy.resources.chooseSessionSpot} value={String(form.spotId || '')} options={spotOptions} onChange={(value) => updateField('spotId', value)} placeholder={loadingOptions ? copy.loading : copy.resources.chooseSessionSpot} />
         <GallerySelect label={copy.resources.chooseSessionPlan} value={String(form.planId || '')} options={planOptions} onChange={(value) => updateField('planId', value)} placeholder={loadingOptions ? copy.loading : copy.resources.noPlansAvailable} allowEmpty />
-        <DateTimeField label={copy.resources.sessionDate} value={form.date} onChangeText={(value) => updateField('date', value)} type="date" placeholder={copy.resources.plannedDateHint} />
-        <DateTimeField label={copy.resources.sessionStartTime} value={form.startTime} onChangeText={(value) => updateField('startTime', value)} type="time" placeholder={copy.resources.plannedTimeHint} />
-        <GallerySelect label={copy.resources.sessionTargetSpecies} value={form.targetSpecies} options={fishOptions} onChange={(value) => updateField('targetSpecies', value)} placeholder={copy.resources.anySpecies} />
-        <ChoiceGroup label={fields.waterClarity} value={form.waterClarity} options={clarityOptions} onChange={(value) => updateField('waterClarity', value)} />
-        <ChoiceGroup label={fields.waterLevel} value={form.waterLevel} options={levelOptions} onChange={(value) => updateField('waterLevel', value)} />
+        {selectedPlan && !sessionContextEditable ? (
+          <View style={styles.sessionInheritedContext}>
+            <View style={styles.sessionInheritedHeader}>
+              <View style={styles.sessionInheritedCopy}>
+                <Text style={styles.sessionEditorEyebrow}>{copy.resources.planContext}</Text>
+                <Text style={styles.sessionInheritedHint}>{copy.resources.sessionInheritedHint}</Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.adjustSessionContext} onPress={() => setSessionContextEditable(true)} style={styles.sessionSecondaryAction}>
+                <Text style={styles.sessionSecondaryActionText}>{copy.resources.adjustSessionContext}</Text>
+              </Pressable>
+            </View>
+            <View style={styles.planSteps}>
+              <PlanStep number="01" label={fields.spot} value={spots.find((spot) => String(spot.id) === String(selectedPlan.spotId))?.name || selectedPlan.spotName} tone="#147f79" />
+              <PlanStep number="02" label={fields.plannedFor} value={formatSchedule(selectedPlan.plannedDate, selectedPlan.plannedTime, copy)} tone="#147f79" />
+              <PlanStep number="03" label={fields.targetSpecies} value={selectedPlan.targetSpecies} tone="#147f79" />
+              <PlanStep number="04" label={fields.waterClarity} value={selectedPlan.waterClarity} tone="#147f79" />
+              <PlanStep number="05" label={fields.waterLevel} value={selectedPlan.waterLevel} tone="#147f79" />
+            </View>
+          </View>
+        ) : (
+          <>
+            <GallerySelect label={copy.resources.chooseSessionSpot} value={String(form.spotId || '')} options={spotOptions} onChange={(value) => updateField('spotId', value)} placeholder={loadingOptions ? copy.loading : copy.resources.chooseSessionSpot} />
+            <DateTimeField label={copy.resources.sessionDate} value={form.date} onChangeText={(value) => updateField('date', value)} type="date" placeholder={copy.resources.plannedDateHint} />
+            <DateTimeField label={copy.resources.sessionStartTime} value={form.startTime} onChangeText={(value) => updateField('startTime', value)} type="time" placeholder={copy.resources.plannedTimeHint} />
+            <GallerySelect label={copy.resources.sessionTargetSpecies} value={form.targetSpecies} options={fishOptions} onChange={(value) => updateField('targetSpecies', value)} placeholder={copy.resources.anySpecies} />
+            <ChoiceGroup label={fields.waterClarity} value={form.waterClarity} options={clarityOptions} onChange={(value) => updateField('waterClarity', value)} />
+            <ChoiceGroup label={fields.waterLevel} value={form.waterLevel} options={levelOptions} onChange={(value) => updateField('waterLevel', value)} />
+          </>
+        )}
       </View>
       {feedback && <View style={styles.formFeedback}><Text style={styles.formFeedbackText}>{feedback.text}</Text></View>}
       <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.saveSession} disabled={saving} onPress={submit} style={[styles.submitButton, saving && styles.submitButtonDisabled]}>
@@ -5234,18 +5381,14 @@ function SessionForm({ item, copy, compact, onSaved, onCancel }) {
   )
 }
 
-function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onCloseDetail, onPageChange, compact, onCreated, onOpenLure, copy }) {
+function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onCloseDetail, onPageChange, compact, onCreated, onOpenLure, onRetry, onRetryDetail, onOpenSession, copy }) {
   const group = groups.find((candidate) => candidate.key === 'lureBox') || groups[0]
-  const [inventoryItems, setInventoryItems] = useState(group?.items || [])
+  const inventoryItems = group?.items || []
   const [libraryItems, setLibraryItems] = useState([])
   const [libraryLoading, setLibraryLoading] = useState(true)
   const [typeFilter, setTypeFilter] = useState('ALL')
   const [editorState, setEditorState] = useState(null)
   const [feedback, setFeedback] = useState(null)
-
-  useEffect(() => {
-    setInventoryItems(group?.items || [])
-  }, [group?.items])
 
   useEffect(() => {
     let ignore = false
@@ -5386,9 +5529,7 @@ function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onClose
       )}
 
       {error && (
-        <View style={styles.notice}>
-          <Text style={styles.noticeText}>{copy.resources.loadError}</Text>
-        </View>
+        <RetryNotice message={copy.resources.loadError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       )}
 
       {feedback && (
@@ -5422,6 +5563,8 @@ function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onClose
           onOpenLure={onOpenLure}
           copy={copy}
           compact={compact}
+          onRetry={onRetryDetail}
+          onOpenSession={onOpenSession}
         />
       )}
 
@@ -6571,7 +6714,7 @@ function FormField({ label, value, onChangeText, keyboardType, placeholder, mult
   )
 }
 
-function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact, onOpenLure, lureLibraryItems = [] }) {
+function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact, onRetry, onOpenLure, onCreateSessionFromPlan, onOpenPlan, onOpenSession, onOpenGallery, lureLibraryItems = [] }) {
   const display = getItemDisplay(detail.item, detail.group.key, copy)
   const image = getDetailImage(detail.group, detail.item, detail.data, display)
   const tone = groupTones[detail.group.key] || groupTones.spots
@@ -6619,9 +6762,7 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact,
       )}
 
       {detail.error && (
-        <View style={styles.notice}>
-          <Text style={styles.noticeText}>{copy.resources.detailLoadError}</Text>
-        </View>
+        <RetryNotice message={copy.resources.detailLoadError} actionLabel={copy.resources.retry} onRetry={onRetry} />
       )}
 
       {detail.group.key === 'catches' && (
@@ -6634,11 +6775,12 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact,
           onClose={onClose}
           onEdit={onEditItem}
           onDelete={onDeleteItem}
+          onOpenSession={onOpenSession}
         />
       )}
       {detail.group.key === 'spots' && <SpotDetail detail={detail} copy={copy} tone={tone} />}
-      {detail.group.key === 'plans' && <PlanDetail detail={detail} copy={copy} tone={tone} />}
-      {detail.group.key === 'sessions' && <SessionDetail detail={detail} copy={copy} tone={tone} />}
+      {detail.group.key === 'plans' && <PlanDetail detail={detail} copy={copy} tone={tone} onCreateSession={onCreateSessionFromPlan} />}
+      {detail.group.key === 'sessions' && <SessionDetail detail={detail} copy={copy} tone={tone} onOpenPlan={onOpenPlan} onOpenGallery={onOpenGallery} />}
       {detail.group.key === 'lureBox' && <LureBoxDetail detail={detail} image={image} copy={copy} tone={tone} onOpenLure={onOpenLure} />}
       {detail.group.key === 'fish' && (
         <FishDetail
@@ -6664,11 +6806,12 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact,
   )
 }
 
-function CatchDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDelete }) {
+function CatchDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDelete, onOpenSession }) {
   const item = detail.item
   const data = detail.data || item
   const fields = copy.resources.fields
   const sessionDate = formatSchedule(data.date || item.sessionDate, data.startTime || item.sessionStartTime, copy)
+  const sessionId = data.sessionId || item.sessionId
 
   return (
     <View style={[styles.catchDetailView, compact && styles.catchDetailViewCompact]}>
@@ -6719,6 +6862,16 @@ function CatchDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDe
             <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{fields.session}</Text>
             <Text style={styles.catchContextTitle}>{sessionDate}</Text>
           </View>
+          {sessionId && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.openSession}
+              onPress={() => onOpenSession?.(sessionId)}
+              style={styles.sessionSecondaryAction}
+            >
+              <Text style={styles.sessionSecondaryActionText}>{copy.resources.openSession}</Text>
+            </Pressable>
+          )}
         </View>
         <View style={styles.catchContextGrid}>
           <CatchContextItem label={fields.spot} value={item.spotName || data.spotName} />
@@ -6793,7 +6946,7 @@ function SpotDetail({ detail, copy, tone }) {
   )
 }
 
-function PlanDetail({ detail, copy, tone }) {
+function PlanDetail({ detail, copy, tone, onCreateSession }) {
   const source = detail.data || detail.item
   const fields = copy.resources.fields
 
@@ -6821,6 +6974,16 @@ function PlanDetail({ detail, copy, tone }) {
           </View>
         </View>
       )}
+      <View style={styles.sessionActionBar}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.resources.createSessionFromPlan}
+          onPress={() => onCreateSession?.(source)}
+          style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }]}
+        >
+          <Text style={styles.sessionPrimaryActionText}>{copy.resources.createSessionFromPlan}</Text>
+        </Pressable>
+      </View>
       <PlanRecommendationPanel planId={source.id} copy={copy} tone={tone} />
     </View>
   )
@@ -6883,7 +7046,7 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
     return () => {
       ignore = true
     }
-  }, [planId])
+  }, [copy.resources.aiPlanLoadError, planId])
 
   async function generateRecommendation() {
     if (!planId) {
@@ -7133,40 +7296,86 @@ function RecommendationList({ title, items, tone }) {
   )
 }
 
-function SessionDetail({ detail, copy, tone }) {
+function SessionDetail({ detail, copy, tone, onOpenPlan, onOpenGallery }) {
   const fields = copy.resources.fields
   const initialSource = detail.data || detail.item
   const [session, setSession] = useState(initialSource)
   const [catches, setCatches] = useState([])
   const [catchesLoading, setCatchesLoading] = useState(true)
+  const [catchesError, setCatchesError] = useState(false)
   const [showCatchForm, setShowCatchForm] = useState(false)
   const [editingCatch, setEditingCatch] = useState(null)
   const [finishOpen, setFinishOpen] = useState(false)
   const [finishForm, setFinishForm] = useState({ success: '', resultSummary: '', rating: '' })
   const [actionLoading, setActionLoading] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [linkedPlan, setLinkedPlan] = useState(null)
+  const [linkedPlanLoading, setLinkedPlanLoading] = useState(false)
 
   useEffect(() => {
-    setSession(initialSource)
-  }, [initialSource?.id, detail.data])
+    const nextSession = detail.data || detail.item
+    if (!nextSession) {
+      return undefined
+    }
 
-  async function loadCatches() {
+    Promise.resolve().then(() => {
+      setSession(nextSession)
+    })
+
+    return undefined
+  }, [detail.data, detail.item])
+
+  const loadCatches = useCallback(async () => {
     if (!session?.id) return
     setCatchesLoading(true)
+    setCatchesError(false)
     try {
       const response = await fetch(`/api/sessions/${session.id}/catches`)
       if (!response.ok) throw new Error('Catches unavailable')
       setCatches(await response.json())
     } catch {
       setCatches([])
+      setCatchesError(true)
     } finally {
       setCatchesLoading(false)
     }
-  }
+  }, [session])
 
   useEffect(() => {
-    loadCatches()
-  }, [session?.id])
+    Promise.resolve().then(() => {
+      void loadCatches()
+    })
+  }, [loadCatches])
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadLinkedPlan() {
+      if (!session?.planId) {
+        setLinkedPlan(null)
+        setLinkedPlanLoading(false)
+        return
+      }
+
+      setLinkedPlanLoading(true)
+      try {
+        const response = await fetch(`/api/plans/${session.planId}`)
+        if (!response.ok) throw new Error('Plan unavailable')
+        const data = await response.json()
+        if (!ignore) setLinkedPlan(data)
+      } catch {
+        if (!ignore) setLinkedPlan(null)
+      } finally {
+        if (!ignore) setLinkedPlanLoading(false)
+      }
+    }
+
+    loadLinkedPlan()
+
+    return () => {
+      ignore = true
+    }
+  }, [session?.planId])
 
   function updateFinishField(field, value) {
     setFeedback(null)
@@ -7236,15 +7445,29 @@ function SessionDetail({ detail, copy, tone }) {
 
   const status = String(session?.status || '').toLowerCase()
   const isFinished = status === 'finished'
-  const isActive = !isFinished
-  const statusLabel = isActive ? copy.resources.sessionStatusActive : copy.resources.sessionStatusFinished
-  const statusStyle = isActive ? styles.sessionStatusActive : styles.sessionStatusFinished
+  const isActive = status === 'active'
+  const isPlanned = !isFinished && !isActive
+  const statusLabel = isFinished
+    ? copy.resources.sessionStatusFinished
+    : isActive
+      ? copy.resources.sessionStatusActive
+      : copy.resources.sessionStatusPlanned
+  const statusStyle = isFinished
+    ? styles.sessionStatusFinished
+    : isActive
+      ? styles.sessionStatusActive
+      : styles.sessionStatusPlanned
   const resultLabel = session?.success === true
     ? copy.resources.successResult
     : session?.success === false
       ? copy.resources.failureResult
       : '--'
   const catchItems = catches || []
+  const planSource = linkedPlan || session
+  const planConditionsDiffer = Boolean(
+    linkedPlan &&
+    (session?.waterClarity !== linkedPlan.waterClarity || session?.waterLevel !== linkedPlan.waterLevel),
+  )
 
   return (
     <View style={styles.detailContent}>
@@ -7252,10 +7475,14 @@ function SessionDetail({ detail, copy, tone }) {
         <View style={styles.sessionStatusHeaderCopy}>
           <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{fields.status}</Text>
           <View style={styles.sessionStatusTitleRow}>
-            <Text style={styles.detailFeatureTitle}>{statusLabel}</Text>
+          <Text style={styles.detailFeatureTitle}>{statusLabel}</Text>
             <View style={[styles.sessionStatusPill, statusStyle]}><View style={styles.sessionStatusPillDot} /><Text style={styles.sessionStatusPillText}>{statusLabel}</Text></View>
           </View>
-          <Text style={styles.sessionStatusSubline}>{session?.spotName || copy.dashboard.unnamedSpot} · {session?.targetSpecies || copy.dashboard.speciesFallback}</Text>
+          <Text style={styles.sessionStatusSubline}>
+            {session?.planId
+              ? copy.resources.planContext
+              : `${session?.spotName || copy.dashboard.unnamedSpot} · ${session?.targetSpecies || copy.dashboard.speciesFallback}`}
+          </Text>
         </View>
         <View style={[styles.sessionStatusOrb, { backgroundColor: tone.accent }]}>
           <Text style={styles.sessionStatusOrbText}>{isFinished ? 'DONE' : isActive ? 'LIVE' : 'READY'}</Text>
@@ -7274,13 +7501,49 @@ function SessionDetail({ detail, copy, tone }) {
 
       {!isFinished && !finishOpen && (
         <View style={styles.sessionActionBar}>
-          {!isActive && <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.startSession} disabled={actionLoading} onPress={startSession} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }]}><Text style={styles.sessionPrimaryActionText}>{copy.resources.startSession}</Text></Pressable>}
+          {isPlanned && <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.startSession} disabled={actionLoading} onPress={startSession} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }]}><Text style={styles.sessionPrimaryActionText}>{copy.resources.startSession}</Text></Pressable>}
           {isActive && <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.finishSession} onPress={() => setFinishOpen(true)} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }]}><Text style={styles.sessionPrimaryActionText}>{copy.resources.finishSession}</Text></Pressable>}
           <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newSessionCatch} onPress={() => { setEditingCatch(null); setShowCatchForm(true) }} style={styles.sessionSecondaryAction}><Text style={styles.sessionSecondaryActionText}>{copy.resources.newSessionCatch}</Text></Pressable>
         </View>
       )}
 
       {isFinished && <View style={styles.sessionActionBar}><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newSessionCatch} onPress={() => { setEditingCatch(null); setShowCatchForm(true) }} style={styles.sessionSecondaryAction}><Text style={styles.sessionSecondaryActionText}>{copy.resources.newSessionCatch}</Text></Pressable></View>}
+
+      {session?.planId ? (
+        <View style={[styles.planContextSection, styles.sessionPlanContext, { borderColor: `${tone.accent}44` }]}>
+          <View style={styles.planSectionHeader}>
+            <View style={[styles.planSectionMarker, { backgroundColor: tone.accent }]} />
+            <View style={styles.planSectionHeaderCopy}>
+              <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.planContext}</Text>
+              <Text style={styles.planSectionTitle}>{linkedPlanLoading ? copy.loading : copy.resources.linkedPlan}</Text>
+            </View>
+            {session?.planId && linkedPlan && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={copy.resources.openLinkedPlan}
+                onPress={() => onOpenPlan?.(session.planId)}
+                style={styles.sessionSecondaryAction}
+              >
+                <Text style={styles.sessionSecondaryActionText}>{copy.resources.openLinkedPlan}</Text>
+              </Pressable>
+            )}
+          </View>
+          <View style={styles.planSteps}>
+            <PlanStep number="01" label={fields.spot} value={planSource?.spotName} tone={tone.accent} />
+            <PlanStep number="02" label={fields.plannedFor} value={formatSchedule(planSource?.plannedDate || session?.date, planSource?.plannedTime || session?.startTime, copy)} tone={tone.accent} />
+            <PlanStep number="03" label={fields.targetSpecies} value={planSource?.targetSpecies} tone={tone.accent} />
+            <PlanStep number="04" label={fields.waterClarity} value={planSource?.waterClarity} tone={tone.accent} />
+            <PlanStep number="05" label={fields.waterLevel} value={planSource?.waterLevel} tone={tone.accent} />
+          </View>
+        </View>
+      ) : (
+        <DetailSection title={copy.resources.sessionContext} tone={tone.accent}>
+          <DetailLine label={fields.spot} value={session?.spotName} />
+          <DetailLine label={fields.targetSpecies} value={session?.targetSpecies} />
+          <DetailLine label={fields.waterClarity} value={session?.waterClarity} />
+          <DetailLine label={fields.waterLevel} value={session?.waterLevel} />
+        </DetailSection>
+      )}
 
       {finishOpen && (
         <View style={styles.sessionFinishPanel}>
@@ -7294,22 +7557,227 @@ function SessionDetail({ detail, copy, tone }) {
         </View>
       )}
 
-      <DetailSection title={fields.session} tone={tone.accent}>
-        <DetailLine label={fields.spot} value={session?.spotName} />
-        <DetailLine label={fields.targetSpecies} value={session?.targetSpecies} />
-        <DetailLine label={fields.waterClarity} value={session?.waterClarity} />
-        <DetailLine label={fields.waterLevel} value={session?.waterLevel} />
+      <DetailSection title={copy.resources.sessionExecution} tone={tone.accent}>
+        {planConditionsDiffer && (
+          <DetailLine label={copy.resources.actualConditions} value={[session?.waterClarity, session?.waterLevel].filter(Boolean).join(' · ')} />
+        )}
         <DetailLine label={fields.result} value={resultLabel} />
         {session?.resultSummary && <DetailLine label={copy.resources.finishResultSummary} value={session.resultSummary} />}
         <DetailLine label={fields.rating} value={formatRating(session?.rating)} />
       </DetailSection>
 
+      <SessionAiTools session={session} copy={copy} tone={tone} />
+
       {showCatchForm && <GalleryCatchForm key={editingCatch?.id || 'session-new-catch'} item={editingCatch ? { catchId: editingCatch.id, sessionId: session.id, species: editingCatch.species, lureLibraryItemId: editingCatch.lureLibraryItemId, sizeCm: editingCatch.sizeCm, weightKg: editingCatch.weightKg, photoUrl: editingCatch.photoUrl, photoCaption: editingCatch.photoCaption } : null} fixedSessionId={session.id} copy={copy} compact={false} onSaved={() => { setShowCatchForm(false); setEditingCatch(null); setFeedback({ type: 'success', text: copy.resources.catchSaved }); loadCatches() }} onCancel={() => { setShowCatchForm(false); setEditingCatch(null) }} />}
 
       <View style={styles.sessionCatchesSection}>
-        <View style={styles.sessionCatchesHeader}><View><Text style={styles.sessionCatchesTitle}>{copy.resources.sessionCatches}</Text><Text style={styles.sessionCatchesHint}>{catchItems.length} {copy.resources.total}</Text></View><Text style={styles.sessionCatchesAccent}>{copy.resources.galleryImages}</Text></View>
-        {catchesLoading ? <View style={styles.loadingLine}><ActivityIndicator color={tone.accent} /><Text style={styles.loadingText}>{copy.loading}</Text></View> : catchItems.length === 0 ? <Text style={styles.sessionCatchesEmpty}>{copy.resources.noCatchesYet}</Text> : <View style={styles.sessionCatchList}>{catchItems.map((catchItem) => <SessionCatchRow key={catchItem.id} item={catchItem} copy={copy} onEdit={() => { setEditingCatch(catchItem); setShowCatchForm(true) }} onDelete={() => deleteCatch(catchItem)} />)}</View>}
+        <View style={styles.sessionCatchesHeader}>
+          <View><Text style={styles.sessionCatchesTitle}>{copy.resources.sessionCatches}</Text><Text style={styles.sessionCatchesHint}>{catchItems.length} {copy.resources.total}</Text></View>
+          <View style={styles.sessionCatchesHeaderActions}>
+            <Text style={styles.sessionCatchesAccent}>{copy.resources.galleryImages}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.viewGallery} onPress={onOpenGallery} style={styles.sessionSecondaryAction}>
+              <Text style={styles.sessionSecondaryActionText}>{copy.resources.viewGallery}</Text>
+            </Pressable>
+          </View>
+        </View>
+        {catchesLoading ? <View style={styles.loadingLine}><ActivityIndicator color={tone.accent} /><Text style={styles.loadingText}>{copy.loading}</Text></View> : catchesError ? <RetryNotice message={copy.resources.detailLoadError} actionLabel={copy.resources.retry} onRetry={loadCatches} /> : catchItems.length === 0 ? <Text style={styles.sessionCatchesEmpty}>{copy.resources.noCatchesYet}</Text> : <View style={styles.sessionCatchList}>{catchItems.map((catchItem) => <SessionCatchRow key={catchItem.id} item={catchItem} copy={copy} onEdit={() => { setEditingCatch(catchItem); setShowCatchForm(true) }} onDelete={() => deleteCatch(catchItem)} />)}</View>}
       </View>
+    </View>
+  )
+}
+
+function SessionAiTools({ session, copy, tone }) {
+  const [situation, setSituation] = useState('')
+  const [conditions, setConditions] = useState('')
+  const [adjustment, setAdjustment] = useState(null)
+  const [adjustmentLoading, setAdjustmentLoading] = useState(false)
+  const [adjustmentError, setAdjustmentError] = useState(false)
+  const [review, setReview] = useState(null)
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [reviewError, setReviewError] = useState(false)
+  const [latestRecommendation, setLatestRecommendation] = useState(null)
+  const [evaluation, setEvaluation] = useState({ step: 'PLAN_A', followed: 'true', result: '', success: '', rating: '' })
+  const [evaluationLoading, setEvaluationLoading] = useState(false)
+  const [evaluationFeedback, setEvaluationFeedback] = useState(null)
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadRecommendation() {
+      if (!session?.planId) {
+        setLatestRecommendation(null)
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/recommendations/plans/${session.planId}/latest`)
+        if (!response.ok) throw new Error('Recommendation unavailable')
+        const data = await response.json()
+        if (!ignore) setLatestRecommendation(data)
+      } catch {
+        if (!ignore) setLatestRecommendation(null)
+      }
+    }
+
+    loadRecommendation()
+    return () => { ignore = true }
+  }, [session?.planId])
+
+  async function generateAdjustment() {
+    if (!toNullableText(situation)) {
+      setAdjustmentError(true)
+      return
+    }
+
+    setAdjustmentLoading(true)
+    setAdjustmentError(false)
+    try {
+      const response = await fetch('/api/recommendations/session-adjustment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: session.id, situation: situation.trim(), currentConditions: toNullableText(conditions) }),
+      })
+      if (!response.ok) throw new Error('Adjustment failed')
+      setAdjustment(await response.json())
+    } catch {
+      setAdjustmentError(true)
+    } finally {
+      setAdjustmentLoading(false)
+    }
+  }
+
+  async function generateReview() {
+    setReviewLoading(true)
+    setReviewError(false)
+    try {
+      const response = await fetch('/api/recommendations/session-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: session.id }),
+      })
+      if (!response.ok) throw new Error('Review failed')
+      setReview(await response.json())
+    } catch {
+      setReviewError(true)
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+  function updateEvaluation(field, value) {
+    setEvaluationFeedback(null)
+    setEvaluation((current) => ({ ...current, [field]: value }))
+  }
+
+  async function saveEvaluation() {
+    if (!latestRecommendation || !toNullableText(evaluation.result)) {
+      setEvaluationFeedback({ type: 'error', text: copy.resources.evaluationError })
+      return
+    }
+
+    setEvaluationLoading(true)
+    setEvaluationFeedback(null)
+    try {
+      const response = await fetch(`/api/recommendations/${latestRecommendation.id}/executions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: session.id,
+          recommendationStep: evaluation.step,
+          followed: evaluation.followed === 'true',
+          result: evaluation.result.trim(),
+          success: evaluation.success === '' ? null : evaluation.success === 'true',
+          rating: evaluation.rating ? Number(evaluation.rating) : null,
+        }),
+      })
+      if (!response.ok) throw new Error('Evaluation failed')
+      setEvaluationFeedback({ type: 'success', text: copy.resources.evaluationSaved })
+    } catch {
+      setEvaluationFeedback({ type: 'error', text: copy.resources.evaluationError })
+    } finally {
+      setEvaluationLoading(false)
+    }
+  }
+
+  const confidence = String(adjustment?.confidence || review?.confidence || '').toLowerCase()
+  const confidenceColor = confidence === 'high' ? '#2b8c68' : confidence === 'medium' ? '#c58a2b' : '#d05a4e'
+  const isFinished = String(session?.status || '').toLowerCase() === 'finished'
+
+  return (
+    <View style={[styles.sessionAiTools, { borderColor: `${tone.accent}55` }]}>
+      <View style={styles.sessionAiToolsHeader}>
+        <View style={[styles.sessionAiToolsMark, { backgroundColor: tone.accent }]}><Text style={styles.sessionAiToolsMarkText}>AI</Text></View>
+        <View style={styles.sessionAiToolsHeaderCopy}>
+          <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.sessionAiTools}</Text>
+          <Text style={styles.sessionAiToolsHint}>{copy.resources.sessionAiToolsHint}</Text>
+        </View>
+      </View>
+
+      {!isFinished && (
+        <View style={styles.sessionAiAdjustmentBlock}>
+          <FormField label={copy.resources.sessionAdjustmentSituation} value={situation} onChangeText={setSituation} placeholder={copy.resources.sessionAdjustmentPlaceholder} multiline />
+          <FormField label={`${copy.resources.sessionAdjustmentConditions} (${copy.resources.optional})`} value={conditions} onChangeText={setConditions} multiline />
+          <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.generateSessionAdjustment} disabled={adjustmentLoading} onPress={generateAdjustment} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }, adjustmentLoading && styles.submitButtonDisabled]}>
+            <Text style={styles.sessionPrimaryActionText}>{adjustmentLoading ? copy.resources.sessionAdjustmentLoading : copy.resources.generateSessionAdjustment}</Text>
+          </Pressable>
+          {adjustmentError && <View style={styles.sessionAiError}><Text style={styles.sessionAiErrorText}>{copy.resources.sessionAdjustmentError}</Text></View>}
+        </View>
+      )}
+
+      {adjustment && (
+        <View style={styles.sessionAiResult}>
+          <View style={styles.sessionAiResultHeader}>
+            <Text style={styles.sessionAiResultTitle}>{copy.resources.sessionAdjustmentSummary}</Text>
+            <Text style={[styles.sessionAiConfidence, { color: confidenceColor }]}>{adjustment.confidence || '-'}</Text>
+          </View>
+          <Text style={styles.sessionAiSummary}>{adjustment.summary || '-'}</Text>
+          <View style={styles.sessionAiResultGrid}>
+            <RecommendationPlanCard label={copy.resources.sessionAdjustmentAction} value={adjustment.immediateAction} tone="#2b8c68" />
+            <RecommendationPlanCard label={copy.resources.sessionAdjustmentNext} value={adjustment.nextTechnique} tone="#c58a2b" />
+            <RecommendationPlanCard label={copy.resources.sessionAdjustmentFallback} value={adjustment.fallbackAction} tone="#2c76c7" />
+          </View>
+        </View>
+      )}
+
+      {isFinished && (
+        <View style={styles.sessionAiReviewBlock}>
+          <View style={styles.sessionAiReviewHeader}>
+            <View><Text style={styles.sessionAiReviewTitle}>{copy.resources.sessionReview}</Text><Text style={styles.sessionAiReviewHint}>{copy.resources.sessionReviewSummary}</Text></View>
+            <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.generateSessionReview} disabled={reviewLoading} onPress={generateReview} style={[styles.sessionSecondaryAction, reviewLoading && styles.submitButtonDisabled]}>
+              <Text style={styles.sessionSecondaryActionText}>{reviewLoading ? copy.resources.sessionReviewLoading : copy.resources.generateSessionReview}</Text>
+            </Pressable>
+          </View>
+          {reviewError && <View style={styles.sessionAiError}><Text style={styles.sessionAiErrorText}>{copy.resources.sessionReviewError}</Text></View>}
+          {review && (
+            <View style={styles.sessionAiReviewResult}>
+              <Text style={styles.sessionAiSummary}>{review.summary || '-'}</Text>
+              <View style={styles.sessionAiReviewRows}>
+                <DetailLine label={copy.resources.sessionReviewWorked} value={review.whatWorked} />
+                <DetailLine label={copy.resources.sessionReviewFailed} value={review.whatFailed} />
+                <DetailLine label={copy.resources.sessionReviewNext} value={review.nextSessionSuggestion} />
+              </View>
+              {Array.isArray(review.keyLessons) && review.keyLessons.length > 0 && <View style={styles.sessionAiLessonList}>{review.keyLessons.map((lesson, index) => <Text key={`${lesson}-${index}`} style={styles.sessionAiLesson}>• {lesson}</Text>)}</View>}
+            </View>
+          )}
+        </View>
+      )}
+
+      {latestRecommendation && (
+        <View style={styles.sessionAiEvaluationBlock}>
+          <Text style={styles.sessionAiEvaluationTitle}>{copy.resources.evaluateRecommendation}</Text>
+          <View style={styles.sessionAiEvaluationGrid}>
+            <ChoiceGroup label={copy.resources.recommendationStep} value={evaluation.step} options={[{ value: 'PLAN_A', label: copy.resources.planA }, { value: 'PLAN_B', label: copy.resources.planB }, { value: 'PLAN_C', label: copy.resources.planC }]} onChange={(value) => updateEvaluation('step', value)} />
+            <ChoiceGroup label={copy.resources.recommendationFollowed} value={evaluation.followed} options={[{ value: 'true', label: copy.resources.yes }, { value: 'false', label: copy.resources.no }]} onChange={(value) => updateEvaluation('followed', value)} />
+          </View>
+          <View style={styles.sessionAiEvaluationGrid}>
+            <FormField label={copy.resources.recommendationResult} value={evaluation.result} onChangeText={(value) => updateEvaluation('result', value)} placeholder={copy.resources.recommendationResultPlaceholder} multiline />
+            <FormField label={`${copy.resources.recommendationRating} (${copy.resources.optional})`} value={evaluation.rating} onChangeText={(value) => updateEvaluation('rating', value)} keyboardType="number-pad" placeholder="1-5" />
+          </View>
+          <ChoiceGroup label={`${copy.resources.finishResult} (${copy.resources.optional})`} value={evaluation.success} options={[{ value: 'true', label: copy.resources.successResult }, { value: 'false', label: copy.resources.failureResult }]} onChange={(value) => updateEvaluation('success', value)} />
+          {evaluationFeedback && <View style={[styles.formFeedback, evaluationFeedback.type === 'success' && styles.formFeedbackSuccess]}><Text style={[styles.formFeedbackText, evaluationFeedback.type === 'success' && styles.formFeedbackTextSuccess]}>{evaluationFeedback.text}</Text></View>}
+          <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.saveEvaluation} disabled={evaluationLoading} onPress={saveEvaluation} style={[styles.sessionPrimaryAction, { backgroundColor: tone.accent }, evaluationLoading && styles.submitButtonDisabled]}><Text style={styles.sessionPrimaryActionText}>{evaluationLoading ? copy.resources.saving : copy.resources.saveEvaluation}</Text></Pressable>
+        </View>
+      )}
     </View>
   )
 }
@@ -7853,38 +8321,6 @@ function ResourceCard({ item, group, copy, onPress }) {
         </View>
       </View>
     </Pressable>
-  )
-}
-
-function ProfileScreen({ compact, copy }) {
-  return (
-    <View style={styles.resourceStack}>
-      <ProfileWorkspaceHeader compact={compact} copy={copy} />
-
-      <View style={[styles.profileBoard, compact && styles.profileBoardCompact]}>
-        <View style={styles.profileSettingsHeading}>
-          <Text style={styles.profileOverline}>{copy.resources.profileReady}</Text>
-          <Text style={styles.profileName}>{copy.languageLabel}</Text>
-        </View>
-        <View style={[styles.profileSettings, styles.profileSettingsOnly]}>
-          <ProfileSetting image={profileIcon} label={copy.resources.profileReady} value={copy.menu.profile} />
-          <ProfileSetting image={galleryIcon} label={copy.languageLabel} value="PT / EN" />
-          <ProfileSetting image={appIcon} label={copy.resources.noAuth} value="MVP" />
-        </View>
-      </View>
-    </View>
-  )
-}
-
-function ProfileSetting({ image, label, value }) {
-  return (
-    <View style={styles.profileSetting}>
-      <Image source={{ uri: image }} style={styles.profileSettingImage} resizeMode="cover" />
-      <View style={styles.profileSettingCopy}>
-        <Text style={styles.profileSettingLabel}>{label}</Text>
-        <Text style={styles.profileSettingValue}>{value}</Text>
-      </View>
-    </View>
   )
 }
 
@@ -8570,15 +9006,6 @@ function formatCoordinates(latitude, longitude) {
   return `${normalizedLatitude.toFixed(3)}, ${normalizedLongitude.toFixed(3)}`
 }
 
-function formatSizeWeight(item) {
-  const value = compactLine(
-    formatCatchSize(item),
-    formatCatchWeight(item),
-  )
-
-  return value === '-' ? null : value
-}
-
 function formatCatchSize(item) {
   return item?.sizeCm != null ? `${item.sizeCm} cm` : null
 }
@@ -8907,6 +9334,20 @@ const styles = StyleSheet.create({
     color: '#8b4b19',
     fontSize: 14,
     fontWeight: '800',
+  },
+  noticeAction: {
+    alignSelf: 'flex-start',
+    marginTop: 9,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 5,
+    backgroundColor: '#8b4b19',
+  },
+  noticeActionText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
   },
   dashboardStack: {
     gap: 14,
@@ -9300,6 +9741,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   dashboardSolunarPanel: {
+    alignSelf: 'flex-start',
     flexGrow: 1,
     flexBasis: 320,
     minHeight: 162,
@@ -10217,8 +10659,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   commandListPanel: {
-    flexGrow: 1,
-    flexBasis: 320,
+    alignSelf: 'stretch',
+    flexGrow: 0,
+    flexBasis: 'auto',
     minHeight: 162,
     flexDirection: 'row',
     gap: 14,
@@ -10227,6 +10670,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#102f3a',
     borderWidth: 1,
     borderColor: '#245460',
+  },
+  dashboardListPressable: {
+    alignSelf: 'flex-start',
+    flexGrow: 1,
+    flexBasis: 320,
+  },
+  dashboardSignalPressable: {
+    flex: 1,
+    minWidth: 140,
   },
   commandMetricCopy: {
     flex: 1,
@@ -10459,10 +10911,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0bf58',
     borderWidth: 1,
     borderColor: '#ffe4a1',
-    shadowColor: '#f0bf58',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
+    boxShadow: '0px 3px 8px rgba(240, 191, 88, 0.35)',
   },
   missionWorkspaceAiDot: {
     width: 9,
@@ -11801,10 +12250,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 17,
     borderRadius: 5,
     backgroundColor: '#b95e47',
-    shadowColor: '#b95e47',
-    shadowOpacity: 0.18,
-    shadowRadius: 7,
-    shadowOffset: { width: 0, height: 3 },
+    boxShadow: '0px 3px 7px rgba(185, 94, 71, 0.18)',
   },
   galleryCaptureActionRow: {
     alignItems: 'center',
@@ -12277,10 +12723,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#d8bfb6',
-    shadowColor: '#6d4b42',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+    boxShadow: '0px 4px 8px rgba(109, 75, 66, 0.15)',
     elevation: 12,
     zIndex: 120,
   },
@@ -14247,10 +14690,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e15d52',
     borderWidth: 4,
     borderColor: '#ffffff',
-    shadowColor: '#173d45',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(23, 61, 69, 0.35)',
     elevation: 3,
   },
   spotMapMarkerPulse: {
@@ -14271,10 +14711,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.93)',
     borderWidth: 1,
     borderColor: '#d6e5e2',
-    shadowColor: '#173d45',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.16,
-    shadowRadius: 5,
+    boxShadow: '0px 2px 5px rgba(23, 61, 69, 0.16)',
     elevation: 3,
   },
   spotMapZoomButton: {
@@ -15189,6 +15626,32 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 14,
   },
+  sessionInheritedContext: {
+    flexBasis: '100%',
+    gap: 13,
+    padding: 15,
+    borderRadius: 12,
+    backgroundColor: '#f7fbf9',
+    borderWidth: 1,
+    borderColor: '#cfe1da',
+  },
+  sessionInheritedHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sessionInheritedCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  sessionInheritedHint: {
+    marginTop: 4,
+    color: '#687a72',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
   sessionNotesField: {
     flexBasis: '100%',
   },
@@ -15248,6 +15711,167 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textTransform: 'uppercase',
   },
+  sessionAiTools: {
+    gap: 14,
+    padding: 15,
+    borderRadius: 12,
+    backgroundColor: '#f5faf8',
+    borderWidth: 1,
+  },
+  sessionAiToolsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 11,
+  },
+  sessionAiToolsMark: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  sessionAiToolsMarkText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  sessionAiToolsHeaderCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
+  },
+  sessionAiToolsHint: {
+    color: '#60766d',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  sessionAiAdjustmentBlock: {
+    gap: 12,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d8e8df',
+  },
+  sessionAiError: {
+    padding: 11,
+    borderRadius: 8,
+    backgroundColor: '#fff1ed',
+    borderWidth: 1,
+    borderColor: '#efc8bd',
+  },
+  sessionAiErrorText: {
+    color: '#9e4e3d',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '800',
+  },
+  sessionAiResult: {
+    gap: 11,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#c7dfd5',
+  },
+  sessionAiResultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  sessionAiResultTitle: {
+    color: '#17372f',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  sessionAiConfidence: {
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  sessionAiSummary: {
+    color: '#19342d',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '800',
+  },
+  sessionAiResultGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  sessionAiReviewBlock: {
+    gap: 12,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#fffaf0',
+    borderWidth: 1,
+    borderColor: '#e8cd91',
+  },
+  sessionAiReviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sessionAiReviewTitle: {
+    color: '#8f6018',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  sessionAiReviewHint: {
+    marginTop: 3,
+    color: '#716854',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  sessionAiReviewResult: {
+    gap: 10,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#eadfbd',
+  },
+  sessionAiReviewRows: {
+    gap: 0,
+  },
+  sessionAiLessonList: {
+    gap: 4,
+  },
+  sessionAiLesson: {
+    color: '#5d6257',
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  sessionAiEvaluationBlock: {
+    gap: 12,
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: '#eef7ff',
+    borderWidth: 1,
+    borderColor: '#bfd8ee',
+  },
+  sessionAiEvaluationTitle: {
+    color: '#2467a4',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+  },
+  sessionAiEvaluationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
   sessionFinishPanel: {
     gap: 13,
     padding: 15,
@@ -15303,6 +15927,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 10,
+  },
+  sessionCatchesHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: 8,
   },
   sessionCatchesTitle: {
     color: '#102421',
@@ -16083,10 +16714,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   spotAtlasIndexItemSelected: {
-    shadowColor: '#0b3443',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.14,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(11, 52, 67, 0.14)',
     elevation: 3,
   },
   spotAtlasIndexDot: {
@@ -16162,10 +16790,7 @@ const styles = StyleSheet.create({
   },
   spotTypePickerOptionSelected: {
     backgroundColor: '#e4f4ed',
-    shadowColor: '#0f7775',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.14,
-    shadowRadius: 6,
+    boxShadow: '0px 3px 6px rgba(15, 119, 117, 0.14)',
     elevation: 2,
   },
   spotTypePickerImage: {
@@ -16675,6 +17300,20 @@ const styles = StyleSheet.create({
     color: '#5a6b63',
     fontSize: 14,
     fontWeight: '800',
+  },
+  emptyAction: {
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 5,
+    backgroundColor: '#147f79',
+  },
+  emptyActionText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
   },
   loadingLine: {
     flexDirection: 'row',

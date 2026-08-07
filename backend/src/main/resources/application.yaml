@@ -47,3 +47,4 @@ lurepilot:
     read-timeout-seconds: ${LUREPILOT_WEATHER_READ_TIMEOUT_SECONDS:20}
   uploads:
     directory: ${LUREPILOT_UPLOADS_DIRECTORY:uploads}
+    public-base-url: ${LUREPILOT_UPLOADS_PUBLIC_BASE_URL:/uploads}

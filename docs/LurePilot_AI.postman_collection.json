@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LurePilot AI",
-    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, session lifecycle, catch gallery, catch photo uploads, AI recommendations, insights, frontend options and Open-Meteo weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history.",
+    "description": "Backend API collection for LurePilot AI MVP, including fishing spots, lures, fish library, plans, sessions, session lifecycle, catch gallery, managed catch photo uploads, AI recommendations, insights, frontend options and Open-Meteo weather snapshots. The React Native Web frontend uses the fish/lure library endpoints for image-based catalogue CRUD and the gallery endpoints for photo-based catch history. Uploads accept JPEG, PNG, WEBP and GIF files up to 10 MB and return a URL for catch records.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -1812,7 +1812,7 @@
                 "catches"
               ]
             },
-            "description": "Creates a catch inside a fishing session. species should be selected from the fish library and lureLibraryItemId can reference a lure library item. Photo fields are optional URL/path metadata for future app uploads."
+            "description": "Creates a catch inside a fishing session. species should be selected from the fish library and lureLibraryItemId can reference a lure library item. Photo fields are optional URLs returned by the managed image upload request."
           }
         },
         {

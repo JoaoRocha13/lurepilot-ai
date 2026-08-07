@@ -253,6 +253,7 @@ public class AiRecommendationService {
         return toResponse(aiRecommendationRepository.save(recommendation));
     }
 
+    @Transactional(readOnly = true)
     public List<AiSessionAdjustmentResponse> getSessionAdjustments(Long sessionId) {
         if (!fishingSessionRepository.existsById(sessionId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
@@ -264,6 +265,7 @@ public class AiRecommendationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public AiSessionAdjustmentResponse getLatestSessionAdjustment(Long sessionId) {
         if (!fishingSessionRepository.existsById(sessionId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
@@ -274,6 +276,7 @@ public class AiRecommendationService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI session adjustment not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<AiSessionReviewResponse> getSessionReviews(Long sessionId) {
         if (!fishingSessionRepository.existsById(sessionId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");
@@ -285,6 +288,7 @@ public class AiRecommendationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public AiSessionReviewResponse getLatestSessionReview(Long sessionId) {
         if (!fishingSessionRepository.existsById(sessionId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fishing session not found");

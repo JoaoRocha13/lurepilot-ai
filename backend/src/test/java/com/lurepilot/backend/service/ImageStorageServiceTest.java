@@ -3,6 +3,7 @@ package com.lurepilot.backend.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ class ImageStorageServiceTest {
     @Test
     void storesImageWithGeneratedSafeNameAndUrl() throws Exception {
         ImageStorageService service = new ImageStorageService(tempDirectory.toString());
+        ReflectionTestUtils.setField(service, "publicBaseUrl", "https://cdn.example.test/catches/");
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "catch photo.png",
@@ -28,7 +30,7 @@ class ImageStorageServiceTest {
 
         var response = service.store(file);
 
-        assertThat(response.url()).startsWith("/uploads/");
+        assertThat(response.url()).startsWith("https://cdn.example.test/catches/");
         assertThat(response.fileName()).endsWith(".png");
         assertThat(response.contentType()).isEqualTo("image/png");
         assertThat(response.size()).isEqualTo(3);
@@ -42,6 +44,21 @@ class ImageStorageServiceTest {
 
         assertThatThrownBy(() -> service.store(file))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Only image files are supported");
+                .hasMessageContaining("Only JPEG, PNG, WEBP and GIF images are supported");
+    }
+
+    @Test
+    void rejectsImagesLargerThanTenMegabytes() {
+        ImageStorageService service = new ImageStorageService(tempDirectory.toString());
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "large.jpg",
+                "image/jpeg",
+                new byte[10 * 1024 * 1024 + 1]
+        );
+
+        assertThatThrownBy(() -> service.store(file))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("10 MB or smaller");
     }
 }

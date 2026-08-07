@@ -2,6 +2,8 @@ package com.lurepilot.backend.controller;
 
 import com.lurepilot.backend.config.GlobalExceptionHandler;
 import com.lurepilot.backend.dto.AnalyticsSummaryResponse;
+import com.lurepilot.backend.dto.AiSessionAdjustmentResponse;
+import com.lurepilot.backend.dto.AiSessionReviewResponse;
 import com.lurepilot.backend.dto.CatchGalleryItemResponse;
 import com.lurepilot.backend.dto.FishSpeciesResponse;
 import com.lurepilot.backend.dto.FishSpeciesSummaryResponse;
@@ -315,6 +317,76 @@ class MainControllerMockMvcTest {
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.message").value("Validation failed"))
                 .andExpect(jsonPath("$.fieldErrors[*].field", hasItem("planId")));
+    }
+
+    @Test
+    void createSessionAdjustmentAcceptsSessionContext() throws Exception {
+        AiRecommendationService service = mock(AiRecommendationService.class);
+        when(service.createSessionAdjustment(org.mockito.ArgumentMatchers.any())).thenReturn(new AiSessionAdjustmentResponse(
+                7L,
+                3L,
+                2L,
+                1,
+                "A atividade abrandou junto a margem.",
+                List.of(),
+                "Abranda a recuperacao junto a estrutura.",
+                "Experimenta uma pausa mais longa.",
+                "Volta ao plano B se nao houver toques.",
+                List.of("Agua muito aberta"),
+                "medium",
+                64,
+                "Weather e historico disponiveis.",
+                true,
+                List.of(),
+                Instant.parse("2026-08-07T12:00:00Z")
+        ));
+
+        mockMvc(new AiRecommendationController(service))
+                .perform(post("/api/recommendations/session-adjustment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "sessionId": 3,
+                                  "situation": "Sem toques ha 30 minutos",
+                                  "currentConditions": "O vento aumentou"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.sessionId").value(3))
+                .andExpect(jsonPath("$.immediateAction").value("Abranda a recuperacao junto a estrutura."));
+    }
+
+    @Test
+    void createSessionReviewAcceptsSessionId() throws Exception {
+        AiRecommendationService service = mock(AiRecommendationService.class);
+        when(service.createSessionReview(org.mockito.ArgumentMatchers.any())).thenReturn(new AiSessionReviewResponse(
+                8L,
+                3L,
+                2L,
+                1,
+                "A sessao mostrou melhor resposta junto a estrutura.",
+                "A pausa longa.",
+                "A recuperacao rapida.",
+                "Vinil verde natural",
+                "Boa apresentacao junto ao fundo.",
+                "Atividade concentrada ao final da tarde.",
+                "Repetir a abordagem com vento moderado.",
+                List.of("Comecar mais perto da estrutura."),
+                "high",
+                82,
+                "Historico consistente.",
+                true,
+                List.of(),
+                Instant.parse("2026-08-07T12:05:00Z")
+        ));
+
+        mockMvc(new AiRecommendationController(service))
+                .perform(post("/api/recommendations/session-review")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"sessionId\":3}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.sessionId").value(3))
+                .andExpect(jsonPath("$.confidence").value("high"));
     }
 
     @Test
