@@ -177,8 +177,6 @@ const translations = {
   pt: {
     brandSubline: 'Planear. Pescar. Aprender.',
     today: 'Hoje',
-    backendOnline: 'Backend online',
-    backendOffline: 'Backend offline',
     backendUnavailable: 'Sem ligação ao backend. Estou a mostrar uma vista de exemplo.',
     languageLabel: 'Idioma',
     areaLabel: 'Área',
@@ -794,8 +792,6 @@ const translations = {
   en: {
     brandSubline: 'Plan. Fish. Learn.',
     today: 'Today',
-    backendOnline: 'Backend online',
-    backendOffline: 'Backend offline',
     backendUnavailable: 'No backend connection. Showing a sample view.',
     languageLabel: 'Language',
     areaLabel: 'Area',
@@ -1521,7 +1517,6 @@ function App() {
   const compact = width < 940
   const [activeSection, setActiveSection] = useState('dashboard')
   const [language, setLanguage] = useState('pt')
-  const [health, setHealth] = useState(null)
   const [dashboard, setDashboard] = useState(fallbackDashboard)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -1719,28 +1714,20 @@ function App() {
     async function loadInitialData() {
       setLoading(true)
       try {
-        const [healthResponse, dashboardResponse] = await Promise.all([
-          fetch('/api/health'),
-          fetch('/api/dashboard'),
-        ])
+        const dashboardResponse = await fetch('/api/dashboard')
 
-        if (!healthResponse.ok || !dashboardResponse.ok) {
+        if (!dashboardResponse.ok) {
           throw new Error('Backend unavailable')
         }
 
-        const [healthData, dashboardData] = await Promise.all([
-          healthResponse.json(),
-          dashboardResponse.json(),
-        ])
+        const dashboardData = await dashboardResponse.json()
 
         if (!ignore) {
-          setHealth(healthData)
           setDashboard({ ...fallbackDashboard, ...dashboardData })
           setError(null)
         }
       } catch {
         if (!ignore) {
-          setHealth(null)
           setDashboard(fallbackDashboard)
           setError(true)
         }
@@ -1837,9 +1824,9 @@ function App() {
     <SafeAreaView style={styles.safeArea}>
       <View style={[styles.shell, compact && styles.shellCompact]}>
         <View style={[styles.sidebar, compact && styles.sidebarCompact]}>
-          <View style={styles.brandBlock}>
-            <View style={styles.brandIconFrame}>
-              <Image source={{ uri: appIcon }} style={styles.brandIcon} resizeMode="cover" />
+          <View style={[styles.brandBlock, compact && styles.brandBlockCompact]}>
+            <View style={[styles.brandIconFrame, compact && styles.brandIconFrameCompact]}>
+              <Image source={{ uri: appIcon }} style={[styles.brandIcon, compact && styles.brandIconCompact]} resizeMode="cover" />
             </View>
             <View style={styles.brandTextBlock}>
               <Text style={styles.brandName}>LurePilot AI</Text>
@@ -1862,12 +1849,12 @@ function App() {
                   accessibilityRole="button"
                   accessibilityLabel={copy.menu[item.id]}
                   onPress={() => navigateToSection(item.id)}
-                  style={[styles.menuItem, selected && styles.menuItemSelected]}
+                  style={[styles.menuItem, compact && styles.menuItemCompact, selected && styles.menuItemSelected]}
                 >
-                  <View style={styles.menuIconCrop}>
+                  <View style={[styles.menuIconCrop, compact && styles.menuIconCropCompact]}>
                     <Image
                       source={{ uri: item.image }}
-                      style={[styles.menuIcon, { transform: [{ scale: item.iconScale }] }]}
+                      style={[styles.menuIcon, compact && styles.menuIconCompact, { transform: [{ scale: item.iconScale }] }]}
                       resizeMode="cover"
                     />
                   </View>
@@ -1878,15 +1865,6 @@ function App() {
           </ScrollView>
 
           <View style={[styles.sidebarBottom, compact && styles.sidebarBottomCompact]}>
-            {!compact && (
-              <View style={styles.sidebarStatus}>
-                <View style={[styles.statusDot, health ? styles.statusDotOk : styles.statusDotOff]} />
-                <Text style={styles.sidebarStatusText}>
-                  {health ? copy.backendOnline : copy.backendOffline}
-                </Text>
-              </View>
-            )}
-
             <View style={styles.languageSwitch} accessibilityLabel={copy.languageLabel}>
               {['pt', 'en'].map((option) => {
                 const selected = language === option
@@ -1909,17 +1887,13 @@ function App() {
           </View>
         </View>
 
-        <ScrollView style={styles.content} contentContainerStyle={styles.contentInner}>
+        <ScrollView style={styles.content} contentContainerStyle={[styles.contentInner, compact && styles.contentInnerCompact]}>
           {activeSection !== 'dashboard' && (
             <View style={[styles.topBar, styles.pageTopBarCompact, compact && styles.topBarCompact]}>
               <View style={styles.topBarSide}>
                 <View style={styles.workspacePill}>
                   <View style={styles.workspacePillDot} />
                   <Text style={styles.workspacePillText}>{copy.menu[activeSection]}</Text>
-                </View>
-                <View style={styles.backendPill}>
-                  <View style={[styles.statusDot, health ? styles.statusDotOk : styles.statusDotOff]} />
-                  <Text style={styles.backendText}>{health ? copy.backendOnline : copy.backendOffline}</Text>
                 </View>
               </View>
             </View>
@@ -3138,15 +3112,15 @@ function AtlasWorkspaceHeader({ section, groups, compact, copy }) {
   const total = groups[0]?.totalItems || 0
 
   return (
-    <View style={[styles.atlasWorkspace, compact && styles.workspaceCompact]}>
-      <ImageBackground source={{ uri: lakeSpot }} style={styles.atlasWorkspaceVisual} imageStyle={styles.atlasWorkspaceImage}>
+    <View style={[styles.atlasWorkspace, compact && styles.workspaceCompact, compact && styles.atlasWorkspaceCompact]}>
+      <ImageBackground source={{ uri: lakeSpot }} style={[styles.atlasWorkspaceVisual, compact && styles.atlasWorkspaceVisualCompact]} imageStyle={styles.atlasWorkspaceImage}>
         <View style={styles.atlasWorkspaceOverlay}>
           <Text style={styles.workspaceOverline}>01 / {copy.resources.workspace.fieldAtlas}</Text>
           <Text style={styles.workspaceHeroTitle}>{section.title}</Text>
           <Text style={styles.workspaceHeroText}>{copy.resources.workspace.fieldAtlasText}</Text>
         </View>
       </ImageBackground>
-      <View style={styles.atlasWorkspaceInfo}>
+      <View style={[styles.atlasWorkspaceInfo, compact && styles.atlasWorkspaceInfoCompact]}>
         <View style={styles.workspaceInfoHeader}>
           <Text style={styles.workspaceInfoLabel}>{copy.resources.groups.spots}</Text>
           <Text style={styles.workspaceInfoCount}>{total}</Text>
@@ -3166,17 +3140,17 @@ function MissionWorkspaceHeader({ section, groups, compact, copy }) {
   const total = groups[0]?.totalItems || 0
 
   return (
-    <View style={[styles.missionWorkspace, compact && styles.workspaceCompact]}>
-      <View style={styles.missionWorkspaceRail}>
+    <View style={[styles.missionWorkspace, compact && styles.workspaceCompact, compact && styles.missionWorkspaceCompact]}>
+      <View style={[styles.missionWorkspaceRail, compact && styles.missionWorkspaceRailCompact]}>
         <Text style={styles.missionWorkspaceCode}>02</Text>
-        <View style={styles.missionWorkspaceLine} />
+        <View style={[styles.missionWorkspaceLine, compact && styles.missionWorkspaceLineCompact]} />
         <Text style={styles.missionWorkspaceCode}>A/B/C</Text>
       </View>
-      <View style={styles.missionWorkspaceBody}>
-        <View style={styles.missionWorkspaceTop}>
-          <View style={styles.missionWorkspaceMain}>
+      <View style={[styles.missionWorkspaceBody, compact && styles.missionWorkspaceBodyCompact]}>
+        <View style={[styles.missionWorkspaceTop, compact && styles.missionWorkspaceTopCompact]}>
+          <View style={[styles.missionWorkspaceMain, compact && styles.missionWorkspaceMainCompact]}>
             <Text style={styles.workspaceOverline}>{copy.resources.workspace.missionBoard}</Text>
-            <Text style={styles.missionWorkspaceTitle}>{section.title}</Text>
+            <Text style={[styles.missionWorkspaceTitle, compact && styles.missionWorkspaceTitleCompact]}>{section.title}</Text>
             <Text style={styles.missionWorkspaceText}>{copy.resources.workspace.missionBoardText}</Text>
             <View style={styles.missionTrack}>
               <MissionTrackPoint label="A" active />
@@ -3186,7 +3160,7 @@ function MissionWorkspaceHeader({ section, groups, compact, copy }) {
               <MissionTrackPoint label="C" />
             </View>
           </View>
-          <View style={styles.missionWorkspaceHeaderAside}>
+          <View style={[styles.missionWorkspaceHeaderAside, compact && styles.missionWorkspaceHeaderAsideCompact]}>
             <View style={[styles.lureBoxInventoryCounter, styles.missionWorkspaceCounter]}>
               <Text style={styles.lureBoxInventoryCounterValue}>{total}</Text>
               <Text style={styles.lureBoxInventoryCounterLabel}>{copy.resources.groups.plans}</Text>
@@ -3216,8 +3190,8 @@ function LiveWorkspaceHeader({ section, groups, compact, copy }) {
   const total = groups[0]?.totalItems || 0
 
   return (
-    <ImageBackground source={{ uri: seaSideSpot }} resizeMode="cover" style={[styles.liveWorkspace, compact && styles.workspaceCompact]} imageStyle={styles.liveWorkspaceImage}>
-      <View style={styles.liveWorkspaceOverlay}>
+    <ImageBackground source={{ uri: seaSideSpot }} resizeMode="cover" style={[styles.liveWorkspace, compact && styles.workspaceCompact, compact && styles.liveWorkspaceCompact]} imageStyle={styles.liveWorkspaceImage}>
+      <View style={[styles.liveWorkspaceOverlay, compact && styles.liveWorkspaceOverlayCompact]}>
         <View style={styles.liveWorkspaceTop}>
           <View style={styles.liveSignal}>
             <View style={styles.liveSignalDot} />
@@ -3225,7 +3199,7 @@ function LiveWorkspaceHeader({ section, groups, compact, copy }) {
           </View>
           <Text style={styles.liveSessionCount}>{total} {copy.resources.total}</Text>
         </View>
-        <Text style={styles.liveWorkspaceTitle}>{section.title}</Text>
+        <Text style={[styles.liveWorkspaceTitle, compact && styles.liveWorkspaceTitleCompact]}>{section.title}</Text>
         <Text style={styles.liveWorkspaceText}>{copy.resources.workspace.liveConsoleText}</Text>
         <View style={styles.livePulseRow}>
           <View style={[styles.livePulseBar, styles.livePulseShort]} />
@@ -3243,8 +3217,8 @@ function GearWorkspaceHeader({ section, groups, compact, copy }) {
   const total = groups[0]?.totalItems || 0
 
   return (
-    <View style={[styles.gearWorkspace, compact && styles.workspaceCompact]}>
-      <View style={styles.gearWorkspaceImageFrame}>
+    <View style={[styles.gearWorkspace, compact && styles.workspaceCompact, compact && styles.gearWorkspaceCompact]}>
+      <View style={[styles.gearWorkspaceImageFrame, compact && styles.gearWorkspaceImageFrameCompact]}>
         <Image source={{ uri: spinnerbait }} style={styles.gearWorkspaceImage} resizeMode="cover" />
       </View>
       <View style={styles.gearWorkspaceBody}>
@@ -3575,7 +3549,7 @@ function GalleryCatchForm({ item, fixedSessionId = null, copy, compact, onSaved,
 
   return (
     <View style={[styles.galleryEditor, compact && styles.galleryEditorCompact]}>
-      <View style={styles.galleryEditorHeader}>
+      <View style={[styles.galleryEditorHeader, compact && styles.galleryEditorHeaderCompact]}>
         <View>
           <Text style={styles.galleryEditorEyebrow}>{copy.resources.groups.catches}</Text>
           <Text style={styles.galleryEditorTitle}>{item?.catchId ? copy.resources.editCatch : copy.resources.newCatch}</Text>
@@ -3586,7 +3560,7 @@ function GalleryCatchForm({ item, fixedSessionId = null, copy, compact, onSaved,
         </Pressable>
       </View>
 
-      <View style={styles.galleryEditorPreviewRow}>
+      <View style={[styles.galleryEditorPreviewRow, compact && styles.galleryEditorPreviewRowCompact]}>
         <View style={styles.galleryEditorFishPreview}>
           <Image source={{ uri: form.photoUrl || fishPreview }} style={styles.galleryEditorFishImage} resizeMode="cover" />
           <View style={styles.galleryEditorPreviewOverlay}>
@@ -4218,18 +4192,18 @@ function LibraryEditorForm({ groupKey, item, copy, compact, onSaved, onCancel })
 
   return (
     <View style={[styles.libraryEditor, compact && styles.libraryEditorCompact]}>
-      <View style={styles.libraryEditorHeader}>
+      <View style={[styles.libraryEditorHeader, compact && styles.libraryEditorHeaderCompact]}>
         <View>
           <Text style={styles.libraryEditorEyebrow}>{isFish ? copy.resources.groups.fish : copy.resources.groups.lureLibrary}</Text>
           <Text style={styles.libraryEditorTitle}>{item?.id ? copy.resources.editEntry : isFish ? copy.resources.newFish : copy.resources.newLure}</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={styles.libraryEditorCancel}>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={[styles.libraryEditorCancel, compact && styles.libraryEditorCancelCompact]}>
           <Text style={styles.libraryEditorCancelText}>{copy.resources.cancel}</Text>
         </Pressable>
       </View>
 
-      <View style={styles.libraryEditorMain}>
-        <View style={styles.libraryEditorPreviewFrame}>
+      <View style={[styles.libraryEditorMain, compact && styles.libraryEditorMainCompact]}>
+        <View style={[styles.libraryEditorPreviewFrame, compact && styles.libraryEditorPreviewFrameCompact]}>
           <Image source={{ uri: imagePreview }} style={styles.libraryEditorPreviewImage} resizeMode="contain" />
         </View>
         <View style={styles.libraryEditorFields}>
@@ -5331,13 +5305,13 @@ function SessionForm({ item, initialPlan, copy, compact, onSaved, onCancel }) {
 
   return (
     <View style={[styles.sessionEditor, compact && styles.sessionEditorCompact]}>
-      <View style={styles.sessionEditorHeader}>
+      <View style={[styles.sessionEditorHeader, compact && styles.sessionEditorHeaderCompact]}>
         <View>
           <Text style={styles.sessionEditorEyebrow}>{copy.resources.groups.sessions}</Text>
           <Text style={styles.sessionEditorTitle}>{item?.id ? copy.resources.editSession : copy.resources.newSession}</Text>
           <Text style={styles.sessionEditorHint}>{copy.resources.sessionEditorHint}</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={styles.sessionCancelButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={[styles.sessionCancelButton, compact && styles.sessionCancelButtonCompact]}>
           <Text style={styles.sessionCancelButtonText}>{copy.resources.cancel}</Text>
         </Pressable>
       </View>
@@ -5470,24 +5444,24 @@ function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onClose
 
   return (
     <View style={[styles.lureBoxScreen, compact && styles.lureBoxScreenCompact]}>
-      <View style={styles.lureBoxInventoryHeader}>
+      <View style={[styles.lureBoxInventoryHeader, compact && styles.lureBoxInventoryHeaderCompact]}>
         <View style={styles.lureBoxInventoryHeaderCopy}>
           <Text style={styles.lureBoxInventoryOverline}>LOADOUT / 01</Text>
           <Text style={styles.lureBoxInventoryTitle}>{copy.resources.lureBoxInventoryTitle}</Text>
           <Text style={styles.lureBoxInventorySubtitle}>{copy.resources.lureBoxInventorySubtitle}</Text>
         </View>
-        <View style={styles.lureBoxInventoryCounter}>
+        <View style={[styles.lureBoxInventoryCounter, compact && styles.lureBoxInventoryCounterCompact]}>
           <Text style={styles.lureBoxInventoryCounterValue}>{inventoryItems.length}</Text>
           <Text style={styles.lureBoxInventoryCounterLabel}>{copy.resources.groups.lureBox}</Text>
         </View>
       </View>
 
-      <View style={styles.lureBoxFilterBar}>
+      <View style={[styles.lureBoxFilterBar, compact && styles.lureBoxFilterBarCompact]}>
         <View style={styles.lureBoxFilterCopy}>
           <Text style={styles.lureBoxFilterLabel}>{copy.resources.lureBoxFilter}</Text>
           <Text style={styles.lureBoxFilterHint}>{copy.resources.groups.lureLibrary}</Text>
         </View>
-        <View style={styles.lureBoxFilterOptions}>
+        <View style={[styles.lureBoxFilterOptions, compact && styles.lureBoxFilterOptionsCompact]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={copy.resources.allLureTypes}
@@ -5513,7 +5487,7 @@ function LureBoxShowcase({ groups, loading, error, detail, onOpenDetail, onClose
             </Pressable>
           ))}
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newBoxLure} onPress={openCreateForm} style={styles.lureBoxAddButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.newBoxLure} onPress={openCreateForm} style={[styles.lureBoxAddButton, compact && styles.lureBoxAddButtonCompact]}>
           <Text style={styles.lureBoxAddButtonMark}>+</Text>
           <Text style={styles.lureBoxAddButtonText}>{copy.resources.newBoxLure}</Text>
         </Pressable>
@@ -5740,18 +5714,18 @@ function LureBoxEditorForm({ item, libraryItems, compact, copy, onSaved, onCance
 
   return (
     <View style={[styles.lureBoxEditor, compact && styles.lureBoxEditorCompact]}>
-      <View style={styles.lureBoxEditorHeader}>
+      <View style={[styles.lureBoxEditorHeader, compact && styles.lureBoxEditorHeaderCompact]}>
         <View>
           <Text style={styles.lureBoxEditorOverline}>{copy.resources.groups.lureBox}</Text>
           <Text style={styles.lureBoxEditorTitle}>{item?.id ? copy.resources.editBoxLure : copy.resources.newBoxLure}</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={styles.lureBoxEditorCancel}>
+        <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={onCancel} style={[styles.lureBoxEditorCancel, compact && styles.lureBoxEditorCancelCompact]}>
           <Text style={styles.lureBoxEditorCancelText}>{copy.resources.cancel}</Text>
         </Pressable>
       </View>
 
-      <View style={styles.lureBoxEditorLayout}>
-        <View style={styles.lureBoxEditorPreviewFrame}>
+      <View style={[styles.lureBoxEditorLayout, compact && styles.lureBoxEditorLayoutCompact]}>
+        <View style={[styles.lureBoxEditorPreviewFrame, compact && styles.lureBoxEditorPreviewFrameCompact]}>
           <Image source={{ uri: imagePreview }} style={styles.lureBoxEditorPreview} resizeMode="contain" />
           <View style={styles.lureBoxEditorPreviewLabel}>
             <Text style={styles.lureBoxEditorPreviewLabelText}>{selectedLibraryItem?.type || item?.type || 'LURE'}</Text>
@@ -5770,7 +5744,7 @@ function LureBoxEditorForm({ item, libraryItems, compact, copy, onSaved, onCance
             <FormField label={`${copy.resources.fields.size} (cm)`} value={form.size} onChangeText={(value) => updateField('size', value)} placeholder="0" keyboardType="decimal-pad" />
             <FormField label={`${copy.resources.fields.weight} (g)`} value={String(form.weight)} onChangeText={(value) => updateField('weight', value)} placeholder="0" keyboardType="decimal-pad" />
           </View>
-          <View style={styles.lureBoxImagePicker}>
+          <View style={[styles.lureBoxImagePicker, compact && styles.lureBoxImagePickerCompact]}>
             <View style={styles.lureBoxImagePickerPreview}>
               <Image source={{ uri: imagePreview }} style={styles.lureBoxImagePickerImage} resizeMode="contain" />
             </View>
@@ -6723,34 +6697,38 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact,
     <View style={[styles.detailPanel, { borderColor: tone.borderColor }]}>
       {!['catches', 'fish'].includes(detail.group.key) && (
         <View
-          style={[styles.detailTopbar, { backgroundColor: tone.backgroundColor, borderColor: tone.borderColor }]}
+          style={[styles.detailTopbar, compact && styles.detailTopbarCompact, { backgroundColor: tone.backgroundColor, borderColor: tone.borderColor }]}
           testID="detail-topbar"
         >
-          <View style={[styles.detailTopbarMarker, { backgroundColor: tone.accent }]} />
-          <Image source={{ uri: image }} style={styles.detailImage} resizeMode="cover" />
-          <View style={styles.detailTitleBlock}>
-            <Text style={[styles.panelLabel, { color: tone.accent }]}>{copy.resources.details}</Text>
-            <Text style={styles.detailTitle}>{display.title}</Text>
-          <Text style={styles.detailSubtitle}>{display.meta}</Text>
+          <View style={[styles.detailTopbarIdentity, compact && styles.detailTopbarIdentityCompact]}>
+            <View style={[styles.detailTopbarMarker, compact && styles.detailTopbarMarkerCompact, { backgroundColor: tone.accent }]} />
+            <Image source={{ uri: image }} style={[styles.detailImage, compact && styles.detailImageCompact]} resizeMode="cover" />
+            <View style={styles.detailTitleBlock}>
+              <Text style={[styles.panelLabel, { color: tone.accent }]}>{copy.resources.details}</Text>
+              <Text style={[styles.detailTitle, compact && styles.detailTitleCompact]}>{display.title}</Text>
+              <Text style={styles.detailSubtitle}>{display.meta}</Text>
+            </View>
           </View>
-          {onEditItem && (
-            <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editEntry} onPress={onEditItem} style={styles.detailActionButton}>
-              <Text style={styles.detailActionButtonText}>{copy.resources.editEntry}</Text>
+          <View style={[styles.detailTopbarActions, compact && styles.detailTopbarActionsCompact]}>
+            {onEditItem && (
+              <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editEntry} onPress={onEditItem} style={styles.detailActionButton}>
+                <Text style={styles.detailActionButtonText}>{copy.resources.editEntry}</Text>
+              </Pressable>
+            )}
+            {onDeleteItem && (
+              <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.deleteEntry} onPress={onDeleteItem} style={styles.detailDeleteButton}>
+                <Text style={styles.detailDeleteButtonText}>{copy.resources.deleteEntry}</Text>
+              </Pressable>
+            )}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={copy.resources.close}
+              onPress={onClose}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>{copy.resources.close}</Text>
             </Pressable>
-          )}
-          {onDeleteItem && (
-            <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.deleteEntry} onPress={onDeleteItem} style={styles.detailDeleteButton}>
-              <Text style={styles.detailDeleteButtonText}>{copy.resources.deleteEntry}</Text>
-            </Pressable>
-          )}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copy.resources.close}
-            onPress={onClose}
-            style={styles.closeButton}
-          >
-            <Text style={styles.closeButtonText}>{copy.resources.close}</Text>
-          </Pressable>
+          </View>
         </View>
       )}
 
@@ -6779,9 +6757,9 @@ function DetailPanel({ detail, onClose, onEditItem, onDeleteItem, copy, compact,
         />
       )}
       {detail.group.key === 'spots' && <SpotDetail detail={detail} copy={copy} tone={tone} />}
-      {detail.group.key === 'plans' && <PlanDetail detail={detail} copy={copy} tone={tone} onCreateSession={onCreateSessionFromPlan} />}
-      {detail.group.key === 'sessions' && <SessionDetail detail={detail} copy={copy} tone={tone} onOpenPlan={onOpenPlan} onOpenGallery={onOpenGallery} />}
-      {detail.group.key === 'lureBox' && <LureBoxDetail detail={detail} image={image} copy={copy} tone={tone} onOpenLure={onOpenLure} />}
+      {detail.group.key === 'plans' && <PlanDetail detail={detail} copy={copy} tone={tone} compact={compact} onCreateSession={onCreateSessionFromPlan} />}
+      {detail.group.key === 'sessions' && <SessionDetail detail={detail} copy={copy} tone={tone} compact={compact} onOpenPlan={onOpenPlan} onOpenGallery={onOpenGallery} />}
+      {detail.group.key === 'lureBox' && <LureBoxDetail detail={detail} image={image} copy={copy} tone={tone} compact={compact} onOpenLure={onOpenLure} />}
       {detail.group.key === 'fish' && (
         <FishDetail
           detail={detail}
@@ -6818,10 +6796,10 @@ function CatchDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDe
       <View style={[styles.catchHeroFrame, compact && styles.catchHeroFrameCompact, { backgroundColor: tone.imageBackground }]}>
         <Image source={{ uri: image }} style={styles.catchHeroImage} resizeMode="contain" />
         <View style={styles.catchHeroShade} />
-        <View style={[styles.catchHeroTag, { backgroundColor: tone.accent }]}>
+        <View style={[styles.catchHeroTag, compact && styles.catchHeroTagCompact, { backgroundColor: tone.accent }]}>
           <Text style={styles.catchHeroTagText}>{fields.species}</Text>
         </View>
-        <View style={styles.catchHeroActions}>
+        <View style={[styles.catchHeroActions, compact && styles.catchHeroActionsCompact]}>
           {onEdit && (
             <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editEntry} onPress={onEdit} style={styles.catchHeroActionButton}>
               <Text style={styles.catchHeroActionText}>{copy.resources.editEntry}</Text>
@@ -6843,7 +6821,7 @@ function CatchDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDe
         </View>
         <View style={styles.catchHeroCopy}>
           <Text style={styles.catchHeroEyebrow}>{copy.dashboard.latestCatch}</Text>
-          <Text style={styles.catchHeroTitle}>{item.species || copy.dashboard.speciesFallback}</Text>
+          <Text style={[styles.catchHeroTitle, compact && styles.catchHeroTitleCompact]}>{item.species || copy.dashboard.speciesFallback}</Text>
           <Text style={styles.catchHeroMeta}>{item.spotName || data.spotName || copy.dashboard.unnamedSpot}</Text>
         </View>
       </View>
@@ -6946,7 +6924,7 @@ function SpotDetail({ detail, copy, tone }) {
   )
 }
 
-function PlanDetail({ detail, copy, tone, onCreateSession }) {
+function PlanDetail({ detail, copy, tone, compact, onCreateSession }) {
   const source = detail.data || detail.item
   const fields = copy.resources.fields
 
@@ -6984,12 +6962,12 @@ function PlanDetail({ detail, copy, tone, onCreateSession }) {
           <Text style={styles.sessionPrimaryActionText}>{copy.resources.createSessionFromPlan}</Text>
         </Pressable>
       </View>
-      <PlanRecommendationPanel planId={source.id} copy={copy} tone={tone} />
+      <PlanRecommendationPanel planId={source.id} copy={copy} tone={tone} compact={compact} />
     </View>
   )
 }
 
-function PlanRecommendationPanel({ planId, copy, tone }) {
+function PlanRecommendationPanel({ planId, copy, tone, compact }) {
   const [recommendation, setRecommendation] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -7119,7 +7097,7 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
 
   return (
     <View style={[styles.planRecommendation, { borderColor: `${tone.accent}55` }]}>
-      <View style={styles.planRecommendationHeader}>
+      <View style={[styles.planRecommendationHeader, compact && styles.planRecommendationHeaderCompact]}>
         <View style={styles.planRecommendationHeadingRow}>
           <View style={[styles.planRecommendationAiMark, { backgroundColor: tone.accent }]}>
             <Text style={styles.planRecommendationAiMarkText}>AI</Text>
@@ -7129,7 +7107,7 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
             <Text style={styles.planRecommendationSubtitle}>{copy.resources.planStrategy}</Text>
           </View>
         </View>
-        <View style={styles.planRecommendationActions}>
+        <View style={[styles.planRecommendationActions, compact && styles.planRecommendationActionsCompact]}>
           {recommendation && !recommendation.saved && (
             <Pressable
               accessibilityRole="button"
@@ -7198,7 +7176,7 @@ function PlanRecommendationPanel({ planId, copy, tone }) {
               <Text style={styles.planRecommendationSectionLabel}>{copy.resources.aiPlanSummary}</Text>
               <Text style={styles.planRecommendationSummaryText}>{recommendation.summary || copy.resources.empty}</Text>
             </View>
-            <View style={[styles.planRecommendationConfidence, { borderColor: `${confidenceColor}66` }]}>
+            <View style={[styles.planRecommendationConfidence, compact && styles.planRecommendationConfidenceCompact, { borderColor: `${confidenceColor}66` }]}>
               <View style={styles.planRecommendationConfidenceTopline}>
                 <Text style={styles.planRecommendationConfidenceLabel}>{copy.resources.aiPlanConfidence}</Text>
                 <Text style={[styles.planRecommendationConfidenceValue, { color: confidenceColor }]}>{confidenceLabel}</Text>
@@ -7296,7 +7274,7 @@ function RecommendationList({ title, items, tone }) {
   )
 }
 
-function SessionDetail({ detail, copy, tone, onOpenPlan, onOpenGallery }) {
+function SessionDetail({ detail, copy, tone, compact, onOpenPlan, onOpenGallery }) {
   const fields = copy.resources.fields
   const initialSource = detail.data || detail.item
   const [session, setSession] = useState(initialSource)
@@ -7470,9 +7448,9 @@ function SessionDetail({ detail, copy, tone, onOpenPlan, onOpenGallery }) {
   )
 
   return (
-    <View style={styles.detailContent}>
-      <View style={[styles.sessionStatusHeader, { backgroundColor: tone.imageBackground }]}>
-        <View style={styles.sessionStatusHeaderCopy}>
+    <View style={[styles.detailContent, compact && styles.sessionDetailContentCompact]}>
+      <View style={[styles.sessionStatusHeader, compact && styles.sessionStatusHeaderCompact, { backgroundColor: tone.imageBackground }]}>
+      <View style={styles.sessionStatusHeaderCopy}>
           <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{fields.status}</Text>
           <View style={styles.sessionStatusTitleRow}>
           <Text style={styles.detailFeatureTitle}>{statusLabel}</Text>
@@ -7547,7 +7525,7 @@ function SessionDetail({ detail, copy, tone, onOpenPlan, onOpenGallery }) {
 
       {finishOpen && (
         <View style={styles.sessionFinishPanel}>
-          <View style={styles.sessionFinishHeader}><View><Text style={styles.sessionFinishEyebrow}>{copy.resources.finishSession}</Text><Text style={styles.sessionFinishHint}>{copy.resources.finishSessionHint}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={() => setFinishOpen(false)} style={styles.sessionFinishCancel}><Text style={styles.sessionFinishCancelText}>{copy.resources.cancel}</Text></Pressable></View>
+          <View style={[styles.sessionFinishHeader, compact && styles.sessionFinishHeaderCompact]}><View><Text style={styles.sessionFinishEyebrow}>{copy.resources.finishSession}</Text><Text style={styles.sessionFinishHint}>{copy.resources.finishSessionHint}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.cancel} onPress={() => setFinishOpen(false)} style={styles.sessionFinishCancel}><Text style={styles.sessionFinishCancelText}>{copy.resources.cancel}</Text></Pressable></View>
           <ChoiceGroup label={copy.resources.finishResult} value={finishForm.success} options={[{ value: 'true', label: copy.resources.successResult }, { value: 'false', label: copy.resources.failureResult }]} onChange={(value) => updateFinishField('success', value)} />
           <View style={styles.sessionFinishGrid}>
             <FormField label={copy.resources.finishResultSummary} value={finishForm.resultSummary} onChangeText={(value) => updateFinishField('resultSummary', value)} multiline />
@@ -7568,19 +7546,19 @@ function SessionDetail({ detail, copy, tone, onOpenPlan, onOpenGallery }) {
 
       <SessionAiTools session={session} copy={copy} tone={tone} />
 
-      {showCatchForm && <GalleryCatchForm key={editingCatch?.id || 'session-new-catch'} item={editingCatch ? { catchId: editingCatch.id, sessionId: session.id, species: editingCatch.species, lureLibraryItemId: editingCatch.lureLibraryItemId, sizeCm: editingCatch.sizeCm, weightKg: editingCatch.weightKg, photoUrl: editingCatch.photoUrl, photoCaption: editingCatch.photoCaption } : null} fixedSessionId={session.id} copy={copy} compact={false} onSaved={() => { setShowCatchForm(false); setEditingCatch(null); setFeedback({ type: 'success', text: copy.resources.catchSaved }); loadCatches() }} onCancel={() => { setShowCatchForm(false); setEditingCatch(null) }} />}
+      {showCatchForm && <GalleryCatchForm key={editingCatch?.id || 'session-new-catch'} item={editingCatch ? { catchId: editingCatch.id, sessionId: session.id, species: editingCatch.species, lureLibraryItemId: editingCatch.lureLibraryItemId, sizeCm: editingCatch.sizeCm, weightKg: editingCatch.weightKg, photoUrl: editingCatch.photoUrl, photoCaption: editingCatch.photoCaption } : null} fixedSessionId={session.id} copy={copy} compact={compact} onSaved={() => { setShowCatchForm(false); setEditingCatch(null); setFeedback({ type: 'success', text: copy.resources.catchSaved }); loadCatches() }} onCancel={() => { setShowCatchForm(false); setEditingCatch(null) }} />}
 
       <View style={styles.sessionCatchesSection}>
-        <View style={styles.sessionCatchesHeader}>
+        <View style={[styles.sessionCatchesHeader, compact && styles.sessionCatchesHeaderCompact]}>
           <View><Text style={styles.sessionCatchesTitle}>{copy.resources.sessionCatches}</Text><Text style={styles.sessionCatchesHint}>{catchItems.length} {copy.resources.total}</Text></View>
           <View style={styles.sessionCatchesHeaderActions}>
             <Text style={styles.sessionCatchesAccent}>{copy.resources.galleryImages}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.viewGallery} onPress={onOpenGallery} style={styles.sessionSecondaryAction}>
               <Text style={styles.sessionSecondaryActionText}>{copy.resources.viewGallery}</Text>
             </Pressable>
-          </View>
+      </View>
         </View>
-        {catchesLoading ? <View style={styles.loadingLine}><ActivityIndicator color={tone.accent} /><Text style={styles.loadingText}>{copy.loading}</Text></View> : catchesError ? <RetryNotice message={copy.resources.detailLoadError} actionLabel={copy.resources.retry} onRetry={loadCatches} /> : catchItems.length === 0 ? <Text style={styles.sessionCatchesEmpty}>{copy.resources.noCatchesYet}</Text> : <View style={styles.sessionCatchList}>{catchItems.map((catchItem) => <SessionCatchRow key={catchItem.id} item={catchItem} copy={copy} onEdit={() => { setEditingCatch(catchItem); setShowCatchForm(true) }} onDelete={() => deleteCatch(catchItem)} />)}</View>}
+        {catchesLoading ? <View style={styles.loadingLine}><ActivityIndicator color={tone.accent} /><Text style={styles.loadingText}>{copy.loading}</Text></View> : catchesError ? <RetryNotice message={copy.resources.detailLoadError} actionLabel={copy.resources.retry} onRetry={loadCatches} /> : catchItems.length === 0 ? <Text style={styles.sessionCatchesEmpty}>{copy.resources.noCatchesYet}</Text> : <View style={styles.sessionCatchList}>{catchItems.map((catchItem) => <SessionCatchRow key={catchItem.id} item={catchItem} copy={copy} compact={compact} onEdit={() => { setEditingCatch(catchItem); setShowCatchForm(true) }} onDelete={() => deleteCatch(catchItem)} />)}</View>}
       </View>
     </View>
   )
@@ -7782,25 +7760,25 @@ function SessionAiTools({ session, copy, tone }) {
   )
 }
 
-function SessionCatchRow({ item, copy, onEdit, onDelete }) {
+function SessionCatchRow({ item, copy, compact, onEdit, onDelete }) {
   const image = item.photoUrl || galleryIcon
   return (
-    <View style={styles.sessionCatchRow}>
+    <View style={[styles.sessionCatchRow, compact && styles.sessionCatchRowCompact]}>
       <Image source={{ uri: image }} style={styles.sessionCatchImage} resizeMode="cover" />
       <View style={styles.sessionCatchCopy}><Text style={styles.sessionCatchSpecies}>{item.species || copy.dashboard.speciesFallback}</Text><Text style={styles.sessionCatchMeta}>{compactLine(formatCatchSize(item), formatCatchWeight(item))}</Text>{item.lureName && <Text style={styles.sessionCatchLure}>{item.lureName}</Text>}</View>
-      <View style={styles.sessionCatchActions}><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editCatch} onPress={onEdit} style={styles.sessionCatchAction}><Text style={styles.sessionCatchActionText}>{copy.resources.editEntry}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.deleteEntry} onPress={onDelete} style={styles.sessionCatchDelete}><Text style={styles.sessionCatchDeleteText}>{copy.resources.deleteEntry}</Text></Pressable></View>
+      <View style={[styles.sessionCatchActions, compact && styles.sessionCatchActionsCompact]}><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editCatch} onPress={onEdit} style={styles.sessionCatchAction}><Text style={styles.sessionCatchActionText}>{copy.resources.editEntry}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={copy.resources.deleteEntry} onPress={onDelete} style={styles.sessionCatchDelete}><Text style={styles.sessionCatchDeleteText}>{copy.resources.deleteEntry}</Text></Pressable></View>
     </View>
   )
 }
 
-function LureBoxDetail({ detail, image, copy, tone, onOpenLure }) {
+function LureBoxDetail({ detail, image, copy, tone, compact, onOpenLure }) {
   const source = detail.data || detail.item
   const fields = copy.resources.fields
 
   return (
     <View style={styles.detailContent}>
-      <View style={styles.lureInventoryHero}>
-        <View style={[styles.lureInventoryImageFrame, { backgroundColor: tone.imageBackground }]}>
+      <View style={[styles.lureInventoryHero, compact && styles.lureInventoryHeroCompact]}>
+        <View style={[styles.lureInventoryImageFrame, compact && styles.lureInventoryImageFrameCompact, { backgroundColor: tone.imageBackground }]}>
           <Image source={{ uri: image }} style={styles.lureInventoryImage} resizeMode="contain" />
         </View>
         <View style={styles.lureInventoryCopy}>
@@ -7841,12 +7819,12 @@ function FishDetail({ detail, image, copy, tone, compact, onClose, onEdit, onDel
 
   return (
     <View style={[styles.fishDetailView, compact && styles.fishDetailViewCompact]}>
-      <View style={styles.fishDetailTopline}>
+      <View style={[styles.fishDetailTopline, compact && styles.fishDetailToplineCompact]}>
         <View>
           <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.groups.fish}</Text>
           <Text style={styles.fishDetailToplineText}>{copy.resources.libraryFishHint}</Text>
         </View>
-        <View style={styles.fishDetailActions}>
+        <View style={[styles.fishDetailActions, compact && styles.fishDetailActionsCompact]}>
           {onEdit && (
             <Pressable accessibilityRole="button" accessibilityLabel={copy.resources.editEntry} onPress={onEdit} style={styles.fishDetailActionButton}>
               <Text style={styles.fishDetailActionButtonText}>{copy.resources.editEntry}</Text>
@@ -8022,11 +8000,11 @@ function LureLibraryDetail({ detail, image, copy, tone, compact }) {
 
   return (
     <View style={styles.lureDetailView}>
-      <View style={styles.techniqueDetailGrid}>
-        <View style={[styles.techniqueImageFrame, { backgroundColor: tone.imageBackground }]}>
+      <View style={[styles.techniqueDetailGrid, compact && styles.techniqueDetailGridCompact]}>
+        <View style={[styles.techniqueImageFrame, compact && styles.techniqueImageFrameCompact, { backgroundColor: tone.imageBackground }]}>
           <Image source={{ uri: image }} style={styles.techniqueImage} resizeMode="contain" />
         </View>
-        <View style={styles.techniqueCopy}>
+        <View style={[styles.techniqueCopy, compact && styles.techniqueCopyCompact]}>
           <Text style={[styles.detailSectionEyebrow, { color: tone.accent }]}>{copy.resources.groups.lureLibrary}</Text>
           <Text style={styles.lureDetailTitle}>{source.name || copy.menu.library}</Text>
           <Text style={styles.lureDetailDescription}>{source.description || copy.resources.empty}</Text>
@@ -9087,9 +9065,15 @@ const styles = StyleSheet.create({
   },
   sidebarCompact: {
     width: '100%',
+    padding: 12,
+    gap: 12,
     borderRightWidth: 0,
     borderBottomWidth: 1,
     borderBottomColor: '#174b5a',
+  },
+  brandBlockCompact: {
+    minHeight: 62,
+    gap: 10,
   },
   brandBlock: {
     minHeight: 92,
@@ -9161,14 +9145,21 @@ const styles = StyleSheet.create({
     color: '#082f3f',
   },
   menuScrollCompact: {
-    marginRight: -20,
+    marginRight: -12,
   },
   menuList: {
     gap: 12,
   },
   menuListCompact: {
     flexDirection: 'row',
-    paddingRight: 20,
+    paddingRight: 12,
+  },
+  menuItemCompact: {
+    minWidth: 148,
+    minHeight: 68,
+    gap: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   menuItem: {
     minHeight: 84,
@@ -9207,22 +9198,6 @@ const styles = StyleSheet.create({
   menuTextSelected: {
     color: '#082f3f',
   },
-  sidebarStatus: {
-    minHeight: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  sidebarStatusText: {
-    color: '#d9f5f2',
-    fontSize: 14,
-    fontWeight: '800',
-  },
   content: {
     flex: 1,
     backgroundColor: '#f5f8f5',
@@ -9230,6 +9205,10 @@ const styles = StyleSheet.create({
   contentInner: {
     padding: 30,
     gap: 20,
+  },
+  contentInnerCompact: {
+    padding: 14,
+    gap: 14,
   },
   topBar: {
     flexDirection: 'row',
@@ -9272,19 +9251,6 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     fontWeight: '600',
   },
-  backendPill: {
-    minWidth: 154,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 999,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#d6ded7',
-  },
   workspacePill: {
     minHeight: 38,
     flexDirection: 'row',
@@ -9306,22 +9272,6 @@ const styles = StyleSheet.create({
     color: '#155e59',
     fontSize: 12,
     fontWeight: '900',
-  },
-  statusDot: {
-    width: 9,
-    height: 9,
-    borderRadius: 9,
-  },
-  statusDotOk: {
-    backgroundColor: '#16a34a',
-  },
-  statusDotOff: {
-    backgroundColor: '#dc2626',
-  },
-  backendText: {
-    color: '#34413b',
-    fontSize: 13,
-    fontWeight: '800',
   },
   notice: {
     padding: 13,
@@ -10055,6 +10005,24 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 8,
   },
+  menuIconCropCompact: {
+    width: 50,
+    height: 50,
+  },
+  menuIconCompact: {
+    width: 50,
+    height: 50,
+  },
+  brandIconFrameCompact: {
+    width: 58,
+    height: 58,
+  },
+  brandIconCompact: {
+    width: 76,
+    height: 76,
+    marginLeft: -9,
+    marginTop: -9,
+  },
   dashboardInsightDotTeal: {
     backgroundColor: '#1f8a82',
   },
@@ -10745,6 +10713,17 @@ const styles = StyleSheet.create({
   workspaceCompact: {
     minHeight: 178,
   },
+  atlasWorkspaceCompact: {
+    flexDirection: 'column',
+    minHeight: 0,
+  },
+  atlasWorkspaceVisualCompact: {
+    minHeight: 190,
+  },
+  atlasWorkspaceInfoCompact: {
+    width: '100%',
+    padding: 16,
+  },
   atlasWorkspace: {
     minHeight: 238,
     flexDirection: 'row',
@@ -10850,12 +10829,29 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#17243b',
   },
+  missionWorkspaceCompact: {
+    flexDirection: 'column',
+    minHeight: 0,
+  },
   missionWorkspaceRail: {
     width: 72,
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 24,
     backgroundColor: '#f0bf58',
+  },
+  missionWorkspaceRailCompact: {
+    width: '100%',
+    height: 38,
+    flexDirection: 'row',
+    paddingHorizontal: 14,
+    paddingVertical: 0,
+  },
+  missionWorkspaceLineCompact: {
+    width: 'auto',
+    height: 1,
+    marginHorizontal: 12,
+    marginVertical: 0,
   },
   missionWorkspaceCode: {
     color: '#17243b',
@@ -10873,6 +10869,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  missionWorkspaceBodyCompact: {
+    padding: 15,
+  },
   missionWorkspaceTop: {
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -10880,9 +10879,16 @@ const styles = StyleSheet.create({
     gap: 16,
     flexWrap: 'wrap',
   },
+  missionWorkspaceTopCompact: {
+    flexDirection: 'column',
+    gap: 12,
+  },
   missionWorkspaceMain: {
     flex: 1,
     minWidth: 0,
+  },
+  missionWorkspaceMainCompact: {
+    width: '100%',
   },
   missionWorkspaceTitle: {
     marginTop: 8,
@@ -10891,12 +10897,24 @@ const styles = StyleSheet.create({
     lineHeight: 35,
     fontWeight: '900',
   },
+  missionWorkspaceTitleCompact: {
+    fontSize: 27,
+    lineHeight: 32,
+  },
   missionWorkspaceCounter: {
     alignSelf: 'center',
     marginTop: 14,
   },
   missionWorkspaceHeaderAside: {
     alignItems: 'center',
+  },
+  missionWorkspaceHeaderAsideCompact: {
+    width: '100%',
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 10,
   },
   missionWorkspaceAiBadge: {
     alignSelf: 'flex-start',
@@ -10980,6 +10998,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#063b4a',
   },
+  liveWorkspaceCompact: {
+    minHeight: 190,
+  },
   liveWorkspaceImage: {
     opacity: 0.64,
     transform: [{ scale: 1.16 }],
@@ -10988,6 +11009,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: 'rgba(3, 30, 43, 0.68)',
+  },
+  liveWorkspaceOverlayCompact: {
+    padding: 16,
   },
   liveWorkspaceTop: {
     flexDirection: 'row',
@@ -11068,6 +11092,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#241c2a',
   },
+  gearWorkspaceCompact: {
+    flexDirection: 'column',
+    minHeight: 0,
+    padding: 12,
+  },
   gearWorkspaceImageFrame: {
     width: 230,
     minHeight: 162,
@@ -11076,6 +11105,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 14,
     backgroundColor: '#f1d2e6',
+  },
+  gearWorkspaceImageFrameCompact: {
+    width: '100%',
+    minHeight: 180,
   },
   gearWorkspaceImage: {
     width: '100%',
@@ -11147,6 +11180,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#275260',
   },
+  lureBoxInventoryHeaderCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 13,
+    minHeight: 0,
+    padding: 17,
+  },
   lureBoxInventoryHeaderCopy: {
     flex: 1,
   },
@@ -11179,6 +11219,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: '#c99332',
     transform: [{ rotate: '3deg' }],
+  },
+  lureBoxInventoryCounterCompact: {
+    alignSelf: 'flex-start',
   },
   lureBoxInventoryCounterValue: {
     color: '#ffffff',
@@ -11214,6 +11257,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#d5e5e0',
+  },
+  lureBoxFilterBarCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 9,
   },
   lureBoxFilterCopy: {
     minWidth: 112,
@@ -11273,6 +11321,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 10,
     backgroundColor: '#1f8a82',
+  },
+  lureBoxAddButtonCompact: {
+    alignSelf: 'flex-start',
   },
   lureBoxAddButtonMark: {
     color: '#ffffff',
@@ -11472,6 +11523,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
+  lureBoxEditorHeaderCompact: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  lureBoxEditorCancelCompact: {
+    alignSelf: 'flex-start',
+  },
   lureBoxEditorOverline: {
     color: '#1f8a82',
     fontSize: 10,
@@ -11506,6 +11564,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 18,
   },
+  lureBoxEditorLayoutCompact: {
+    flexDirection: 'column',
+    gap: 13,
+  },
   lureBoxEditorPreviewFrame: {
     flexGrow: 1,
     flexBasis: 260,
@@ -11516,6 +11578,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 16,
     backgroundColor: '#dcefe9',
+  },
+  lureBoxEditorPreviewFrameCompact: {
+    width: '100%',
+    maxWidth: '100%',
+    minHeight: 220,
   },
   lureBoxEditorPreview: {
     width: '88%',
@@ -11555,6 +11622,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3faf7',
     borderWidth: 1,
     borderColor: '#c9dfd8',
+  },
+  lureBoxImagePickerCompact: {
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
   },
   lureBoxImagePickerPreview: {
     width: 86,
@@ -12562,6 +12633,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 14,
   },
+  galleryEditorHeaderCompact: {
+    flexDirection: 'column',
+    gap: 8,
+  },
   galleryEditorEyebrow: {
     color: '#b95e47',
     fontSize: 10,
@@ -12604,6 +12679,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+  },
+  galleryEditorPreviewRowCompact: {
+    flexDirection: 'column',
   },
   galleryEditorFishPreview: {
     flexGrow: 1,
@@ -13184,6 +13262,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 16,
   },
+  libraryEditorMainCompact: {
+    flexDirection: 'column',
+    gap: 13,
+  },
   libraryEditorPreviewFrame: {
     flexGrow: 1,
     flexBasis: 230,
@@ -13194,6 +13276,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 10,
     backgroundColor: '#e9f3ec',
+  },
+  libraryEditorPreviewFrameCompact: {
+    width: '100%',
+    maxWidth: '100%',
+    minHeight: 220,
   },
   libraryEditorPreviewImage: {
     width: '90%',
@@ -13847,10 +13934,46 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     borderWidth: 1,
   },
+  detailTopbarCompact: {
+    minHeight: 0,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 10,
+    padding: 11,
+  },
+  detailTopbarIdentity: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  detailTopbarIdentityCompact: {
+    width: '100%',
+  },
+  detailTopbarActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 7,
+  },
+  lureBoxFilterOptionsCompact: {
+    width: '100%',
+    flex: 0,
+  },
+  detailTopbarActionsCompact: {
+    width: '100%',
+    justifyContent: 'flex-start',
+  },
   detailTopbarMarker: {
     width: 5,
     height: 70,
     borderRadius: 6,
+  },
+  detailTopbarMarkerCompact: {
+    width: 4,
+    height: 54,
   },
   detailHeader: {
     minHeight: 86,
@@ -13863,6 +13986,11 @@ const styles = StyleSheet.create({
     height: 82,
     borderRadius: 12,
     backgroundColor: '#e6ece4',
+  },
+  detailImageCompact: {
+    width: 68,
+    height: 68,
+    borderRadius: 10,
   },
   detailTitleBlock: {
     flex: 1,
@@ -13991,6 +14119,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
+  fishDetailToplineCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 9,
+  },
   fishDetailToplineText: {
     marginTop: 4,
     color: '#6a7c74',
@@ -14003,6 +14136,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 7,
+  },
+  fishDetailActionsCompact: {
+    justifyContent: 'flex-start',
   },
   fishDetailActionButton: {
     minHeight: 38,
@@ -14095,6 +14231,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 36,
     fontWeight: '900',
+  },
+  fishDetailTitleCompact: {
+    fontSize: 27,
+    lineHeight: 32,
   },
   fishDetailDescription: {
     maxWidth: 520,
@@ -14320,6 +14460,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 4,
   },
+  catchHeroTagCompact: {
+    top: 64,
+    left: 14,
+  },
   catchHeroTagText: {
     color: '#ffffff',
     fontSize: 10,
@@ -14343,6 +14487,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'flex-end',
     gap: 7,
+  },
+  catchHeroActionsCompact: {
+    left: 12,
+    right: 12,
+    top: 12,
+    justifyContent: 'flex-start',
   },
   catchHeroActionButton: {
     minHeight: 38,
@@ -14396,6 +14546,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 37,
     fontWeight: '900',
+  },
+  catchHeroTitleCompact: {
+    fontSize: 27,
+    lineHeight: 32,
   },
   catchHeroMeta: {
     marginTop: 5,
@@ -14834,6 +14988,13 @@ const styles = StyleSheet.create({
   planDetailContent: {
     gap: 14,
   },
+  libraryEditorHeaderCompact: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  libraryEditorCancelCompact: {
+    alignSelf: 'flex-start',
+  },
   planContextSection: {
     gap: 13,
     padding: 15,
@@ -14860,6 +15021,15 @@ const styles = StyleSheet.create({
     color: '#19342d',
     fontSize: 14,
     fontWeight: '900',
+  },
+  detailTitleCompact: {
+    fontSize: 20,
+    lineHeight: 24,
+  },
+  liveWorkspaceTitleCompact: {
+    marginTop: 28,
+    fontSize: 27,
+    lineHeight: 32,
   },
   planSteps: {
     flexDirection: 'row',
@@ -14925,6 +15095,11 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 16,
     backgroundColor: '#edf7f2',
+  },
+  planRecommendationHeaderCompact: {
+    flexDirection: 'column',
+    gap: 11,
+    padding: 13,
   },
   planRecommendationHeadingRow: {
     flex: 1,
@@ -15106,11 +15281,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
   },
+  planRecommendationConfidenceCompact: {
+    width: '100%',
+  },
   planRecommendationConfidenceTopline: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
+  },
+  planRecommendationActionsCompact: {
+    width: '100%',
+    justifyContent: 'flex-start',
   },
   planRecommendationConfidenceTrack: {
     height: 7,
@@ -15293,6 +15475,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderRadius: 12,
+  },
+  sessionDetailContentCompact: {
+    gap: 12,
+  },
+  sessionStatusHeaderCompact: {
+    alignItems: 'stretch',
+    gap: 12,
+    padding: 13,
   },
   sessionScreen: {
     gap: 18,
@@ -15585,6 +15775,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#deebe5',
   },
+  sessionEditorHeaderCompact: {
+    flexDirection: 'column',
+    gap: 8,
+  },
   sessionEditorEyebrow: {
     color: '#147f79',
     fontSize: 11,
@@ -15613,6 +15807,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#eef4f1',
     borderWidth: 1,
     borderColor: '#cfddd7',
+  },
+  sessionCancelButtonCompact: {
+    alignSelf: 'flex-start',
   },
   sessionCancelButtonText: {
     color: '#294a42',
@@ -15886,6 +16083,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
+  sessionFinishHeaderCompact: {
+    flexDirection: 'column',
+    gap: 6,
+  },
   sessionFinishEyebrow: {
     color: '#a16b16',
     fontSize: 11,
@@ -15927,6 +16128,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 10,
+  },
+  sessionCatchesHeaderCompact: {
+    flexDirection: 'column',
+    gap: 9,
   },
   sessionCatchesHeaderActions: {
     flexDirection: 'row',
@@ -15973,6 +16178,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#d9e7e0',
   },
+  sessionCatchRowCompact: {
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
+  },
   sessionCatchImage: {
     width: 58,
     height: 58,
@@ -16004,6 +16213,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  sessionCatchActionsCompact: {
+    width: '100%',
+    justifyContent: 'flex-end',
   },
   sessionCatchAction: {
     paddingHorizontal: 8,
@@ -16075,6 +16288,11 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     backgroundColor: '#eef7f4',
+  },
+  lureInventoryHeroCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 11,
   },
   lureInventoryImageFrame: {
     width: 124,
@@ -16202,6 +16420,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
+  techniqueDetailGridCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 12,
+  },
   techniqueImageFrame: {
     flexGrow: 1,
     flexBasis: 230,
@@ -16209,6 +16432,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 11,
+  },
+  lureInventoryImageFrameCompact: {
+    width: '100%',
+    height: 190,
+  },
+  techniqueImageFrameCompact: {
+    width: '100%',
+    maxWidth: '100%',
+    minHeight: 230,
   },
   techniqueImage: {
     width: '88%',
@@ -16219,6 +16451,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexBasis: 300,
     padding: 8,
+  },
+  techniqueCopyCompact: {
+    width: '100%',
+    padding: 2,
   },
   lureDetailView: {
     gap: 16,
