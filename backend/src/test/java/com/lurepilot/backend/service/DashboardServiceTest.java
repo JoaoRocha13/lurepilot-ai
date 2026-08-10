@@ -191,7 +191,7 @@ class DashboardServiceTest {
         when(fishingPlanRepository.count()).thenReturn(1L);
         when(fishingSessionRepository.count()).thenReturn(4L);
         when(fishingSessionRepository.countByStatus(FishingSessionStatus.FINISHED)).thenReturn(2L);
-        when(fishingSessionRepository.countBySuccessTrue()).thenReturn(1L);
+        when(fishingSessionRepository.countByStatusAndSuccessTrue(FishingSessionStatus.FINISHED)).thenReturn(1L);
         when(catchRepository.count()).thenReturn(2L);
         when(catchRepository.sumTotalQuantity()).thenReturn(3L);
         when(catchRepository.sumQuantityBySessionId(30L)).thenReturn(2L);

@@ -5,6 +5,12 @@ server:
     include-message: always
     include-binding-errors: always
 
+logging:
+  file:
+    name: ${LUREPILOT_LOG_FILE:logs/lurepilot-backend.log}
+  level:
+    root: ${LUREPILOT_LOG_LEVEL:INFO}
+
 spring:
   application:
     name: lurepilot-backend

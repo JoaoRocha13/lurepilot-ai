@@ -34,3 +34,9 @@ backend/target/
 # Local user-uploaded images
 uploads/
 backend/uploads/
+
+# Local operation artifacts
+logs/
+backups/
+.certs/
+.local-pids.json

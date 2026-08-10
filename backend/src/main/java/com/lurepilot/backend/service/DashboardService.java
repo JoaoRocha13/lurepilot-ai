@@ -78,7 +78,7 @@ public class DashboardService {
     public DashboardResponse getDashboard() {
         long totalSessions = fishingSessionRepository.count();
         long finishedSessions = fishingSessionRepository.countByStatus(FishingSessionStatus.FINISHED);
-        long successfulSessions = fishingSessionRepository.countBySuccessTrue();
+        long successfulSessions = fishingSessionRepository.countByStatusAndSuccessTrue(FishingSessionStatus.FINISHED);
         DashboardNextPlannedSessionResponse nextPlannedSession = findNextPlannedSession();
         DashboardBestLureResponse bestRecentLure = findBestRecentLure();
         DashboardWeatherSnapshotResponse relevantWeatherSnapshot = findRelevantWeatherSnapshot(nextPlannedSession)

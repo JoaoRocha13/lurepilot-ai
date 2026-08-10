@@ -33,9 +33,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 public class PlannerContextService {
+
+    private static final int MAX_HOURLY_CONTEXT_ENTRIES = 6;
 
     private final FishingPlanRepository fishingPlanRepository;
     private final FishingPlanLureRepository fishingPlanLureRepository;
@@ -85,7 +89,7 @@ public class PlannerContextService {
                 .toList();
 
         PlannerContextResponse.PlannerContextWeather weather = weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(planId)
-                .map(this::toWeatherContext)
+                .map(snapshot -> toWeatherContext(snapshot, plan))
                 .orElse(null);
         PlannerContextResponse.PlannerContextSolunar solunar = buildSolunarContext(plan, spot);
 
@@ -243,7 +247,7 @@ public class PlannerContextService {
                 .toList();
     }
 
-    private PlannerContextResponse.PlannerContextWeather toWeatherContext(WeatherSnapshot weatherSnapshot) {
+    private PlannerContextResponse.PlannerContextWeather toWeatherContext(WeatherSnapshot weatherSnapshot, FishingPlan plan) {
         return new PlannerContextResponse.PlannerContextWeather(
                 weatherSnapshot.getId(),
                 weatherSnapshot.getSource(),
@@ -265,20 +269,38 @@ public class PlannerContextService {
                 weatherSnapshot.getWindGustsKmh(),
                 weatherSnapshot.getSunrise(),
                 weatherSnapshot.getSunset(),
-                parseHourlyForecast(weatherSnapshot.getHourlyForecastJson())
+                parseHourlyForecast(weatherSnapshot.getHourlyForecastJson(), plan.getPlannedDate(), plan.getPlannedTime())
         );
     }
 
-    private List<WeatherHourlyResponse> parseHourlyForecast(String json) {
+    private List<WeatherHourlyResponse> parseHourlyForecast(String json, java.time.LocalDate plannedDate, java.time.LocalTime plannedTime) {
         if (json == null || json.isBlank()) {
             return List.of();
         }
 
         try {
-            return objectMapper.readValue(json, new TypeReference<>() {
+            List<WeatherHourlyResponse> forecast = objectMapper.readValue(json, new TypeReference<>() {
             });
+            if (forecast.size() <= MAX_HOURLY_CONTEXT_ENTRIES || plannedDate == null || plannedTime == null) {
+                return forecast.stream().limit(MAX_HOURLY_CONTEXT_ENTRIES).toList();
+            }
+
+            LocalDateTime plannedAt = LocalDateTime.of(plannedDate, plannedTime);
+            return forecast.stream()
+                    .sorted(Comparator.comparingLong(hour -> distanceFromPlannedTime(hour, plannedAt)))
+                    .limit(MAX_HOURLY_CONTEXT_ENTRIES)
+                    .sorted(Comparator.comparing(WeatherHourlyResponse::time, Comparator.nullsLast(Comparator.naturalOrder())))
+                    .toList();
         } catch (Exception exception) {
             return List.of();
+        }
+    }
+
+    private long distanceFromPlannedTime(WeatherHourlyResponse hour, LocalDateTime plannedAt) {
+        try {
+            return Math.abs(Duration.between(plannedAt, LocalDateTime.parse(hour.time())).toMinutes());
+        } catch (Exception exception) {
+            return Long.MAX_VALUE;
         }
     }
 

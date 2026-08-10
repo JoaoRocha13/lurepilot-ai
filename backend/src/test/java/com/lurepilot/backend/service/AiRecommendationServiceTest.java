@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
@@ -218,5 +219,35 @@ class AiRecommendationServiceTest {
         assertThat(response.confidenceScore()).isGreaterThanOrEqualTo(75);
         assertThat(response.confidenceReason()).contains("Historico de execucao");
         assertThat(response.confidenceReason()).contains("67%");
+    }
+
+    @Test
+    void createPlanRecommendationReturnsBadGatewayWhenLmStudioIsUnavailable() {
+        FishingSpot spot = new FishingSpot("Barragem Norte", null, 38.7, -9.1, "DAM", "BASS");
+        ReflectionTestUtils.setField(spot, "id", 10L);
+        FishingPlan plan = new FishingPlan(spot, LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), "BASS", "CLEAR", "LOW", null);
+        ReflectionTestUtils.setField(plan, "id", 1L);
+        PlannerContextResponse context = new PlannerContextResponse(
+                new PlannerContextResponse.PlannerContextPlan(1L, LocalDate.of(2026, 7, 24), LocalTime.of(19, 0), "BASS", "CLEAR", "LOW", null),
+                new PlannerContextResponse.PlannerContextSpot(10L, "Barragem Norte", null, 38.7, -9.1, "DAM", "BASS"),
+                null,
+                List.of(new PlannerContextResponse.PlannerContextLure(100L, "Vinil verde natural", "SOFT_BAIT", "GREEN", "10cm", 7.0, "Generic", "BASS", "DAM", null, null)),
+                List.of(),
+                List.of(),
+                new PlannerContextResponse.PlannerContextDataQuality(1, 0, 0, "medium", List.of())
+        );
+
+        when(fishingPlanRepository.findById(1L)).thenReturn(Optional.of(plan));
+        when(weatherSnapshotRepository.findFirstByPlanIdOrderByCapturedAtDescIdDesc(1L)).thenReturn(Optional.empty());
+        when(plannerContextService.buildContext(1L)).thenReturn(context);
+        when(lmStudioClient.createChatCompletion(anyString(), anyString()))
+                .thenThrow(new IllegalStateException("Connection refused"));
+
+        Throwable thrown = org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                aiRecommendationService.createPlanRecommendation(new CreateAiPlanRecommendationRequest(1L))
+        ).isInstanceOf(ResponseStatusException.class).actual();
+        ResponseStatusException exception = (ResponseStatusException) thrown;
+
+        assertThat(exception.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.BAD_GATEWAY);
     }
 }

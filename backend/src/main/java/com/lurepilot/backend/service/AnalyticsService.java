@@ -39,7 +39,7 @@ public class AnalyticsService {
     public AnalyticsSummaryResponse getSummary() {
         long totalSessions = fishingSessionRepository.count();
         long finishedSessions = fishingSessionRepository.countByStatus(FishingSessionStatus.FINISHED);
-        long successfulSessions = fishingSessionRepository.countBySuccessTrue();
+        long successfulSessions = fishingSessionRepository.countByStatusAndSuccessTrue(FishingSessionStatus.FINISHED);
         long totalRecommendationExecutions = recommendationExecutionRepository.count();
         long followedRecommendationExecutions = recommendationExecutionRepository.countByFollowedTrue();
         long successfulRecommendationExecutions = recommendationExecutionRepository.countBySuccessTrue();
@@ -48,7 +48,7 @@ public class AnalyticsService {
                 totalSessions,
                 finishedSessions,
                 successfulSessions,
-                rate(successfulSessions, totalSessions),
+                rate(successfulSessions, finishedSessions),
                 catchRepository.count(),
                 catchRepository.sumTotalQuantity(),
                 fishingSessionRepository.averageRating(),

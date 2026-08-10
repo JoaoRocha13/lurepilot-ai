@@ -290,3 +290,106 @@ docs/FishLog_AI_Project_Specification.docx
 ```
 
 Treat it as the source of truth for product direction and roadmap decisions.
+
+## Local Operation and VPN Access
+
+The supported near-term setup is local operation through a private VPN. The computer remains the host for the Vite frontend, Spring Boot backend, PostgreSQL and LM Studio; the iPhone only opens the frontend URL.
+
+Local PostgreSQL settings can be overridden through a root `.env` file copied from `.env.example`. Backend and frontend URL/AI/upload/log settings have their own examples in `backend/.env.example` and `frontend/.env.example`.
+
+Start the complete local stack from PowerShell:
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+For one-click startup, install a Desktop shortcut once:
+
+```powershell
+.\scripts\install-desktop-shortcut.ps1
+```
+
+After that, double-click `LurePilot AI` on the Desktop. It opens Docker Desktop when necessary, waits for PostgreSQL and the backend health check, then opens the app in the browser. The shortcut can be removed with `.\scripts\install-desktop-shortcut.ps1 -Remove`.
+
+The script starts PostgreSQL with Docker Compose, starts the backend and frontend when their ports are free, waits for the backend health endpoint, and writes backend/frontend/Docker logs under `logs/`. It prints the local URL and the URL pattern to use from the iPhone:
+
+```text
+http://<VPN-IP-OF-COMPUTER>:5173
+```
+
+The helper does not replace a process already using port `8080` or `5173`. If an older backend was started with a different `LUREPILOT_AI_BASE_URL`, stop that process and run the helper again so Windows-direct mode uses `http://localhost:1234/v1`.
+
+If the Maven wrapper is blocked by a local Windows policy, pass an installed Maven executable explicitly, for example `.\scripts\start-local.ps1 -MavenCommand 'C:\Program Files\Apache Maven\bin\mvn.cmd'`.
+
+### iPhone access through Tailscale
+
+The recommended VPN for the current single-user setup is [Tailscale](https://tailscale.com/download/). Install it on Windows and iPhone, sign in with the same account, and keep both devices connected. Tailscale gives the computer a private VPN address, normally in the `100.x.x.x` range. The iPhone does not need direct access to PostgreSQL, Spring Boot or LM Studio: it only connects to the Vite frontend, which proxies `/api` and `/uploads` to the local backend.
+
+Allow the frontend port through Windows Firewall. Run PowerShell as Administrator and limit the rule to the iPhone's Tailscale IP when possible:
+
+```powershell
+.\scripts\allow-firewall.ps1 -RemoteAddress <IPHONE-TAILSCALE-IP>
+```
+
+Start the app with the Desktop shortcut or with `.\scripts\start-local.ps1`. The script starts Docker/PostgreSQL, backend and frontend, then prints the available computer addresses. On the iPhone, with Tailscale connected, open the computer's Tailscale address:
+
+```text
+http://<COMPUTER-TAILSCALE-IP>:5173
+```
+
+Example:
+
+```text
+http://100.124.231.72:5173
+```
+
+The daily workflow is: start LM Studio, load `qwen2.5-7b-instruct` and start its local server; confirm Tailscale is connected; double-click the `LurePilot AI` Desktop shortcut; then open the saved Tailscale URL in Safari. Docker is started by the helper when necessary. The computer must remain powered on and connected to the internet while the iPhone uses the app. LM Studio is not started or loaded automatically by the shortcut.
+
+The backend and LM Studio do not need to be exposed to the iPhone. Vite proxies `/api` and `/uploads` to the local backend, and the backend keeps LM Studio on `localhost:1234`. Do not expose ports `8080`, `1234` or `5432` to the public internet.
+
+Stop processes started by the helper with:
+
+```powershell
+.\scripts\stop-local.ps1
+```
+
+The app supports importing photos and opening the iPhone photo/camera chooser through the browser file input. For Safari, use the file chooser first. If a future camera/PWA flow uses `getUserMedia` or installation requirements that reject HTTP, create a trusted local certificate with `mkcert`, include the computer VPN IP, and start with HTTPS:
+
+```powershell
+.\scripts\create-local-cert.ps1 -HostNames @('localhost', '127.0.0.1', '<VPN-IP-OF-COMPUTER>')
+.\scripts\start-local.ps1 -Https
+```
+
+Safari must trust the `mkcert` local certificate authority on the iPhone. The current HTTP setup is enough to validate normal navigation and file import; camera APIs that require a secure context need the HTTPS setup. Do not expose the backend or LM Studio directly to the public internet.
+
+## Backups and Recovery
+
+The database and user photos are local state. Create a PostgreSQL dump and an uploads archive with:
+
+```powershell
+.\scripts\backup-local.ps1
+```
+
+Backups are written to `backups/<timestamp>/`. Keep the `lurepilot.dump` file and `uploads.zip` together. The script keeps the seven most recent backup folders by default. The PostgreSQL container must be running.
+
+Operational failure behavior is intentional:
+
+- if LM Studio is stopped or has no loaded model, AI endpoints return a clear upstream error and the frontend shows a retryable message;
+- if Open-Meteo is unavailable, weather and Solunar panels show an unavailable state without deleting saved data;
+- if the backend or database is unavailable, dashboard/list screens show loading/error states and retry controls;
+- uploaded images are stored under `backend/uploads` and are excluded from Git, so they can be backed up independently.
+
+## End-to-End Verification Checklist
+
+Use the running local stack to verify the real flow:
+
+1. Create a plan with a spot, target species and selected lures.
+2. Refresh the plan weather snapshot and open the Solunar forecast.
+3. Create and start a fishing session from the plan.
+4. Generate the AI recommendation and try a session adjustment.
+5. Register a catch with an imported or camera photo.
+6. Finish the session with success or failure and its duration.
+7. Generate/save/evaluate the recommendation and review the session.
+8. Open Gallery and Analytics to confirm the catch, session result and history are present.
+
+For resilience, repeat the AI step with LM Studio stopped, repeat weather with internet unavailable, and restart the local stack after running `backup-local.ps1` to confirm that PostgreSQL data and uploaded images remain available.

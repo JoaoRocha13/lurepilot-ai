@@ -12,11 +12,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -101,5 +104,17 @@ class WeatherSnapshotServiceTest {
         assertThat(response.windDirection()).isEqualTo("NW");
         assertThat(response.windSpeedKmh()).isEqualTo(12.0);
         assertThat(response.hourlyForecast()).hasSize(1);
+    }
+
+    @Test
+    void createSnapshotForCoordinatesReturnsBadGatewayWhenOpenMeteoIsUnavailable() {
+        when(openMeteoClient.getForecast(38.76, -9.13)).thenThrow(new IllegalStateException("Network unavailable"));
+
+        assertThatThrownBy(() -> weatherSnapshotService.createSnapshotForCoordinates(
+                new CreateWeatherCoordinateSnapshotRequest(38.76, -9.13, LocalDate.of(2026, 8, 6))
+        ))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception ->
+                        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY)
+                );
     }
 }

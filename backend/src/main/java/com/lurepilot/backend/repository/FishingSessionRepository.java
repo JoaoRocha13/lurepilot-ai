@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface FishingSessionRepository extends JpaRepository<FishingSession, Long>, JpaSpecificationExecutor<FishingSession> {
 
-    long countBySuccessTrue();
+    long countByStatusAndSuccessTrue(FishingSessionStatus status);
 
     long countByStatus(FishingSessionStatus status);
 
