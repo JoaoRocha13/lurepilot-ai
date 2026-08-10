@@ -79,6 +79,26 @@ Finish session
       <p align="center"><strong>Catch Gallery</strong><br />Photo-first history connected to sessions and spots.</p>
     </td>
   </tr>
+  <tr>
+    <td width="50%">
+      <img src="docs/screenshots/spots.png" alt="Fishing spots screen" width="100%" />
+      <p align="center"><strong>Fishing Spots</strong><br />Map-based location selection with species and water context.</p>
+    </td>
+    <td width="50%">
+      <img src="docs/screenshots/session.png" alt="Fishing session screen" width="100%" />
+      <p align="center"><strong>Fishing Sessions</strong><br />Active sessions, catches, results and duration tracking.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="docs/screenshots/lure-box.png" alt="Personal lure box screen" width="100%" />
+      <p align="center"><strong>Personal Lure Box</strong><br />An inventory-style space for the user's own lures.</p>
+    </td>
+    <td width="50%">
+      <img src="docs/screenshots/dashboard.png" alt="Dashboard overview screen" width="100%" />
+      <p align="center"><strong>Command Dashboard</strong><br />The main operational view for the next fishing decision.</p>
+    </td>
+  </tr>
 </table>
 
 ## What Is Implemented
